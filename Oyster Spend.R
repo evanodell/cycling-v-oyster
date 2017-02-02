@@ -20,10 +20,10 @@ oyster_card <- 126.80/30
 
 bike_average <- mean(bike_data[["Bike"]])
 
-travel_summary <- data.frame(bike_total = sum(bike_data[["Bike"]]),
-                         oyster_total = sum(bike_data[["Oyster"]]),
-                         current_total = sum(bike_data[["Oyster"]]) + sum(bike_data[["Bike"]]),
-                         travelcard_total = nrow(bike_data) * oyster_card
+travel_summary <- data.frame(bike_total = round(sum(bike_data[["Bike"]]),2),
+                         oyster_total = round(sum(bike_data[["Oyster"]]),2),
+                         current_total = round(sum(bike_data[["Oyster"]]) + sum(bike_data[["Bike"]]),2),
+                         travelcard_total = round(nrow(bike_data) * oyster_card,2)
 )
 
 #total_savings <-
@@ -95,17 +95,15 @@ p1 <- ggplot(oyster_roll_gg, aes(x=Date)) +
 p1
 
 
-
-
 p2 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = value)) +
   geom_bar(stat = "identity", position = position_dodge(width=0.5)) +
-  geom_text(aes(y = value + 0.1, label=paste0("#", value)), position = position_dodge(0.9), vjust = -0.25) +
-  scale_y_continuous(name="Total Spending from 2016-06-30 to 2017-01-31", labels = pound) +
+  geom_text(aes(y = value + 0.1, label=paste0("£", value)), position = position_dodge(0.9), vjust = -0.25, fontface = "bold") +
+  scale_y_continuous(name="Total Spending from 2016-06-30 to 2017-02-03", labels = pound) +
   scale_x_discrete(name="Type of Spending") +
   ggtitle("Total Cost of Different Transport Modes") +
   theme(legend.position = "bottom") +
-  annotate("text", x = 1.5, y = 750, label=paste0("Total Savings: £", total_savings)) +
-  annotate("rect", xmin = 1, xmax = 2.0, ymin = 720, ymax = 780,
+  annotate("text", x = 1.5, y = 750, label=paste0("Total Savings: £", total_savings), fontface = "bold") +
+  annotate("rect", xmin = 0.9, xmax = 2.1, ymin = 720, ymax = 780,
                alpha = .2, colour = "blue", fill = "blue") +
   scale_fill_discrete("")
 
