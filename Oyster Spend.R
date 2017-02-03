@@ -103,7 +103,7 @@ p2 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = val
   ggtitle("Total Cost of Different Transport Modes") +
   theme(legend.position = "bottom") +
   annotate("text", x = 1.5, y = 750, label=paste0("Difference: £", total_savings), fontface = "bold") +
-  annotate("rect", xmin = 0.9, xmax = 2.1, ymin = 720, ymax = 780,
+  annotate("rect", xmin = 1.1, xmax = 1.9, ymin = 720, ymax = 780,
                alpha = .2, colour = "blue", fill = "blue") +
   scale_fill_discrete("")
 
