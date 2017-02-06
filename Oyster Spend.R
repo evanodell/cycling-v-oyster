@@ -26,8 +26,6 @@ travel_summary <- data.frame(bike_total = round(sum(bike_data[["Bike"]]),2),
                          travelcard_total = round(nrow(bike_data) * oyster_card,2)
 )
 
-#total_savings <-
-
 total_savings <- sprintf("%.2f", round(travel_summary$travelcard_total - travel_summary$current_total, 2))
 
 travel_summary$class <- NA
@@ -82,7 +80,7 @@ p1 <- ggplot(oyster_roll_gg, aes(x=Date)) +
                         guide = guide_legend(title = NULL, override.aes = list(color = c("#b5000e", "#01e245")))) +
   geom_line(aes(y=value, col = variable), size=1) +
   scale_color_discrete("") +
-  #geom_text(aes(x=min(Date), y=bike_average, label = "Bicycle Cost",hjust = "left", vjust = -0.5)) +
+  #geom_text(aes(x=min(Date), y=bike_average, label = "Bicycle Cost", hjust = "left", vjust = -0.5)) +
   #geom_text(aes(x=min(Date), y=oyster_card, label = "Monthly Zone 1-2 Travel Card", hjust = "left", vjust = -0.5)) +
   scale_x_date(date_breaks = "1 week") +
   scale_y_continuous(name="Charge over previous 7 days", labels = pound) +
@@ -102,8 +100,8 @@ p2 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = val
   scale_x_discrete(name="Type of Spending") +
   ggtitle("Total Cost of Different Transport Modes") +
   theme(legend.position = "bottom") +
-  annotate("text", x = 1.5, y = 750, label=paste0("Total Savings: £", total_savings), fontface = "bold") +
-  annotate("rect", xmin = 0.9, xmax = 2.1, ymin = 720, ymax = 780,
+  annotate("text", x = 1.5, y = 750, label=paste0("Difference: £", total_savings), fontface = "bold") +
+  annotate("rect", xmin = 1.15, xmax = 1.85, ymin = 720, ymax = 780,
                alpha = .2, colour = "blue", fill = "blue") +
   scale_fill_discrete("")
 
