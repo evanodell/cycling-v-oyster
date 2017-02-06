@@ -26,8 +26,6 @@ travel_summary <- data.frame(bike_total = round(sum(bike_data[["Bike"]]),2),
                          travelcard_total = round(nrow(bike_data) * oyster_card,2)
 )
 
-#total_savings <-
-
 total_savings <- sprintf("%.2f", round(travel_summary$travelcard_total - travel_summary$current_total, 2))
 
 travel_summary$class <- NA
