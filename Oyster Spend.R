@@ -22,15 +22,17 @@ summary(bike_data)
 
 oyster_card <- 126.80/30
 
-bike_locker <- ((nrow(bike_data)/365) * 60)/nrow(bike_data) ## Cost of bike locker, pro-rated
+bike_locker_avg <- ((nrow(bike_data)/365) * 60)/nrow(bike_data) ## Daily cost of bike locker, pro-rated
 
-"Average Bicycle Cost per Day" <- mean(bike_data[["Bike"]]) + bike_locker ##Once with label name, once with short variable name, because sometimes I'm lazy and ignore best practices. Don't judge me, you do it too.
+bike_locker_sum <- (nrow(bike_data)/365) * 60 ###Total bike locker spend, pro-rated
 
-bike_average <- mean(bike_data[["Bike"]]) + bike_locker ##Once with label name, once with short variable name, because sometimes I'm lazy and ignore best practices. Don't judge me, you do it too.
+"Average Bicycle Cost per Day" <- mean(bike_data[["Bike"]]) + bike_locker_avg ##Once with label name, once with short variable name, because sometimes I'm lazy and ignore best practices. Don't judge me, you do it too.
 
-travel_summary <- data.frame(bike_total = round(sum(bike_data[["Bike"]]),2),
+bike_average <- mean(bike_data[["Bike"]]) + bike_locker_avg ##Once with label name, once with short variable name, because sometimes I'm lazy and ignore best practices. Don't judge me, you do it too.
+
+travel_summary <- data.frame(bike_total = round(sum(bike_data[["Bike"]], bike_locker_sum),2),
                          oyster_total = round(sum(bike_data[["Oyster"]]),2),
-                         current_total = round(sum(bike_data[["Oyster"]]) + sum(bike_data[["Bike"]]),2),
+                         current_total = round(sum(bike_data[["Oyster"]]) + sum(bike_data[["Bike"]], bike_locker_sum),2),
                          travelcard_total = round(nrow(bike_data) * oyster_card,2)
 )
 
