@@ -1,11 +1,12 @@
 
 
 library(readr)
-bike_data <- read_csv("Cycling and Oyster.csv",
-                                    col_types = cols(Date = col_date(format = "%d/%m/%Y")))
+# If using default excel date format in CSV
+#bike_data <- read_csv("cycling_oyster_data.csv",
+#                                    col_types = cols(Date = col_date(format = "%d/%m/%Y")))
 
-## If other format
-bike_data <- read_csv("Cycling and Oyster.csv",
+## If using ISO 8601 format (as you should be)
+bike_data <- read_csv("cycling_oyster_data.csv",
                       col_types = cols(Date = col_date(format = "%Y-%m-%d")))
 
 
@@ -17,13 +18,15 @@ library(grid)
 
 summary(bike_data)
 
-"Average Monthly Travelcard Cost per Day" <- 126.80/30
+"Average Monthly Travelcard Cost per Day" <- 126.80/30  ##Once with label name, once with short variable name, because sometimes I'm lazy and ignore best practices. Don't judge me, you do it too.
 
 oyster_card <- 126.80/30
 
-"Average Bicycle Cost per Day" <- mean(bike_data[["Bike"]])
+bike_locker <- ((nrow(bike_data)/365) * 60)/nrow(bike_data) ## Cost of bike locker, pro-rated
 
-bike_average <- mean(bike_data[["Bike"]])
+"Average Bicycle Cost per Day" <- mean(bike_data[["Bike"]]) + bike_locker ##Once with label name, once with short variable name, because sometimes I'm lazy and ignore best practices. Don't judge me, you do it too.
+
+bike_average <- mean(bike_data[["Bike"]]) + bike_locker ##Once with label name, once with short variable name, because sometimes I'm lazy and ignore best practices. Don't judge me, you do it too.
 
 travel_summary <- data.frame(bike_total = round(sum(bike_data[["Bike"]]),2),
                          oyster_total = round(sum(bike_data[["Oyster"]]),2),
