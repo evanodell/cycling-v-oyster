@@ -9,7 +9,6 @@ library(readr)
 bike_data <- read_csv("cycling_oyster_data.csv",
                       col_types = cols(Date = col_date(format = "%Y-%m-%d")))
 
-
 library(zoo)
 library(ggplot2)
 library(data.table)
@@ -99,8 +98,6 @@ p1 <- ggplot(oyster_roll_gg, aes(x=Date)) +
   geom_text(aes(label = "Monthly Zone 1-2 Travelcard", x = max(Date), y = oyster_card, hjust= "right", vjust = 1))
 
 p1
-
-
 
 p2 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = value)) +
   geom_bar(stat = "identity", position = position_dodge(width=0.5)) +
