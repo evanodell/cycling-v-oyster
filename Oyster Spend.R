@@ -101,6 +101,7 @@ p1 <- ggplot(oyster_roll_gg, aes(x=Date)) +
 p1
 
 
+
 p2 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = value)) +
   geom_bar(stat = "identity", position = position_dodge(width=0.5)) +
   geom_text(aes(y = value + 0.1, label=paste0("£", value)), position = position_dodge(0.9), vjust = -0.25, fontface = "bold") +
