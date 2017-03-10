@@ -51,7 +51,7 @@ travel_summary$variable[travel_summary$variable == "bike_total"] <- "Bike Total"
 travel_summary$variable[travel_summary$variable == "oyster_total"] <- "Oyster Total"
 travel_summary$variable[travel_summary$variable == "current_total"] <- "Current Total"
 travel_summary$variable[travel_summary$variable == "travelcard_total"] <- "Hypothetical Travelcard Total"
-travel_summary$variable <- factor(travel_summary$variable, levels=c("Bike Total", "Oyster Total", "Current Total", "Travelcard Total"))
+travel_summary$variable <- factor(travel_summary$variable, levels=c("Bike Total", "Oyster Total", "Current Total", "Hypothetical Travelcard Total"))
 
 oyster_ts <- zoo(bike_data$Oyster, order.by=bike_data$Date)
 
