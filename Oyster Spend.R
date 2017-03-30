@@ -89,7 +89,7 @@ p1 <- ggplot(oyster_roll_gg, aes(x=Date)) +
                         guide = guide_legend(title = NULL, override.aes = list(color = c("#b5000e", "#01e245")))) +
   geom_line(aes(y=value, col = variable), size=1) +
   scale_color_discrete("") +
-  scale_x_date(date_breaks = "1 week") +
+  scale_x_date(date_breaks = "1 month") +
   scale_y_continuous(name="Charge over previous 7 days", labels = pound) +
   theme(legend.position = "bottom", axis.text.x = element_text(angle = 30, hjust = 1)) +
   ggtitle("Cycling vs Travelcard") +
