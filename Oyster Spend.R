@@ -5,7 +5,7 @@ library(readr)
 #bike_data <- read_csv("cycling_oyster_data.csv",
 #                                    col_types = cols(Date = col_date(format = "%d/%m/%Y")))
 
-## If using ISO 8601 format (as you should be)
+## If using ISO 8601 format for dates (as you should be)
 bike_data <- read_csv("cycling_oyster_data.csv",
                       col_types = cols(Date = col_date(format = "%Y-%m-%d")))
 
