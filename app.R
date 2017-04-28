@@ -63,7 +63,7 @@ server <- function(input, output) {
                                travelcard_total = round(nrow(bike_data) * oyster_card,2)
   )
   
-  total_savings <- paste0("Difference: £", sprintf("%.2f", round(travel_summary$travelcard_total - travel_summary$current_total, 2)))
+  total_savings <- sprintf("%.2f", round(travel_summary$travelcard_total - travel_summary$current_total, 2))
   
   output$savings <- renderText(paste0("Total savings from cycling instead of using public transit: ", total_savings))
   
