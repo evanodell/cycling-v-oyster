@@ -60,6 +60,7 @@ ui <- fluidPage(
   column(8,
          
          fluidRow(
+           em(h4(textOutput("last_update"))),
            h4("Total Spending"),
            div(id = "plot-container",
                tags$img(src = "spinner.gif",
@@ -86,6 +87,8 @@ server <- function(input, output) {
   show("app-content")
   
   bike_data <- read_csv("cycling_oyster_data.csv", col_types = cols(Date = col_date(format = "%Y-%m-%d")))
+  
+  output$last_update <- renderText(paste0("Last Updated: ", max(bike_data$Date)))
   
   output$p2_text <- renderText(paste0("The red and green bars are total spending on my bike and related accessories and my pay-as-you-go Oyster spending, respectively. The blue bar is the combined total of bicycle and pay-as-you-go spending, and the purple bar is the hypothetical total spending of monthly travelcards covering 2016-06-30 to ",max(bike_data$Date),"."))
   
