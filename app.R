@@ -25,12 +25,9 @@ z-index: -2;
 }
 "
 
-
-
 ui <- fluidPage(
   tags$head(tags$style(HTML(mycss))),
   
- 
   column(2),
   column(8,
          
@@ -56,9 +53,6 @@ ui <- fluidPage(
   column(2))
 
 server <- function(input, output) {
-  
-  hide(id = "loading-content", anim = TRUE, animType = "fade")    
-  show("app-content")
   
   bike_data <- read_csv("cycling_oyster_data.csv", col_types = cols(Date = col_date(format = "%Y-%m-%d")))
   
