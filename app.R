@@ -69,7 +69,7 @@ ui <- fluidPage(
            em(textOutput("p2_text"))),
          
          fluidRow(
-           h4("Time Series of Spending on Pay-As-You-Go Oyster and on Cycling"),
+           h4("Time Series of Spending on Pay-As-You-Go Oyster and Cycling"),
            div(id = "plot-container",
                tags$img(src = "spinner.gif",
                         id = "loading-spinner"),
@@ -77,7 +77,7 @@ ui <- fluidPage(
            em(textOutput("p1_text"))),
          
          fluidRow(
-           h3(textOutput("savings")))
+           em(h4(textOutput("savings"))))
   ),
   column(2))))
 
@@ -160,18 +160,7 @@ server <- function(input, output) {
   
   output$p1 <- renderPlot({
     
-    p1 <- ggplot(oyster_roll_gg, aes(x=Date)) +
-      geom_hline(aes(yintercept=bike_average, linetype="Bicycle Cost Average"), colour = "#b5000e", size=1) +
-      geom_hline(aes(yintercept=oyster_card,linetype="Monthly Travelcard Average"), color = "#01e245", size=1) +
-      scale_linetype_manual(values = c(2, 2),
-                            guide = guide_legend(title = NULL, override.aes = list(color = c("#b5000e", "#01e245")))) +
-      geom_line(aes(y=value, col = variable), size=1) +
-      scale_color_discrete("") +
-      scale_x_date(date_breaks = "1 month") +
-      scale_y_continuous(name="Charge over previous 7 days", labels = pound) +
-      theme(legend.position = "bottom", axis.text.x = element_text(angle = 30, hjust = 1)) +
-      guides(col = guide_legend(ncol = 2, bycol = FALSE)) +
-      geom_text(aes(label = "Bicycle Cost", x = max(Date), y = bike_average, hjust= "right", vjust = 1)) +
+    p1 <- ggplot(oyster_roll_gg, aes(x=Date)) + geom_hline(aes(yintercept=bike_average, linetype="Bicycle Cost Average"), colour = "#b5000e", size=1) + geom_hline(aes(yintercept=oyster_card,linetype="Monthly Travelcard Average"), color = "#01e245", size=1) + scale_linetype_manual(values = c(2, 2), guide = guide_legend(title = NULL, override.aes = list(color = c("#b5000e", "#01e245")))) + geom_line(aes(y=value, col = variable), size=1) + scale_color_discrete("") + scale_x_date(date_breaks = "1 month") + scale_y_continuous(name="Charge over previous 7 days", labels = pound) + theme(legend.position = "bottom", axis.text.x = element_text(angle = 30, hjust = 1)) + guides(col = guide_legend(ncol = 2, bycol = FALSE)) + geom_text(aes(label = "Bicycle Cost", x = max(Date), y = bike_average, hjust= "right", vjust = 1)) +
       geom_text(aes(label = "Monthly Zone 1-2 Travelcard", x = max(Date), y = oyster_card, hjust= "right", vjust = 1))
     
     print(p1)
@@ -180,14 +169,8 @@ server <- function(input, output) {
   
   output$p2 <- renderPlot({
     
-    p2 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = value)) +
-      geom_bar(stat = "identity", position = position_dodge(width=0.5)) +
-      geom_text(aes(y = value + 0.1, label=paste0("£", value)), position = position_dodge(0.9), vjust = -0.25, fontface = "bold") +
-      scale_y_continuous(name="Total Spending from 2016-06-30 to 2017-02-03", labels = pound) +
-      scale_x_discrete(name="Type of Spending") +
-      theme(legend.position = "bottom") +
-      scale_fill_discrete("")
-    
+    p2 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = value)) + geom_bar(stat = "identity", position = position_dodge(width=0.5)) + geom_text(aes(y = value + 0.1, label=paste0("£", value)), position = position_dodge(0.9), vjust = -0.25, fontface = "bold") + scale_y_continuous(name="Total Spending from 2016-06-30 to 2017-02-03", labels = pound) + scale_x_discrete(name="Type of Spending") + theme(legend.position = "bottom") + scale_fill_discrete("")
+
     print(p2)
     
   })
