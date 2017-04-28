@@ -11,20 +11,38 @@ library(readr)
 appCSS <- "
 #loading-content {
   position: absolute;
-  background: #000000;
+  background: #FFF;
   opacity: 0.9;
   z-index: 100;
   left: 0;
   right: 0;
   height: 100%;
   text-align: center;
-  color: #FFFFFF;
+  color: #000000;
+}
+"
+
+mycss <- "
+#plot-container {
+position: relative;
+}
+#loading-spinner {
+position: absolute;
+left: 50%;
+top: 50%;
+z-index: -1;
+margin-top: -33px;  /* half of the spinner's height */
+margin-left: -33px; /* half of the spinner's width */
+}
+#plot.recalculating {
+z-index: -2;
 }
 "
 
 
+
 ui <- fluidPage(
-  
+  tags$head(tags$style(HTML(mycss))),
   useShinyjs(),
   inlineCSS(appCSS),
   
@@ -43,12 +61,18 @@ ui <- fluidPage(
          
          fluidRow(
            h4("Total Spending"),
-           plotOutput("p2"),
+           div(id = "plot-container",
+               tags$img(src = "spinner.gif",
+                        id = "loading-spinner"),
+               plotOutput("p2")),
            em(textOutput("p2_text"))),
          
          fluidRow(
            h4("Time Series of Spending on Pay-As-You-Go Oyster and on Cycling"),
-           plotOutput("p1"),
+           div(id = "plot-container",
+               tags$img(src = "spinner.gif",
+                        id = "loading-spinner"),
+               plotOutput("p1")),
            em(textOutput("p1_text"))),
          
          fluidRow(
@@ -63,7 +87,7 @@ server <- function(input, output) {
   
   bike_data <- read_csv("cycling_oyster_data.csv", col_types = cols(Date = col_date(format = "%Y-%m-%d")))
   
-  output$p2_text <- renderText(paste0("The red and green bars are total spending on my bike and related accessories and my pay-as-you-go Oyster spending, respectively. The blue bar is the combined total of bicycle and pay-as-you-go spending, and the purple bar is the hypothetical total spending of monthly travelcards covering 2016-06-30 to ",max(bike_data$Date)))
+  output$p2_text <- renderText(paste0("The red and green bars are total spending on my bike and related accessories and my pay-as-you-go Oyster spending, respectively. The blue bar is the combined total of bicycle and pay-as-you-go spending, and the purple bar is the hypothetical total spending of monthly travelcards covering 2016-06-30 to ",max(bike_data$Date),"."))
   
   pound <- function(x) {
     paste0("£",format(x, big.mark = " ",
