@@ -1,20 +1,53 @@
 
 
 library(shiny)
+#library(shinyjs)
+library(zoo)
+library(ggplot2)
+library(data.table)
+#library(scales)
+library(readr)
+
+mycss <- "
+#plot-container {
+position: relative;
+}
+#loading-spinner {
+position: absolute;
+left: 50%;
+top: 50%;
+z-index: -1;
+margin-top: -33px;  /* half of the spinner's height */
+margin-left: -33px; /* half of the spinner's width */
+}
+#plot.recalculating {
+z-index: -2;
+}
+"
+
+
 
 ui <- fluidPage(
+  tags$head(tags$style(HTML(mycss))),
   
+ 
   column(2),
   column(8,
          
          fluidRow(
            h4("Total Spending"),
-           plotOutput("p2"),
+           div(id = "plot-container",
+               tags$img(src = "spinner.gif",
+                        id = "loading-spinner"),
+           plotOutput("p2")),
            em(textOutput("p2_text"))),
          
          fluidRow(
            h4("Time Series of Spending on Pay-As-You-Go Oyster and on Cycling"),
-           plotOutput("p1"),
+           div(id = "plot-container",
+               tags$img(src = "spinner.gif",
+                        id = "loading-spinner"),
+               plotOutput("p1")),
            em(textOutput("p1_text"))),
          
          fluidRow(
@@ -24,12 +57,8 @@ ui <- fluidPage(
 
 server <- function(input, output) {
   
-  library(zoo)
-  library(ggplot2)
-  library(data.table)
-  library(scales)
-  library(grid)
-  library(readr)
+  hide(id = "loading-content", anim = TRUE, animType = "fade")    
+  show("app-content")
   
   bike_data <- read_csv("cycling_oyster_data.csv", col_types = cols(Date = col_date(format = "%Y-%m-%d")))
   
