@@ -1,31 +1,20 @@
-#
-# This is a Shiny web application. You can run the application by clicking
-# the 'Run App' button above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
+
 
 library(shiny)
 
-# Define UI for application that draws a histogram
 ui <- fluidPage(
-   
-   # Application title
-   titlePanel("Cycling Vs Oyster"),
-   
-   # Sidebar with a slider input for number of bins 
-      
-        textOutput("last_update"),
-   fluidRow(
-        plotOutput("p1",width = "75%")),
-   fluidRow(
-     plotOutput("p2",width = "50%")),
-   fluidRow(
-        textOutput("savings"))
-         
 
+        fluidRow(
+          h4("Total Spending"),
+          plotOutput("p2",width = "75%"),
+          em("The green horizontal line represents the average daily cost of a monthly zone 1-2 travelcard in London (£4.23 per day), and the burgundy horizontal line represents the average daily cost of my bicycle and accessories (£2.06 per day). The light blue line is a rolling monthly average of daily pay-as-you-go Oyster spending, and the light red line is pay-as-you-go Oyster spending combined with daily bike costs.")),
+   fluidRow(
+     h4("Time Series of Spending on Pay-As-You-Go Oyster and on Cycling"),
+        plotOutput("p1"),
+     em(textOutput("last_update"))),
+   
+   fluidRow(
+        h3(textOutput("savings")))
    )
 
 server <- function(input, output) {
@@ -36,11 +25,10 @@ server <- function(input, output) {
   library(scales)
   library(grid)
   library(readr)
-  bike_data <- read_csv("cycling_oyster_data.csv",
-                        col_types = cols(Date = col_date(format = "%Y-%m-%d")))
   
-
-  output$last_update <- renderText(paste0("Last Updated: ",max(bike_data$Date)))
+  bike_data <- read_csv("cycling_oyster_data.csv", col_types = cols(Date = col_date(format = "%Y-%m-%d")))
+  
+  output$last_update <- renderText(paste0("The red and green bars are total spending on my bike and related accessories and my pay-as-you-go Oyster spending, respectively. The blue bar is the combined total of bicycle and pay-as-you-go spending, and the purple bar is the hypothetical total spending of monthly travelcards covering 2016-06-30 to ",max(bike_data$Date)))
   
   pound <- function(x) {
     paste0("£",format(x, big.mark = " ",
@@ -70,7 +58,7 @@ server <- function(input, output) {
   
   total_savings <- paste0("Difference: £", sprintf("%.2f", round(travel_summary$travelcard_total - travel_summary$current_total, 2)))
   
-  output$savings <- renderText(total_savings)
+  output$savings <- renderText(paste0("Total savings from cycling instead of using public transit: ", total_savings))
   
   travel_summary$class <- NA
   
