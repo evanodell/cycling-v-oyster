@@ -61,7 +61,7 @@ ui <- fluidPage(
          
          fluidRow(
            em(h4(textOutput("last_update"))),
-           h4("Total Spending"),
+           h4("Total Spending and Combined Spending:"),
            div(id = "plot-container",
                tags$img(src = "spinner.gif",
                         id = "loading-spinner"),
@@ -69,7 +69,7 @@ ui <- fluidPage(
            em(textOutput("p2_text"))),
          
          fluidRow(
-           h4("Time Series of Spending on Pay-As-You-Go Oyster and Cycling"),
+           h4("Time Series of Spending on Pay-As-You-Go Oyster and Cycling:"),
            div(id = "plot-container",
                tags$img(src = "spinner.gif",
                         id = "loading-spinner"),
@@ -90,7 +90,9 @@ server <- function(input, output) {
   
   output$last_update <- renderText(paste0("Last Updated: ", max(bike_data$Date)))
   
-  output$p2_text <- renderText(paste0("The red and green bars are total spending on my bike and related accessories and my pay-as-you-go Oyster spending, respectively. The blue bar is the combined total of bicycle and pay-as-you-go spending, and the purple bar is the hypothetical total spending of monthly travelcards covering 2016-06-30 to ",max(bike_data$Date),"."))
+  days_covered <- as.character(max(bike_data$Date) - min(bike_data$Date))
+  
+  output$p2_text <- renderText(paste0("The red and green bars are total spending on my bike and related accessories and my pay-as-you-go Oyster spending, respectively. The blue bar is the combined total of bicycle and pay-as-you-go spending, and the purple bar is the hypothetical total spending of monthly travelcards covering ", days_covered, " days from 2016-06-30 to ",max(bike_data$Date),"."))
   
   pound <- function(x) {
     paste0("£",format(x, big.mark = " ",
@@ -132,9 +134,9 @@ server <- function(input, output) {
   travel_summary$variable <- as.character(travel_summary$variable)
   travel_summary$variable[travel_summary$variable == "bike_total"] <- "Bike Total"
   travel_summary$variable[travel_summary$variable == "oyster_total"] <- "Oyster Total"
-  travel_summary$variable[travel_summary$variable == "current_total"] <- "Current Total"
+  travel_summary$variable[travel_summary$variable == "current_total"] <- "Combined Total"
   travel_summary$variable[travel_summary$variable == "travelcard_total"] <- "Hypothetical Travelcard Total"
-  travel_summary$variable <- factor(travel_summary$variable, levels=c("Bike Total", "Oyster Total", "Current Total", "Hypothetical Travelcard Total"))
+  travel_summary$variable <- factor(travel_summary$variable, levels=c("Bike Total", "Oyster Total", "Combined Total", "Hypothetical Travelcard Total"))
   
   oyster_ts <- zoo(bike_data$Oyster, order.by=bike_data$Date)
   
