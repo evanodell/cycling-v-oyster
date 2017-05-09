@@ -39,8 +39,6 @@ z-index: -2;
 }
 "
 
-
-
 ui <- fluidPage(
   tags$head(tags$style(HTML(mycss))),
   useShinyjs(),
@@ -50,7 +48,6 @@ ui <- fluidPage(
     id = "loading-content",
     h2("Loading...")
   ),
-  
   
   hidden(
     div(
@@ -92,7 +89,7 @@ server <- function(input, output) {
   
   days_covered <- as.character(max(bike_data$Date) - min(bike_data$Date))
   
-  output$p2_text <- renderText(paste0("The red and green bars are total spending on my bike and related accessories and my pay-as-you-go Oyster spending, respectively. The blue bar is the combined total of bicycle and pay-as-you-go spending, and the purple bar is the hypothetical total spending of monthly travelcards covering ", days_covered, " days from 2016-06-30 to ",max(bike_data$Date),"."))
+  output$p2_text <- renderText(paste0("The red and green bars are total spending on my bike and related accessories and my pay-as-you-go Oyster spending, respectively. The blue bar is the combined total of bicycle and pay-as-you-go spending, and the purple bar is the hypothetical total spending of monthly travelcards covering ", days_covered, " days, from 2016-06-30 to ",max(bike_data$Date),"."))
   
   pound <- function(x) {
     paste0("£",format(x, big.mark = " ",
@@ -176,7 +173,6 @@ server <- function(input, output) {
     print(p2)
     
   })
-  
   
 }
 
