@@ -3,9 +3,8 @@ title: cycling-v-oyster
 account: evanodell
 server: shinyapps.io
 appId: 179089
-bundleId: 820415
+bundleId: 824226
 url: https://evanodell.shinyapps.io/cycling-v-oyster/
-when: 1494322307.04016
+when: 1494504508.01558
 asMultiple: FALSE
 asStatic: FALSE
-ignoredFiles: .RData
