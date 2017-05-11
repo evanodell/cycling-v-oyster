@@ -1,10 +1,10 @@
 name: cycling-v-oyster
-title: cycling-v-oyster
+title:
 account: evanodell
 server: shinyapps.io
 appId: 179089
-bundleId: 824244
+bundleId: 824251
 url: https://evanodell.shinyapps.io/cycling-v-oyster/
-when: 1494505552.32108
+when: 1494505730.45245
 asMultiple: FALSE
 asStatic: FALSE
