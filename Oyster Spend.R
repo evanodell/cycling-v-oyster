@@ -82,11 +82,24 @@ pound <- function(x) {
                     trim = TRUE, scientific = FALSE))
   }
 
-p1 <- ggplot(oyster_roll_gg, aes(x=Date)) +
-  geom_hline(aes(yintercept=bike_average, linetype="Average Bicycle Cost per Day"), colour = "#b5000e", size=1) +
-  geom_hline(aes(yintercept=oyster_card,linetype="Average Monthly Travelcard Cost per Day"), color = "#01e245", size=1) +
-  scale_linetype_manual(values = c(2, 2),
-                        guide = guide_legend(title = NULL, override.aes = list(color = c("#b5000e", "#01e245")))) +
+p1 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = value)) +
+  geom_bar(stat = "identity", position = position_dodge(width=0.5)) +
+  geom_text(aes(y = value + 0.1, label=paste0("£", value)), position = position_dodge(0.9), vjust = -0.25, fontface = "bold") +
+  scale_y_continuous(name="Total Spending from 2016-06-30 to 2017-02-03", labels = pound) +
+  scale_x_discrete(name="Type of Spending") +
+  ggtitle("Total Cost of Different Transport Modes") +
+  theme(legend.position = "bottom") +
+  annotate("text", x = 1.5, y = 750, label=paste0("Difference: £", total_savings), fontface = "bold") +
+  annotate("rect", xmin = 1.1, xmax = 1.9, ymin = 720, ymax = 780,
+           alpha = .2, colour = "blue", fill = "blue") +
+  scale_fill_discrete("")
+
+p1
+
+p2 <- ggplot(oyster_roll_gg, aes(x=Date)) +
+  geom_hline(aes(yintercept=bike_average, linetype="Average Bicycle Cost per Day"), col = "#b5000e", size=1) +
+  geom_hline(aes(yintercept=oyster_card,linetype="Average Monthly Travelcard Cost per Day"), col = "#01e245", size=1) +
+  scale_linetype_manual(values = c(2, 2), guide = guide_legend(title = NULL, override.aes = list(color = c("#b5000e", "#01e245")))) +
   geom_line(aes(y=value, col = variable), size=1) +
   scale_color_discrete("") +
   scale_x_date(date_breaks = "1 month") +
@@ -97,20 +110,20 @@ p1 <- ggplot(oyster_roll_gg, aes(x=Date)) +
   geom_text(aes(label = "Bicycle Cost", x = max(Date), y = bike_average, hjust= "right", vjust = 1)) +
   geom_text(aes(label = "Monthly Zone 1-2 Travelcard", x = max(Date), y = oyster_card, hjust= "right", vjust = 1))
 
-p1
-
-p2 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = value)) +
-  geom_bar(stat = "identity", position = position_dodge(width=0.5)) +
-  geom_text(aes(y = value + 0.1, label=paste0("£", value)), position = position_dodge(0.9), vjust = -0.25, fontface = "bold") +
-  scale_y_continuous(name="Total Spending from 2016-06-30 to 2017-02-03", labels = pound) +
-  scale_x_discrete(name="Type of Spending") +
-  ggtitle("Total Cost of Different Transport Modes") +
-  theme(legend.position = "bottom") +
-  annotate("text", x = 1.5, y = 750, label=paste0("Difference: £", total_savings), fontface = "bold") +
-  annotate("rect", xmin = 1.1, xmax = 1.9, ymin = 720, ymax = 780,
-               alpha = .2, colour = "blue", fill = "blue") +
-  scale_fill_discrete("")
-
 p2
+
+
+bike_melt <- melt(bike_data, id = c("Date"))
+
+bike_melt2 <- bike_melt %>% group_by(variable) %>% arrange(Date) %>% mutate(spending = cumsum(value))
+ 
+p3 <- ggplot(bike_melt2) + geom_line(aes(x=Date,y=spending, col = variable), size=1) +
+  #geom_line(aes(y=cumsum(Oyster)), size=1, col = "#01e245") +
+  #geom_line(aes(y=cumsum(Bike)), size=1, col = "#b5000e") + 
+  scale_y_continuous(name = "Cumulative Spending", labels = pound) + 
+  scale_x_date(date_breaks = "1 month") + 
+  scale_color_manual(values = c("#01e245","#b5000e"), labels = c('Oyster','Bike'), name="") + 
+  theme(legend.position = "bottom", axis.text.x = element_text(angle = 30, hjust = 1))
+p3
 
 
