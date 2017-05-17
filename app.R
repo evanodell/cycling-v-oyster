@@ -65,7 +65,7 @@ ui <- fluidPage(
                tags$img(src = "spinner.gif",
                         id = "loading-spinner"),
                plotOutput("p1")),
-           em(textOutput("p1_text"))),
+           textOutput("p1_text")),
          
          fluidRow(
            h4("Time Series of Spending on Pay-As-You-Go Oyster and Cycling:"),
@@ -73,7 +73,7 @@ ui <- fluidPage(
                tags$img(src = "spinner.gif",
                         id = "loading-spinner"),
                plotOutput("p2")),
-           em(textOutput("p2_text"))),
+           textOutput("p2_text")),
          
          fluidRow(
            h4("Cumulative Spending in Each Category:"),
@@ -81,9 +81,10 @@ ui <- fluidPage(
                tags$img(src = "spinner.gif",
                         id = "loading-spinner"),
                plotOutput("p3")),
-           em(textOutput("p3_text"))),
+           textOutput("p3_text")),
          
          fluidRow(
+           textOutput("other_options_text"),
            em(h4(textOutput("savings"))))
   ),
   column(2))))
@@ -94,12 +95,7 @@ server <- function(input, output) {
   show("app-content")
   
   bike_data <- read_csv("cycling_oyster_data.csv", col_types = cols(Date = col_date(format = "%Y-%m-%d")))
-  
-  output$last_update <- renderText(paste0("Last Updated: ", max(bike_data$Date)+1, ", with data up to ", max(bike_data$Date)))
-  
-  days_covered <- as.character(max(bike_data$Date) - min(bike_data$Date))
-  
-  output$p1_text <- renderText(paste0("The red and green bars are total spending on my bike and related accessories and my pay-as-you-go Oyster spending, respectively. The blue bar is the combined total of bicycle and pay-as-you-go spending, and the purple bar is the hypothetical total spending of monthly travelcards covering ", days_covered, " days, from 2016-06-30 to ",max(bike_data$Date),"."))
+
   
   pound <- function(x) {
     paste0("£",format(x, big.mark = " ",
@@ -121,19 +117,21 @@ server <- function(input, output) {
   
   bike_avg <- sprintf("%.2f", round(bike_average, 2))
   
-  output$p2_text <- renderText(paste0("The green horizontal line represents the average daily cost of a monthly zone 1-2 travelcard in London (£4.23 per day), and the burgundy horizontal line represents the average daily cost of my bicycle and accessories (£",bike_avg ,") per day. The light blue line is a rolling monthly average of daily pay-as-you-go Oyster spending, and the light red line is pay-as-you-go Oyster spending combined with average daily bike costs."))
+  annual_oyster <- sprintf("%.2f", round((1320/365)*nrow(bike_data),2))
   
-  output$p3_text <- renderText(paste0("Cumulative spending in each category over ", days_covered, " days, from 2016-06-30 to ",max(bike_data$Date),"."))
+  week_oyster <- sprintf("%.2f", round((33/7)*nrow(bike_data),2))
+  
+  days_covered <- as.character(max(bike_data$Date) - min(bike_data$Date))
   
   travel_summary <- data.frame(bike_total = round(sum(bike_data[["Bike"]], bike_locker_sum),2),
                                oyster_total = round(sum(bike_data[["Oyster"]]),2),
                                current_total = round(sum(bike_data[["Oyster"]]) + sum(bike_data[["Bike"]], bike_locker_sum),2),
-                               travelcard_total = round(nrow(bike_data) * oyster_card,2)
+                               Travelcard_total = round(nrow(bike_data) * oyster_card,2)
   )
   
-  total_savings <- paste0("£",sprintf("%.2f", round(travel_summary$travelcard_total - travel_summary$current_total, 2)))
+  total_savings <- paste0("£",sprintf("%.2f", round(travel_summary$Travelcard_total - travel_summary$current_total, 2)))
   
-  output$savings <- renderText(paste0("Total savings from cycling instead of using public transit: ", total_savings))
+  
   
   travel_summary$class <- NA
   
@@ -144,7 +142,7 @@ server <- function(input, output) {
   travel_summary$variable[travel_summary$variable == "bike_total"] <- "Bike Total"
   travel_summary$variable[travel_summary$variable == "oyster_total"] <- "Oyster Total"
   travel_summary$variable[travel_summary$variable == "current_total"] <- "Combined Total"
-  travel_summary$variable[travel_summary$variable == "travelcard_total"] <- "Hypothetical Travelcard Total"
+  travel_summary$variable[travel_summary$variable == "Travelcard_total"] <- "Hypothetical Travelcard Total"
   travel_summary$variable <- factor(travel_summary$variable, levels=c("Bike Total", "Oyster Total", "Combined Total", "Hypothetical Travelcard Total"))
   
   oyster_ts <- zoo(bike_data$Oyster, order.by=bike_data$Date)
@@ -168,6 +166,31 @@ server <- function(input, output) {
   oyster_roll_gg$variable[oyster_roll_gg$variable == "Oyster_Charge"] <- "PAYG Oyster Spending"
   oyster_roll_gg$variable[oyster_roll_gg$variable == "Bike_plus_Oyster"] <- "Oyster Plus Bike Spending"
   oyster_roll_gg$variable <- factor(oyster_roll_gg$variable)
+  
+  
+  output$last_update <- renderText(paste0("Last Updated: ", max(bike_data$Date)+1, ", with data up to ", max(bike_data$Date)))
+  
+  savings_week <- sprintf("%.2f", round((33/7)*nrow(bike_data) - (nrow(bike_data) * oyster_card),2))
+  
+  annual_win_loss <- round((1320/365)*nrow(bike_data) - (nrow(bike_data) * oyster_card),2)
+  
+  if(annual_win_loss>0) {
+    awl <- "saved £"
+  } else {
+    awl <- "lost £"
+  }
+  
+  savings_annual <- paste0(awl, sprintf("%.2f", abs(round((1320/365)*nrow(bike_data) - (nrow(bike_data) * oyster_card),2))))
+  
+  output$p1_text <- renderText(paste0("The red and green bars are total spending on my bike and related accessories and my pay-as-you-go Oyster spending, respectively. The blue bar is the combined total of bicycle and pay-as-you-go spending, and the purple bar is the hypothetical total spending of monthly Travelcards covering ", days_covered, " days, from 2016-06-30 to ",max(bike_data$Date),"."))
+  
+  output$p2_text <- renderText(paste0("The green horizontal line represents the average daily cost of a monthly zone 1-2 Travelcard in London (£4.23 per day), and the burgundy horizontal line represents the average daily cost of my bicycle and accessories (£",bike_avg ,") per day. The light blue line is a rolling monthly average of daily pay-as-you-go Oyster spending, and the light red line is pay-as-you-go Oyster spending combined with average daily bike costs."))
+  
+  output$p3_text <- renderText(paste0("Cumulative spending in each category over ", days_covered, " days, from 2016-06-30 to ",max(bike_data$Date),"."))
+  
+  output$other_options_text <- renderText(paste0("It is worth noting other options for paying for transit passes. If buying weekly Travelcards, assuming I purchased one every week, I would have spent £", week_oyster, " over the same period. Using an annual Travelcard would cost, pro-rated, £", annual_oyster, ". If comparing to a weekly oyster card, cycling has saved me £", savings_week, " while compared to a pro-rated annual Travelcard I have ",savings_annual,"."))
+
+  output$savings <- renderText(paste0("Total savings from cycling instead of using public transit: ", total_savings))
   
   
   
