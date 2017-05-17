@@ -7,6 +7,8 @@ library(ggplot2)
 library(data.table)
 library(scales)
 library(readr)
+library(dplyr)
+#library(reshape2)
 
 appCSS <- "
 #loading-content {
@@ -93,7 +95,7 @@ server <- function(input, output) {
   
   bike_data <- read_csv("cycling_oyster_data.csv", col_types = cols(Date = col_date(format = "%Y-%m-%d")))
   
-  output$last_update <- renderText(paste0("Last Updated: ", max(bike_data$Date)))
+  output$last_update <- renderText(paste0("Last Updated: ", max(bike_data$Date)+1, ", with data up to ", max(bike_data$Date)))
   
   days_covered <- as.character(max(bike_data$Date) - min(bike_data$Date))
   
@@ -147,7 +149,7 @@ server <- function(input, output) {
   
   oyster_ts <- zoo(bike_data$Oyster, order.by=bike_data$Date)
   
-  oyster_roll <- rollapply(oyster_ts, 7, mean)
+  oyster_roll <- rollapply(oyster_ts, 7, mean, align="right")
   
   oyster_roll_gg <- as.data.frame(oyster_roll)
   
@@ -190,7 +192,7 @@ server <- function(input, output) {
       geom_hline(aes(yintercept=oyster_card,linetype="Monthly Travelcard Average"), col = "#01e245", size=1) +
       scale_linetype_manual(values = c(2, 2), guide = guide_legend(title = NULL, override.aes = list(color = c("#b5000e", "#01e245")))) +
       geom_line(aes(y=value, col = variable), size=1) +
-      scale_color_discrete("") + scale_x_date(date_breaks = "1 month") +
+      scale_color_discrete("") + scale_x_date(date_breaks = "2 weeks") +
       scale_y_continuous(name="Average charge over previous 7 days", labels = pound) +
       theme(legend.position = "bottom", axis.text.x = element_text(angle = 30, hjust = 1)) +
       guides(col = guide_legend(ncol = 2, bycol = FALSE)) +
@@ -209,7 +211,7 @@ server <- function(input, output) {
     
     p3 <- ggplot(bike_melt2) + geom_line(aes(x=Date,y=spending, col = variable), size=1) +
       scale_y_continuous(name = "Cumulative Spending", labels = pound) + 
-      scale_x_date(date_breaks = "1 month") + 
+      scale_x_date(date_breaks = "2 weeks") + 
       scale_color_manual(values = c("#01e245","#b5000e"), labels = c("Pay As You Go Oyster Spending","Bike Spending"), name="") + 
       theme(legend.position = "bottom", axis.text.x = element_text(angle = 30, hjust = 1))
     
