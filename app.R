@@ -8,7 +8,7 @@ library(data.table)
 library(scales)
 library(readr)
 library(dplyr)
-#library(reshape2)
+library(tibble)
 
 appCSS <- "
 #loading-content {
@@ -149,7 +149,7 @@ server <- function(input, output) {
   
   oyster_roll <- rollapply(oyster_ts, 7, mean, align="right")
   
-  oyster_roll_gg <- as.data.frame(oyster_roll)
+  oyster_roll_gg <- as.tibble(oyster_roll)
   
   setDT(oyster_roll_gg, keep.rownames = TRUE)[]
   
@@ -219,8 +219,8 @@ server <- function(input, output) {
       scale_y_continuous(name="Average charge over previous 7 days", labels = pound) +
       theme(legend.position = "bottom", axis.text.x = element_text(angle = 30, hjust = 1)) +
       guides(col = guide_legend(ncol = 2, bycol = FALSE)) +
-      geom_text(aes(label = paste0("Bicycle Cost Per Day (£",sprintf("%.2f", round(bike_average,2)),")"), x = max(Date), y = bike_average, hjust= "right", vjust = 1.5)) +
-      geom_text(aes(label = paste0("Monthly Zone 1-2 Travelcard (£",sprintf("%.2f", round(oyster_card,2)),")"), x = max(Date), y = oyster_card, hjust= "right", vjust = 1.5))
+      geom_text(aes(label = paste0("Bicycle Cost Per Day (£",sprintf("%.2f", round(bike_average,2)),")"), x = max(Date), y = bike_average, hjust= "right", vjust = 1.5), size=5) +
+      geom_text(aes(label = paste0("Monthly Zone 1-2 Travelcard (£",sprintf("%.2f", round(oyster_card,2)),")"), x = max(Date), y = oyster_card, hjust= "right", vjust = 1.5), size=5)
     
     print(p2)
     
