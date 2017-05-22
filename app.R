@@ -211,8 +211,8 @@ server <- function(input, output) {
   output$p2 <- renderPlot({
     
     p2 <- ggplot(oyster_roll_gg, aes(x=Date)) +
-      geom_hline(aes(yintercept=bike_average, linetype="Bicycle Cost Average"), col = "#b5000e", size=1) +
-      geom_hline(aes(yintercept=oyster_card,linetype="Monthly Travelcard Average"), col = "#01e245", size=1) +
+      geom_hline(aes(yintercept=bike_average, linetype="Bicycle Cost Cost-Per-Day"), col = "#b5000e", size=1) +
+      geom_hline(aes(yintercept=oyster_card,linetype="Monthly Travelcard Cost-Per-Day"), col = "#01e245", size=1) +
       scale_linetype_manual(values = c(2, 2), guide = guide_legend(title = NULL, override.aes = list(color = c("#b5000e", "#01e245")))) +
       geom_line(aes(y=value, col = variable), size=1) +
       scale_color_discrete("") + scale_x_date(date_breaks = "2 weeks") +
