@@ -84,6 +84,7 @@ ui <- fluidPage(
            textOutput("p3_text")),
          
          fluidRow(
+           br(),
            textOutput("other_options_text"),
            em(h4(textOutput("savings"))))
   ),
