@@ -8,6 +8,7 @@ library(scales)
 library(readr)
 library(dplyr)
 library(tibble)
+library(reshape2)
 library(Cairo)
 options(shiny.usecairo=T)
 
