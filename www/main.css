@@ -1,0 +1,23 @@
+@import url('https://fonts.googleapis.com/css?family=Lusitana');
+@import url('https://fonts.googleapis.com/css?family=Roboto');
+/* --- General --- */
+
+body {
+  font-family: 'Lusitana', 'Times New Roman', serif;
+  font-size: 17px;
+  color: #404040;
+  position: relative;
+  background: #FFF;
+}
+
+
+p a {
+  /* text-decoration: underline */
+  color: #008AFF;
+}
+
+h1,h2,h3,h4,h5,h6 a {
+  font-family: 'Roboto', Helvetica, Arial, sans-serif;
+  font-weight: 700;
+  color: inherit;
+}

@@ -44,7 +44,9 @@ z-index: -2;
 "
 
 ui <- fluidPage(
-  tags$head(tags$style(HTML(mycss))),
+  tags$head(
+    tags$link(rel = "stylesheet", type = "text/css", href = "main.css"),
+    tags$style(HTML(mycss))),
   useShinyjs(),
   inlineCSS(appCSS),
   
