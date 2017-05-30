@@ -59,11 +59,13 @@ oyster_roll <- rollapply(oyster_ts, 7, mean)
 
 oyster_roll_gg <- as.data.frame(oyster_roll)
 
-setDT(oyster_roll_gg, keep.rownames = TRUE)[]
+bike_data$cumsum <- cumsum(bike_data$Bike)/as.numeric(bike_data$Date - as.Date("2016-06-29"))
 
-names(oyster_roll_gg)[1] <- "Date"
-names(oyster_roll_gg)[2] <- "Oyster_Charge"
-oyster_roll_gg$Date <- as.Date(oyster_roll_gg$Date)
+bike_ts <- zoo(bike_data$cumsum, order.by=bike_data$Date)
+
+bike_roll <- rollapply(bike_ts, 7, mean)
+
+bike_roll_gg <- as.data.frame(bike_roll)
 
 oyster_roll_gg$Bike_plus_Oyster <- mean(bike_data[["Bike"]]) + oyster_roll_gg$Oyster_Charge
 

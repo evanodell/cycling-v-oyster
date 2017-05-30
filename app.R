@@ -4,11 +4,12 @@ library(shiny)
 library(shinyjs)
 library(zoo)
 library(ggplot2)
-library(data.table)
 library(scales)
 library(readr)
 library(dplyr)
 library(tibble)
+library(Cairo)
+options(shiny.usecairo=T)
 
 appCSS <- "
 #loading-content {
@@ -81,6 +82,11 @@ ui <- fluidPage(
                tags$img(src = "spinner.gif",
                         id = "loading-spinner"),
                plotOutput("p3")),
+           h4("Rolling average bicycle cost per day:"),
+           div(id = "plot-container",
+               tags$img(src = "spinner.gif",
+                        id = "loading-spinner"),
+               plotOutput("p4")),
            textOutput("p3_text")),
          
          fluidRow(
@@ -99,8 +105,8 @@ server <- function(input, output) {
 
   
   pound <- function(x) {
-    paste0("£",format(x, big.mark = " ",
-                      decimal.mark = ",",
+    paste0("£",format(x, big.mark = ",",
+                      decimal.mark = ".",
                       trim = TRUE, scientific = FALSE))
   }
   
@@ -152,11 +158,9 @@ server <- function(input, output) {
   
   oyster_roll_gg <- as.tibble(oyster_roll)
   
-  setDT(oyster_roll_gg, keep.rownames = TRUE)[]
+  oyster_roll_gg$Date <- as.Date(row.names(oyster_roll_gg))
   
-  names(oyster_roll_gg)[1] <- "Date"
-  names(oyster_roll_gg)[2] <- "Oyster_Charge"
-  oyster_roll_gg$Date <- as.Date(oyster_roll_gg$Date)
+  names(oyster_roll_gg)[1] <- "Oyster_Charge"
   
   oyster_roll_gg$Bike_plus_Oyster <- mean(bike_data[["Bike"]]) + oyster_roll_gg$Oyster_Charge
   
@@ -169,7 +173,7 @@ server <- function(input, output) {
   oyster_roll_gg$variable <- factor(oyster_roll_gg$variable)
   
   
-  output$last_update <- renderText(paste0("Last Updated: ", max(bike_data$Date)+1, ", with data up to ", max(bike_data$Date)))
+  output$last_update <- renderText(paste0("Last Updated: ", format(max(bike_data$Date)+1,format="%d %B %Y"), ", with data up to ", format(max(bike_data$Date),format="%d %B %Y")))
   
   savings_week <- sprintf("%.2f", round((33/7)*nrow(bike_data) - (nrow(bike_data) * oyster_card),2))
   
@@ -183,16 +187,15 @@ server <- function(input, output) {
   
   savings_annual <- paste0(awl, sprintf("%.2f", abs(round((1320/365)*nrow(bike_data) - (nrow(bike_data) * oyster_card),2))))
   
-  output$p1_text <- renderText(paste0("The red and green bars are total spending on my bike and related accessories and my pay-as-you-go Oyster spending, respectively. The blue bar is the combined total of bicycle and pay-as-you-go spending, and the purple bar is the hypothetical total spending of monthly Travelcards covering ", days_covered, " days, from 2016-06-30 to ",max(bike_data$Date),"."))
+  output$p1_text <- renderText(paste0("The red and green bars are total spending on my bike and related accessories and my pay-as-you-go Oyster spending, respectively. The blue bar is the combined total of bicycle and pay-as-you-go spending, and the purple bar is the hypothetical total spending of monthly Travelcards covering ", days_covered, " days, from 30 June 2016 to ", format(max(bike_data$Date),format="%d %B %Y"),"."))
   
   output$p2_text <- renderText(paste0("The green horizontal line represents the average daily cost of a monthly zone 1-2 Travelcard in London (£4.23 per day), and the burgundy horizontal line represents the average daily cost of my bicycle and accessories (£",bike_avg ,") per day. The light blue line is a rolling monthly average of daily pay-as-you-go Oyster spending, and the light red line is pay-as-you-go Oyster spending combined with average daily bike costs."))
   
-  output$p3_text <- renderText(paste0("Cumulative spending in each category over ", days_covered, " days, from 2016-06-30 to ",max(bike_data$Date),"."))
+  output$p3_text <- renderText(paste0("Cumulative spending in each category over ", days_covered, " days, from 30 June 2016 to ", format(max(bike_data$Date),format="%d %B %Y"),", and a 7-day rolling average of daily bicycle costs."))
   
   output$other_options_text <- renderText(paste0("It is worth noting other options for paying for transit passes. If buying weekly Travelcards, assuming I purchased one every week, I would have spent £", week_oyster, " over the same period. Using an annual Travelcard would cost, pro-rated, £", annual_oyster, ". If comparing to a weekly oyster card, cycling has saved me £", savings_week, " while compared to a pro-rated annual Travelcard I have ",savings_annual,"."))
 
   output$savings <- renderText(paste0("Total savings from cycling instead of using public transit: ", total_savings))
-  
   
   
   output$p1 <- renderPlot({
@@ -200,7 +203,7 @@ server <- function(input, output) {
     p1 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = value)) +
       geom_bar(stat = "identity", position = position_dodge(width=0.5)) +
       geom_text(aes(y = value + 0.1, label=paste0("£", sprintf("%.2f", round(value,2)))), position = position_dodge(0.9), vjust = -0.25, fontface = "bold") +
-      scale_y_continuous(name=paste0("Total Spending from ", min(bike_data$Date), " to ", max(bike_data$Date)), labels = pound) +
+      scale_y_continuous(name=paste0("Total Spending from ", format(min(bike_data$Date),format="%d %B %Y"), " to ", format(max(bike_data$Date),format="%d %B %Y")), labels = pound) +
       scale_x_discrete(name="Type of Spending") +
       theme(legend.position = "bottom") +
       scale_fill_discrete("")
@@ -243,8 +246,35 @@ server <- function(input, output) {
   
   })
   
+  
+  output$p4 <- renderPlot({
+    
+    bike_data$cumsum <- cumsum(bike_data$Bike)/as.numeric(bike_data$Date - as.Date("2016-06-29"))
+    
+    bike_ts <- zoo(bike_data$cumsum, order.by=bike_data$Date)
+    
+    bike_roll <- rollapply(bike_ts, 7, mean)
+    
+    bike_roll_gg <- tibble::as.tibble(bike_roll)
+    
+    bike_roll_gg$Date <- as.Date(row.names(bike_roll_gg))
+    
+    names(bike_roll_gg)[1] <- "spending"
+    
+    p4 <- ggplot(bike_roll_gg) + geom_line(aes(x=Date,y=spending), col = "#b5000e", size=1) +
+      scale_y_sqrt(name = "Average bicycle cost per day over previous 7 days", labels = pound, breaks=c(0,2,4,6,8,10,20,30,40,50)) + 
+      scale_x_date(date_breaks = "2 weeks") + 
+      scale_color_manual(values = c("#b5000e"), labels = c("Bike Spending")) + 
+      theme(legend.position = "bottom", axis.text.x = element_text(angle = 30, hjust = 1))
+
+    print(p4)
+    
+  })
+  
 }
 
 # Run the application 
 shinyApp(ui = ui, server = server)
+
+
 
