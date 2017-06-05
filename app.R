@@ -139,7 +139,7 @@ server <- function(input, output) {
                                Travelcard_total = round(nrow(bike_data) * oyster_card,2)
   )
   
-  total_savings <- paste0("£",sprintf("%.2f", round(travel_summary$Travelcard_total - travel_summary$current_total, 2)))
+  total_savings <- paste0("£",sprintf("%.2f", abs(round(travel_summary$Travelcard_total - travel_summary$current_total, 2))))
   
   
   
@@ -197,8 +197,14 @@ server <- function(input, output) {
   output$p3_text <- renderText(paste0("Cumulative spending in each category over ", days_covered, " days, from 30 June 2016 to ", format(max(bike_data$Date),format="%d %B %Y"),", and a 7-day rolling average of daily bicycle costs."))
   
   output$other_options_text <- renderText(paste0("It is worth noting other options for paying for transit passes. If buying weekly Travelcards, assuming I purchased one every week, I would have spent £", week_oyster, " over the same period. Using an annual Travelcard would cost, pro-rated, £", annual_oyster, ". If comparing to a weekly oyster card, cycling has saved me £", savings_week, " while compared to a pro-rated annual Travelcard I have ",savings_annual,"."))
+  
+  if(total_savings>0) {
+    totsav <- "savings "
+  } else {
+    totsav <- "losses "
+  }
 
-  output$savings <- renderText(paste0("Total savings from cycling instead of using public transit: ", total_savings))
+  output$savings <- renderText(paste0("Total ",totsav,  "from cycling instead of using public transit: ", total_savings))
   
   
   output$p1 <- renderPlot({
