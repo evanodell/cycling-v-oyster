@@ -21,3 +21,9 @@ h1,h2,h3,h4,h5,h6 a {
   font-weight: 700;
   color: inherit;
 }
+
+.container-fluid{
+  padding-left:0px;
+  padding-right:0px;
+}
+

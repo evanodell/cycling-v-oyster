@@ -105,7 +105,6 @@ server <- function(input, output) {
   show("app-content")
   
   bike_data <- read_csv("cycling_oyster_data.csv", col_types = cols(Date = col_date(format = "%Y-%m-%d")))
-
   
   pound <- function(x) {
     paste0("£",format(x, big.mark = ",",
@@ -141,7 +140,7 @@ server <- function(input, output) {
   
   total_savings <- paste0("£",sprintf("%.2f", abs(round(travel_summary$Travelcard_total - travel_summary$current_total, 2))))
   
-  
+  total_win_loss <- round(travel_summary$Travelcard_total - travel_summary$current_total, 2)
   
   travel_summary$class <- NA
   
@@ -175,7 +174,6 @@ server <- function(input, output) {
   oyster_roll_gg$variable[oyster_roll_gg$variable == "Bike_plus_Oyster"] <- "Oyster Plus Bike Spending"
   oyster_roll_gg$variable <- factor(oyster_roll_gg$variable)
   
-  
   output$last_update <- renderText(paste0("Last Updated: ", format(max(bike_data$Date)+1,format="%d %B %Y"), ", with data up to ", format(max(bike_data$Date),format="%d %B %Y")))
   
   savings_week <- sprintf("%.2f", round((33/7)*nrow(bike_data) - (nrow(bike_data) * oyster_card),2))
@@ -198,7 +196,7 @@ server <- function(input, output) {
   
   output$other_options_text <- renderText(paste0("It is worth noting other options for paying for transit passes. If buying weekly Travelcards, assuming I purchased one every week, I would have spent £", week_oyster, " over the same period. Using an annual Travelcard would cost, pro-rated, £", annual_oyster, ". If comparing to a weekly oyster card, cycling has saved me £", savings_week, " while compared to a pro-rated annual Travelcard I have ",savings_annual,"."))
   
-  if(total_savings>0) {
+  if(total_win_loss>0) {
     totsav <- "savings "
   } else {
     totsav <- "losses "
@@ -284,6 +282,4 @@ server <- function(input, output) {
 
 # Run the application 
 shinyApp(ui = ui, server = server)
-
-
 
