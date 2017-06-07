@@ -8,6 +8,10 @@ library(scales)
 library(grid)
 library(tibble)
 
+library(extrafont)
+font_import()
+
+
 bike_data <- read_csv("cycling_oyster_data.csv",
                       col_types = cols(Date = col_date(format = "%Y-%m-%d")))
 
