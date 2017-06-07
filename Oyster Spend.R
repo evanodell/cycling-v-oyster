@@ -8,13 +8,8 @@ library(scales)
 library(grid)
 library(tibble)
 
-library(extrafont)
-font_import()
-
-
 bike_data <- read_csv("cycling_oyster_data.csv",
                       col_types = cols(Date = col_date(format = "%Y-%m-%d")))
-
 
 pound <- function(x) {
   paste0("£",format(x, big.mark = ",",
@@ -50,8 +45,6 @@ travel_summary <- data.frame(bike_total = round(sum(bike_data[["Bike"]], bike_lo
 
 total_savings <- paste0("£",sprintf("%.2f", round(travel_summary$Travelcard_total - travel_summary$current_total, 2)))
 
-
-
 travel_summary$class <- NA
 
 travel_summary <- melt(travel_summary, id = "class")
@@ -83,8 +76,6 @@ oyster_roll_gg$variable <- as.character(oyster_roll_gg$variable)
 oyster_roll_gg$variable[oyster_roll_gg$variable == "Oyster_Charge"] <- "PAYG Oyster Spending"
 oyster_roll_gg$variable[oyster_roll_gg$variable == "Bike_plus_Oyster"] <- "Oyster Plus Bike Spending"
 oyster_roll_gg$variable <- factor(oyster_roll_gg$variable)
-
-
 
 p1 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = value)) +
   geom_bar(stat = "identity", position = position_dodge(width=0.5)) +
