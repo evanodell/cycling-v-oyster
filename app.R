@@ -105,6 +105,7 @@ server <- function(input, output) {
   show("app-content")
   
   bike_data <- read_csv("cycling_oyster_data.csv", col_types = cols(Date = col_date(format = "%Y-%m-%d")))
+
   
   pound <- function(x) {
     paste0("£",format(x, big.mark = ",",
@@ -115,6 +116,8 @@ server <- function(input, output) {
   "Average Monthly Travelcard Cost per Day" <- 126.80/30
   
   oyster_card <- 126.80/30
+  
+  payg_oyster_card <- sum(bike_data$Oyster)/nrow(bike_data)
   
   bike_locker_avg <- ((nrow(bike_data)/365) * 60)/nrow(bike_data) ## Daily cost of bike locker, pro-rated
   
@@ -140,7 +143,7 @@ server <- function(input, output) {
   
   total_savings <- paste0("£",sprintf("%.2f", abs(round(travel_summary$Travelcard_total - travel_summary$current_total, 2))))
   
-  total_win_loss <- round(travel_summary$Travelcard_total - travel_summary$current_total, 2)
+  
   
   travel_summary$class <- NA
   
@@ -174,6 +177,7 @@ server <- function(input, output) {
   oyster_roll_gg$variable[oyster_roll_gg$variable == "Bike_plus_Oyster"] <- "Oyster Plus Bike Spending"
   oyster_roll_gg$variable <- factor(oyster_roll_gg$variable)
   
+  
   output$last_update <- renderText(paste0("Last Updated: ", format(max(bike_data$Date)+1,format="%d %B %Y"), ", with data up to ", format(max(bike_data$Date),format="%d %B %Y")))
   
   savings_week <- sprintf("%.2f", round((33/7)*nrow(bike_data) - (nrow(bike_data) * oyster_card),2))
@@ -190,13 +194,21 @@ server <- function(input, output) {
   
   output$p1_text <- renderText(paste0("The red and green bars are total spending on my bike and related accessories and my pay-as-you-go Oyster spending, respectively. The blue bar is the combined total of bicycle and pay-as-you-go spending, and the purple bar is the hypothetical total spending of monthly Travelcards covering ", days_covered, " days, from 30 June 2016 to ", format(max(bike_data$Date),format="%d %B %Y"),"."))
   
-  output$p2_text <- renderText(paste0("The green horizontal line represents the average daily cost of a monthly zone 1-2 Travelcard in London (£4.23 per day), and the burgundy horizontal line represents the average daily cost of my bicycle and accessories (£",bike_avg ,") per day. The light blue line is a rolling monthly average of daily pay-as-you-go Oyster spending, and the light red line is pay-as-you-go Oyster spending combined with average daily bike costs."))
+  dailys <- round((payg_oyster_card + bike_average)-4.23,2)
+  
+  if(dailys > 0) {
+    compare <- "more"
+  } else {
+    compare <- "less"
+  }
+  
+  output$p2_text <- renderText(paste0("The green horizontal line represents the average daily cost of a monthly zone 1-2 Travelcard in London (£4.23 per day), and the burgundy horizontal line represents the average daily cost of my bicycle and accessories (£",bike_avg ,") per day. The light blue line is a rolling monthly average of daily pay-as-you-go Oyster spending, and the light red line is pay-as-you-go Oyster spending combined with average daily bike costs. The average cost-per-day of my pay-as-you-go Oyster card is £", round(payg_oyster_card,2), ", which combined with bike spending means I have spent an average of £", dailys, " per day ", compare, " than I would using a monthly travelcard."))
   
   output$p3_text <- renderText(paste0("Cumulative spending in each category over ", days_covered, " days, from 30 June 2016 to ", format(max(bike_data$Date),format="%d %B %Y"),", and a 7-day rolling average of daily bicycle costs."))
   
-  output$other_options_text <- renderText(paste0("It is worth noting other options for paying for transit passes. If buying weekly Travelcards, assuming I purchased one every week, I would have spent £", week_oyster, " over the same period. Using an annual Travelcard would cost, pro-rated, £", annual_oyster, ". If comparing to a weekly oyster card, cycling has saved me £", savings_week, " while compared to a pro-rated annual Travelcard I have ",savings_annual,"."))
+  output$other_options_text <- renderText(paste0("It is worth noting other options for paying for transit passes. If buying weekly Travelcards, assuming I purchased one every week, I would have spent £", week_oyster, " over the same period. Using an annual Travelcard would cost, pro-rated, £", annual_oyster, ". If comparing to a weekly oyster card, cycling has saved me £", savings_week, ", while compared to a pro-rated annual Travelcard I have ",savings_annual,"."))
   
-  if(total_win_loss>0) {
+  if(total_savings>0) {
     totsav <- "savings "
   } else {
     totsav <- "losses "
@@ -282,4 +294,6 @@ server <- function(input, output) {
 
 # Run the application 
 shinyApp(ui = ui, server = server)
+
+
 

@@ -21,6 +21,8 @@ pound <- function(x) {
 
 oyster_card <- 126.80/30
 
+payg_oyster_card <- sum(bike_data$Oyster)/nrow(bike_data)
+
 bike_locker_avg <- ((nrow(bike_data)/365) * 60)/nrow(bike_data) ## Daily cost of bike locker, pro-rated
 
 bike_locker_sum <- (nrow(bike_data)/365) * 60 ###Total bike locker spend, pro-rated
@@ -96,6 +98,7 @@ ggsave(plot = p1, filename = "p1.png",type = "cairo-png", dpi = 1000, width = 20
 p2 <- ggplot(oyster_roll_gg, aes(x=Date)) +
   geom_hline(aes(yintercept=bike_average, linetype="Average Bicycle Cost per Day"), col = "#b5000e", size=1) +
   geom_hline(aes(yintercept=oyster_card,linetype="Average Monthly Travelcard Cost per Day"), col = "#01e245", size=1) +
+  geom_hline(aes(yintercept=payg_oyster_card,linetype="Average Monthly Travelcard Cost per Day"), col = "#01e245", size=1) +
   scale_linetype_manual(values = c(2, 2), guide = guide_legend(title = NULL, override.aes = list(color = c("#b5000e", "#01e245")))) +
   geom_line(aes(y=value, col = variable), size=1) +
   scale_color_discrete("") +
