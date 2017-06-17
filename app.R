@@ -178,7 +178,7 @@ server <- function(input, output) {
   oyster_roll_gg$variable <- factor(oyster_roll_gg$variable)
   
   
-  output$last_update <- renderText(paste0("Last Updated: ", format(max(bike_data$Date)+1,format="%d %B %Y"), ", with data up to ", format(max(bike_data$Date),format="%d %B %Y")))
+  output$last_update <- renderText(paste0("Last Updated: ", format(max(bike_data$Date),format="%d %B %Y")))
   
   savings_week <- sprintf("%.2f", round((33/7)*nrow(bike_data) - (nrow(bike_data) * oyster_card),2))
   
