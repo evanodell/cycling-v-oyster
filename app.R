@@ -208,7 +208,7 @@ server <- function(input, output) {
   
   output$p3_text <- renderText(paste0("Cumulative spending in each category over ", days_covered, " days, from 30 June 2016 to ", format(max(bike_data$Date),format="%d %B %Y"),", and a 7-day rolling average of daily bicycle costs."))
   
-  output$other_options_text <- renderText(paste0("It is worth noting other options for paying for transit passes. If buying weekly Travelcards, assuming I purchased one every week, I would have spent £", week_oyster, " over the same period. Using an annual Travelcard would cost, pro-rated over this time period, £", annual_oyster, ". If comparing to a weekly oyster card, cycling has saved me £", savings_week, ", while compared to a pro-rated annual Travelcard I have ",savings_annual,"."))
+  output$other_options_text <- renderText(paste0("It is worth noting other options for paying for transit passes. If buying weekly Travelcards, assuming I purchased one every week, I would have spent £", week_oyster, " over the same period. Using an annual Travelcard would cost, pro-rated over this time period, £", annual_oyster, ". If comparing to a weekly oyster card, cycling has saved me £", savings_week, ", while compared to a pro-rated annual Travelcard I have ",savings_annual,". I should also note that my total oyster spending includes fines for not tapping in or out correctly, and trips outside of zones 1-2, which would also be charged if I was using a travelcard."))
   
   if(tot_savings_compare > 0) {
     totsav <- "savings "
@@ -253,7 +253,7 @@ server <- function(input, output) {
   
   output$p3 <- renderPlot({
   
-    bike_melt <- melt(bike_data, id = c("Date"))
+    bike_melt <- melt(bike_data[c(1:3)], id = c("Date"))
     
     bike_melt2 <- bike_melt %>% group_by(variable) %>% arrange(Date) %>% mutate(spending = cumsum(value))
     
