@@ -77,7 +77,7 @@ ui <- fluidPage(
                tags$img(src = "spinner.gif",
                         id = "loading-spinner"),
                plotOutput("p1")),
-           textOutput("p1_text")),
+           em(textOutput("p1_text"))),
          
          fluidRow(
            h4("Time Series of Spending on Pay-As-You-Go Oyster and Cycling:"),
@@ -85,7 +85,7 @@ ui <- fluidPage(
                tags$img(src = "spinner.gif",
                         id = "loading-spinner"),
                plotOutput("p2")),
-           textOutput("p2_text")),
+           em(textOutput("p2_text"))),
          
          fluidRow(
            h4("Cumulative Spending in Each Category:"),
@@ -98,7 +98,7 @@ ui <- fluidPage(
                tags$img(src = "spinner.gif",
                         id = "loading-spinner"),
                plotOutput("p4")),
-           textOutput("p3_text")),
+           em(textOutput("p3_text"))),
          
          fluidRow(
            br(),
