@@ -12,8 +12,7 @@ library(reshape2)
 library(Cairo)
 options(shiny.usecairo=T)
 
-appCSS <- "
-#loading-content {
+appCSS <- "#loading-content {
   position: absolute;
   background: #FFF;
   opacity: 0.9;
@@ -23,8 +22,7 @@ appCSS <- "
   height: 100%;
   text-align: center;
   color: #000000;
-}
-"
+}"
 
 mycss <- "
 #plot-container {
@@ -187,7 +185,6 @@ server <- function(input, output) {
   oyster_roll_gg$variable[oyster_roll_gg$variable == "Bike_plus_Oyster"] <- "Oyster Plus Bike Spending"
   oyster_roll_gg$variable <- factor(oyster_roll_gg$variable)
   
-  
   output$last_update <- renderText(paste0("Last Updated: ", format(max(bike_data$Date),format="%d %B %Y")))
   
   savings_week <- sprintf("%.2f", round((33/7)*nrow(bike_data) - (nrow(bike_data) * oyster_card),2))
@@ -230,7 +227,6 @@ server <- function(input, output) {
   }
 
   output$savings <- renderText(paste0("Total ",totsav,  "from cycling instead of using public transit: ", total_savings))
-  
   
   output$p1 <- renderPlot({
     
@@ -309,6 +305,4 @@ server <- function(input, output) {
 
 # Run the application 
 shinyApp(ui = ui, server = server)
-
-
 
