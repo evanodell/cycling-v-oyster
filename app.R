@@ -24,8 +24,7 @@ appCSS <- "#loading-content {
   color: #000000;
 }"
 
-mycss <- "
-#plot-container {
+mycss <- "#plot-container {
 position: relative;
 }
 #loading-spinner {
@@ -38,8 +37,7 @@ margin-left: -33px; /* half of the spinner's width */
 }
 #plot.recalculating {
 z-index: -2;
-}
-"
+}"
 
 ui <- fluidPage(
   tags$head(
