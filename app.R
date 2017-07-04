@@ -25,18 +25,18 @@ appCSS <- "#loading-content {
 }"
 
 mycss <- "#plot-container {
-position: relative;
-}
-#loading-spinner {
-position: absolute;
-left: 50%;
-top: 50%;
-z-index: -1;
-margin-top: -33px;  /* half of the spinner's height */
-margin-left: -33px; /* half of the spinner's width */
-}
-#plot.recalculating {
-z-index: -2;
+  position: relative;
+  }
+  #loading-spinner {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: -1;
+  margin-top: -33px;  /* half of the spinner's height */
+  margin-left: -33px; /* half of the spinner's width */
+  }
+  #plot.recalculating {
+  z-index: -2;
 }"
 
 ui <- fluidPage(
@@ -112,7 +112,6 @@ server <- function(input, output) {
   
   bike_data <- read_csv("cycling_oyster_data.csv", col_types = cols(Date = col_date(format = "%Y-%m-%d")))
 
-  
   pound <- function(x) {
     paste0("£",format(x, big.mark = ",",
                       decimal.mark = ".",
@@ -273,7 +272,6 @@ server <- function(input, output) {
     print(p3)
   
   })
-  
   
   output$p4 <- renderPlot({
     
