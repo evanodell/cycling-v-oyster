@@ -208,7 +208,7 @@ server <- function(input, output) {
   
   dailys <- abs(dailys)
   
-  output$p2_text <- renderText(paste0("The green horizontal line represents the average daily cost of a monthly zone 1-2 Travelcard in London (£4.23 per day), and the burgundy horizontal line represents the average daily cost of my bicycle and accessories (£",bike_avg ,") per day. The light blue line is a rolling monthly average of daily pay-as-you-go Oyster spending, and the light red line is pay-as-you-go Oyster spending combined with average daily bike costs. The average cost-per-day of my pay-as-you-go Oyster card is £", round(payg_oyster_card,2), ", which combined with bike spending means I have spent an average of £", dailys, " per day ", compare, " than I would using a monthly travelcard."))
+  output$p2_text <- renderText(paste0("The green horizontal line represents the average daily cost of a monthly zone 1-2 Travelcard in London (£4.23 per day), and the burgundy horizontal line represents the average daily cost of my bicycle and accessories (£",bike_avg ,") per day. The light blue line is a rolling monthly average of daily pay-as-you-go Oyster spending, and the light red line is pay-as-you-go Oyster spending combined with average daily bike costs. The average cost-per-day of my pay-as-you-go Oyster card is £", sprintf("%.2f",round(payg_oyster_card,2)), ", which combined with bike spending means I have spent an average of £", dailys, " per day ", compare, " than I would using a monthly travelcard."))
   
   output$p3_text <- renderText(paste0("Cumulative spending in each category over ", days_covered, " days, from 30 June 2016 to ", format(max(bike_data$Date),format="%d %B %Y"),", and a 7-day rolling average of daily bicycle costs."))
   
