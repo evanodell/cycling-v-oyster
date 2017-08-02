@@ -229,7 +229,7 @@ server <- function(input, output) {
     
     p1 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = value)) +
       geom_bar(stat = "identity", position = position_dodge(width=0.5)) +
-      geom_text(aes(y = value + 0.1, label=paste0("£", sprintf("%.2f", round(value,2)))), position = position_dodge(0.9), vjust = -0.25, fontface = "bold") +
+      geom_text(aes(y = value + 0.1, label=paste0("£", sprintf("%.2f", round(value,2)))), position = position_dodge(0.9), vjust = -0.25, fontface = "bold", size = 5) +
       scale_y_continuous(name=paste0("Total Spending from ", format(min(bike_data$Date),format="%d %B %Y"), " to ", format(max(bike_data$Date),format="%d %B %Y")), labels = pound) +
       scale_x_discrete(name="Type of Spending") +
       theme(legend.position = "bottom") +
@@ -250,8 +250,8 @@ server <- function(input, output) {
       scale_y_continuous(name="Average charge over previous 7 days", labels = pound) +
       theme(legend.position = "bottom", axis.text.x = element_text(angle = 30, hjust = 1)) +
       guides(col = guide_legend(ncol = 2, bycol = FALSE)) +
-      geom_text(aes(label = paste0("Bicycle Cost Per Day (£",sprintf("%.2f", round(bike_average,2)),")"), x = max(Date), y = bike_average, hjust= "right", vjust = 1.5), size=5) +
-      geom_text(aes(label = paste0("Monthly Zone 1-2 Travelcard (£",sprintf("%.2f", round(oyster_card,2)),")"), x = max(Date), y = oyster_card, hjust= "right", vjust = 1.5), size=5)
+      geom_text(aes(label = paste0("Bicycle Cost Per Day (£",sprintf("%.2f", round(bike_average,2)),")"), x = max(Date), y = bike_average, hjust= "right", vjust = 1.5), fontface = "bold", size=5) +
+      geom_text(aes(label = paste0("Monthly Zone 1-2 Travelcard (£",sprintf("%.2f", round(oyster_card,2)),")"), x = max(Date), y = oyster_card, hjust= "right", vjust = 1.5), fontface = "bold", size=5)
     
     print(p2)
     
