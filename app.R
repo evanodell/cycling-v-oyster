@@ -246,8 +246,8 @@ server <- function(input, output) {
       scale_y_continuous(name="Average charge over previous 7 days", labels = pound) +
       theme(legend.position = "bottom", axis.text.x = element_text(angle = 30, hjust = 1, size=14)) +
       guides(col = guide_legend(ncol = 2, bycol = FALSE)) +
-      geom_text(aes(label = paste0("Bicycle Cost Per Day (£",sprintf("%.2f", round(bike_average,2)),")"), x = max(Date), y = bike_average, hjust= "right", vjust = 1.5), fontface = "bold", size=5) +
-      geom_text(aes(label = paste0("Monthly Zone 1-2 Travelcard (£",sprintf("%.2f", round(mean(bike_data$mon_oyster_per_day),2)),")"), x = max(Date), y = mean(bike_data$mon_oyster_per_day), hjust= "right", vjust = 1.5), fontface = "bold", size=5)
+      geom_text(aes(label = paste0("Bicycle Cost Per Day (£",sprintf("%.2f", round(bike_average,2)),")"), x = max(Date), y = bike_average, hjust= "right", vjust = 1.5), size=5.5) +
+      geom_text(aes(label = paste0("Monthly Zone 1-2 Travelcard (£",sprintf("%.2f", round(mean(bike_data$mon_oyster_per_day),2)),")"), x = max(Date), y = mean(bike_data$mon_oyster_per_day), hjust= "right", vjust = 1.5), size=5.5)
     
     print(p2)
     
@@ -297,4 +297,5 @@ server <- function(input, output) {
 
 # Run the application 
 shinyApp(ui = ui, server = server)
+
 
