@@ -112,7 +112,7 @@ server <- function(input, output) {
   show("app-content")
 
   bike_data <- read_csv("cycling_oyster_data.csv", col_types = cols(Date = col_date(format = "%Y-%m-%d")))
- 
+  
   pound <- function(x) {
     paste0("£",format(x, big.mark = ",",
                       decimal.mark = ".",
