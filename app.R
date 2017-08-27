@@ -228,7 +228,8 @@ server <- function(input, output) {
       geom_text(aes(y = value + 0.1, label=paste0("£", sprintf("%.2f", round(value,2)))), position = position_dodge(0.9), vjust = -0.25, fontface = "bold", size = 5) +
       scale_y_continuous(name=paste0("Total Spending from \n", format(min(bike_data$Date),format="%d %B %Y"), " to ", format(max(bike_data$Date),format="%d %B %Y")), labels = pound) +
       scale_x_discrete(name="Type of Spending") +
-      theme(legend.position = "bottom", text=element_text(size=14), legend.text=element_text(size=11), axis.text.y = element_text(size=14)) +
+      theme(legend.position = "bottom", text=element_text(size=14), legend.text=element_text(size=14),
+            axis.text.y = element_text(size=14)) +
       scale_fill_discrete("")
 
     print(p1)
@@ -238,13 +239,13 @@ server <- function(input, output) {
   output$p2 <- renderPlot({
     
     p2 <- ggplot(oyster_roll_gg, aes(x=Date)) +
-      geom_hline(aes(yintercept=bike_average, linetype="Bicycle Cost-Per-Day"), col = "#b5000e", size=1) +
-      geom_hline(aes(yintercept=mean(bike_data$mon_oyster_per_day),linetype="Travelcard Cost-Per-Day"), col = "#01e245", size=1) +
-      scale_linetype_manual(values = c(2, 2), guide = guide_legend(title = NULL, override.aes = list(color = c("#b5000e", "#01e245")))) +
+      geom_hline(aes(yintercept=bike_average, linetype="Bicycle Cost-Per-Day"), col = "#b5000e", size=1, show.legend = TRUE) +
+      geom_hline(aes(yintercept=mean(bike_data$mon_oyster_per_day),linetype="Travelcard Cost-Per-Day"), col = "#01e245", size=1, show.legend = FALSE) +
+      scale_linetype_manual(values = c(2, 2), guide = guide_legend(title = NULL, nrow=2, override.aes = list(color = c("#b5000e", "#01e245")))) +
       geom_line(aes(y=value, col = variable), size=1) +
       scale_color_discrete("") + scale_x_date(date_breaks = "4 weeks") +
       scale_y_continuous(name="Average charge over previous 7 days", labels = pound) +
-      guides(col = guide_legend(ncol = 2, bycol = FALSE)) +
+      guides(col = guide_legend(nrow = 2, bycol = TRUE)) +
       geom_text(aes(label = paste0("Bicycle Cost Per Day (£",sprintf("%.2f", round(bike_average,2)),")"), x = max(Date), y = bike_average, hjust= "right", vjust = 1.5), size=5.5) +
       geom_text(aes(label = paste0("Monthly Zone 1-2 Travelcard (£",sprintf("%.2f", round(mean(bike_data$mon_oyster_per_day),2)),")"), x = max(Date), y = mean(bike_data$mon_oyster_per_day), hjust= "right", vjust = 1.5), size=5.5)+
       theme(legend.position = "bottom", axis.text.x = element_text(angle = 30, hjust = 1, size=14),  legend.text=element_text(size=14), axis.text.y = element_text(size=14))
