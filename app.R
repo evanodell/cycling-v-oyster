@@ -49,8 +49,9 @@ ui <- fluidPage(
   useShinyjs(),
   inlineCSS(appCSS),
   
-  div(
+  div(## Loading intro animation
     id = "loading-content",
+    
     h2("Loading...")
   ),
   
@@ -59,22 +60,23 @@ ui <- fluidPage(
       id = "app-content",
   
   column(2),
+  
   column(8,
          
          fluidRow(
            p("*Updated every few days."),
               
-              p("In a", tags$a(href="https://evanodell.com/blog/2017/02/06/cycling-vs-oyster/", "blog post"), "in February I analysed how much money I was saving by cycling to work instead of using a monthly Oyster transit pass. When I wrote that blog I had spent almost £20 more on my bike and pay-as-you-go transit pass than I would have if I bought a monthly transit pass. As of 29 April 2017, less than 3 months after that blog, and despite needing a new rear wheel, I broke even, and I've been updating my data every few days, and have now built another", tags$a(href="https://shiny.rstudio.com/", "Shiny"), "app to monitor my spending on my bike and on transit."),
+              p("In a", tags$a(href="https://evanodell.com/blog/2017/02/06/cycling-vs-oyster/", "blog post"), "in February 2017 I analysed how much money I was saving by cycling to work instead of using a monthly Oyster transit pass. When I wrote that blog I had spent almost £20 more on my bike and pay-as-you-go transit pass than I would have if I bought a monthly transit pass. As of 29 April 2017, less than 3 months after that blog, and despite needing a new rear wheel, I broke even, and I've been updating my data every few days, and have now built another", tags$a(href="https://shiny.rstudio.com/", "Shiny"), "app to monitor my spending on my bike and on transit."),
               
               p("I include all spending directly on my bike, including the cost of the bike, accessories, spare parts, tools and maintenance. I also include non-bike costs that are the result of cycling, primarily clothing. For instance, I have bought a couple pairs of commuter trousers for cycling and include that spending in my calculations, less £40 to represent the price of a standard pair of men's trousers, on the basis that I would have had to buy new trousers anyways."),
               
               p("You can see in the second time series plot that since writing the blog post in February my Oyster spending has dropped off somewhat. Since analysing how much I was cycling, and how much I was spending on transit, I've become much more dedicated to riding places, no longer taking the bus or the tube if I'm feeling a little bit lazy."), 
       
-           uiOutput("slider"),
+           uiOutput("slider"),##date adjustments
            em(h4(textOutput("last_update"))),
            em(h4(textOutput("savings"))),
            h4("Total Spending and Combined Spending:"),
-           div(id = "plot-container",
+           div(id = "plot-container", # spinner gifs
                tags$img(src = "spinner.gif",
                         id = "loading-spinner"),
                plotOutput("p1")),
@@ -159,13 +161,11 @@ server <- function(input, output) {
     
     comparison <- sum(bike_data$Bike, bike_data$Oyster, (nrow(bike_data)/365)*60) - sum(bike_data$mon_oyster_per_day)
     
-    if(comparison > 0) {
+    if(sum(bike_data$Bike, bike_data$Oyster, (nrow(bike_data)/365)*60) - sum(bike_data$mon_oyster_per_day) > 0) {
       compare <- "more"
     } else {
       compare <- "less"
     }
-    
-    #dailys <- sprintf("%.2f",round(abs(((sum(bike_data$Oyster)/nrow(bike_data)) + bike_average)-4.23),2))
     
    paste0("The green horizontal line represents the average daily cost of a monthly zone 1-2 Travelcard in London, £124.50 in 2016 and £126.80 in 2017. The burgundy horizontal line represents the average daily cost of my bicycle and accessories (£",sprintf("%.2f", round(sum(bike_data$Bike,(nrow(bike_data)/365)*60)/nrow(bike_data), 2)) ,") per day. The light blue line is a rolling monthly average of daily pay-as-you-go Oyster spending, and the light red line is pay-as-you-go Oyster spending combined with average daily bike costs. The average cost-per-day of my pay-as-you-go Oyster card is £", sprintf("%.2f",round((sum(bike_data$Oyster)/nrow(bike_data)),2)), ", which combined with bike spending means I have spent an average of £", sprintf("%.2f",abs(round(comparison/nrow(bike_data),2))), " per day ", compare, " than I would using a monthly travelcard.")
     
@@ -183,11 +183,7 @@ server <- function(input, output) {
     
     bike_data <- bike_data_subset()
     
-    savings_week <- sprintf("%.2f", round(sum(bike_data$week_oyster_per_day) - (nrow(bike_data) * mean(bike_data$mon_oyster_per_day)),2))
-    
-    annual_win_loss <- round(mean(bike_data$annual_oyster_per_day) - (nrow(bike_data) * mean(bike_data$mon_oyster_per_day)),2)
-    
-    if(annual_win_loss>0) {
+    if(mean(bike_data$annual_oyster_per_day) - (nrow(bike_data) * mean(bike_data$mon_oyster_per_day)) > 0) {
       awl <- "saved £"
     } else {
       awl <- "lost £"
@@ -195,8 +191,7 @@ server <- function(input, output) {
     
     savings_annual <- paste0(awl, sprintf("%.2f", abs(round(sum(bike_data$annual_oyster_per_day) - (sum(bike_data$Bike) + sum(bike_data$Oyster)),2))))
     
-    
-    other_options_text <- paste0("It is worth noting other options for paying for transit passes. If buying weekly Travelcards, assuming I purchased one every week, I would have spent £", sprintf("%.2f",round(sum(bike_data$week_oyster_per_day),2)), " over the same period. Using an annual Travelcard would cost, pro-rated over this time period, £", sprintf("%.2f",round(sum(bike_data$annual_oyster_per_day),2)), ". Compared to a weekly oyster card, cycling has saved me £", savings_week, ", while I have ",savings_annual," compared to using an annual Travelcard.")
+    other_options_text <- paste0("It is worth noting other options for paying for transit passes. If buying weekly Travelcards, assuming I purchased one every week, I would have spent £", sprintf("%.2f",round(sum(bike_data$week_oyster_per_day),2)), " over the same period. Using an annual Travelcard would cost, pro-rated over this time period, £", sprintf("%.2f",round(sum(bike_data$annual_oyster_per_day),2)), ". Compared to a weekly oyster card, cycling has saved me £", sprintf("%.2f", round(sum(bike_data$week_oyster_per_day) - (nrow(bike_data) * mean(bike_data$mon_oyster_per_day)),2)), ", while I have ",savings_annual," compared to using an annual Travelcard.")
     
     print(other_options_text)
     
@@ -206,10 +201,10 @@ server <- function(input, output) {
     
     bike_data <- bike_data_subset()
     
-    bike_locker_sum <-(nrow(bike_data)/365) * 60 ###Total bike locker spend, pro-rated
+    #bike_locker_sum <-  (nrow(bike_data)/365) * 60###Total bike locker spend, pro-rated
     
-    current_total = round(sum(bike_data$Oyster) + sum(bike_data$Bike, bike_locker_sum),2)
-    Travelcard_total = round(sum(bike_data$mon_oyster_per_day),2)
+    current_total <- round(sum(bike_data$Oyster) + sum(bike_data$Bike, (nrow(bike_data)/365) * 60),2)
+    Travelcard_total <- round(sum(bike_data$mon_oyster_per_day),2)
     
     fines_text <- paste0("I should also note that my total oyster spending includes fines for not tapping in or out correctly, and trips outside of zones 1-2, which would also be charged if I was using a travelcard. Accounting for the £", sprintf("%.2f", round(sum(bike_data$Fines))), " in fines and travel outside zone 2 that I presumably would have paid regardless, my savings are £", (Travelcard_total - current_total+sum(bike_data$Fines)),".")
     
@@ -245,12 +240,8 @@ server <- function(input, output) {
     
     bike_data <- bike_data_subset()
     
-    #bike_average <- mean(bike_data$Bike) + (()
-    
     bike_average <- mean(bike_data$Bike) + (((nrow(bike_data)/365) * 60)/nrow(bike_data))
-    
-    #days_covered <- as.character(max(bike_data$Date) - min(bike_data$Date))
-  
+
     travel_summary <- melt(data.frame(Bike_Total = sum(bike_data$Bike, (nrow(bike_data)/365) * 60),
                                       Oyster_Total = sum(bike_data$Oyster),
                                       Combined_Total = sum(bike_data$Oyster, bike_data$Bike,
