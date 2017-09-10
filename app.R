@@ -210,7 +210,7 @@ server <- function(input, output, session) {
     
     travelcard_total <- round(sum(bike_data$mon_oyster_per_day),2)
     
-    fines_text <- paste0("I should also note that my total oyster spending includes fines for not tapping in or out correctly, and trips outside of zones 1-2, which would also be charged if I was using a travelcard. Accounting for the £", sprintf("%.2f", round(sum(bike_data$fines))), " in fines and travel outside zone 2 that I presumably would have paid regardless, my savings are £", (travelcard_total - current_total+sum(bike_data$fines)),".")
+    fines_text <- paste0("I should also note that my total Oyster spending includes fines for not tapping in or out correctly, and trips outside of zones 1-2, which would also be charged if I was using a travelcard. Accounting for the £", sprintf("%.2f", round(sum(bike_data$fines))), " in fines and travel outside zone 2 that I presumably would have paid regardless, my savings are £", (travelcard_total - current_total+sum(bike_data$fines)),".")
     
     print(fines_text)
     
