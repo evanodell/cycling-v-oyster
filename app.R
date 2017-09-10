@@ -118,23 +118,24 @@ server <- function(input, output, session) {
   hide(id = "loading-content", anim = TRUE, animType = "fade")    
   show("app-content")
   
-  bike_data_full <- read_csv("cycling_oyster_data.csv", col_types = cols(Date = col_date(format = "%Y-%m-%d")))
+  bike_data_full <- read_csv("cycling_oyster_data.csv", col_types = cols(date = col_date(format = "%Y-%m-%d")))
 
-  bike_data_full$mon_oyster_per_day <- ifelse(bike_data_full$Date <= "2017-01-02", 124.50/30, 126.80/30)
+  bike_data_full$mon_oyster_per_day <- ifelse(bike_data_full$date <= "2017-01-02", 124.50/30, 126.80/30)
 
-  bike_data_full$week_oyster_per_day <- ifelse(bike_data_full$Date <= "2017-01-02", 32.4/7, 33/7)
+  bike_data_full$week_oyster_per_day <- ifelse(bike_data_full$date <= "2017-01-02", 32.4/7, 33/7)
 
-  bike_data_full$annual_oyster_per_day <- ifelse(bike_data_full$Date <= "2017-01-02", 1296/365, 1320/365)
+  bike_data_full$annual_oyster_per_day <- ifelse(bike_data_full$date <= "2017-01-02", 1296/365, 1320/365)
 
 # Slider ------------------------------------------------------------------
   output$slider <- renderUI({
-    sliderInput("inslider","Adjust date range:", min   = as.Date("2016-06-30"), 
-                max   = max(bike_data_full$Date),
-                value = max(bike_data_full$Date))
+    sliderInput("date_slider","Adjust date range:", 
+                min = as.Date("2016-06-30"), 
+                max   = max(bike_data_full$date),
+                value = max(bike_data_full$date))
     })
   
   bike_data_subset <- reactive({
-    bike_data_full[bike_data_full$Date  <= input$inslider,]
+    bike_data_full[bike_data_full$date  <= input$date_slider,]
   })
   
   pound <- function(x) {
@@ -143,14 +144,14 @@ server <- function(input, output, session) {
                       trim = TRUE, scientific = FALSE))
   }
 
-  output$last_update <- renderText(paste0("Last Updated: ", format(max(bike_data_full$Date),format="%d %B %Y")))
+  output$last_update <- renderText(paste0("Last Updated: ", format(max(bike_data_full$date),format="%d %B %Y")))
 
   # p1 text ----------------------------------------------------------------------  
   output$p1_text <- renderText({
     
     bike_data <- bike_data_subset()
     
-    paste0("The red and green bars are total spending on my bike and related accessories and my pay-as-you-go Oyster spending, respectively. The blue bar is the combined total of bicycle and pay-as-you-go spending, and the purple bar is the hypothetical total spending of monthly Travelcards covering ", as.character(max(bike_data$Date) - min(bike_data$Date)), " days, from 30 June 2016 to ", format(max(bike_data$Date),format="%d %B %Y"),".")
+    paste0("The red and green bars are total spending on my bike and related accessories and my pay-as-you-go Oyster spending, respectively. The blue bar is the combined total of bicycle and pay-as-you-go spending, and the purple bar is the hypothetical total spending of monthly Travelcards covering ", as.character(max(bike_data$date) - min(bike_data$date)), " days, from 30 June 2016 to ", format(max(bike_data$date),format="%d %B %Y"),".")
     
     })
   
@@ -159,15 +160,15 @@ server <- function(input, output, session) {
     
     bike_data <- bike_data_subset()
     
-    comparison <- sum(bike_data$Bike, bike_data$Oyster, (nrow(bike_data)/365)*60) - sum(bike_data$mon_oyster_per_day)
+    comparison <- sum(bike_data$bike, bike_data$oyster, (nrow(bike_data)/365)*60) - sum(bike_data$mon_oyster_per_day)
     
-    if(sum(bike_data$Bike, bike_data$Oyster, (nrow(bike_data)/365)*60) - sum(bike_data$mon_oyster_per_day) > 0) {
+    if(sum(bike_data$bike, bike_data$oyster, (nrow(bike_data)/365)*60) - sum(bike_data$mon_oyster_per_day) > 0) {
       compare <- "more"
     } else {
       compare <- "less"
     }
     
-   paste0("The green horizontal line represents the average daily cost of a monthly zone 1-2 Travelcard in London, £124.50 in 2016 and £126.80 in 2017. The burgundy horizontal line represents the average daily cost of my bicycle and accessories (£",sprintf("%.2f", round(sum(bike_data$Bike,(nrow(bike_data)/365)*60)/nrow(bike_data), 2)) ,") per day. The light blue line is a rolling monthly average of daily pay-as-you-go Oyster spending, and the light red line is pay-as-you-go Oyster spending combined with average daily bike costs. The average cost-per-day of my pay-as-you-go Oyster card is £", sprintf("%.2f",round((sum(bike_data$Oyster)/nrow(bike_data)),2)), ", which combined with bike spending means I have spent an average of £", sprintf("%.2f",abs(round(comparison/nrow(bike_data),2))), " per day ", compare, " than I would using a monthly travelcard.")
+   paste0("The green horizontal line represents the average daily cost of a monthly zone 1-2 Travelcard in London, £124.50 in 2016 and £126.80 in 2017. The burgundy horizontal line represents the average daily cost of my bicycle and accessories (£",sprintf("%.2f", round(sum(bike_data$bike,(nrow(bike_data)/365)*60)/nrow(bike_data), 2)) ,") per day. The light blue line is a rolling monthly average of daily pay-as-you-go Oyster spending, and the light red line is pay-as-you-go Oyster spending combined with average daily bike costs. The average cost-per-day of my pay-as-you-go Oyster card is £", sprintf("%.2f",round((sum(bike_data$oyster)/nrow(bike_data)),2)), ", which combined with bike spending means I have spent an average of £", sprintf("%.2f",abs(round(comparison/nrow(bike_data),2))), " per day ", compare, " than I would using a monthly travelcard.")
     
     })
   
@@ -177,7 +178,7 @@ server <- function(input, output, session) {
     
     bike_data <- bike_data_subset()
     
-    paste0("Cumulative spending in each category over ", as.character(max(bike_data$Date) - min(bike_data$Date)), " days, from 30 June 2016 to ", format(max(bike_data$Date),format="%d %B %Y"),", and a 30-day rolling average of daily bicycle costs.")
+    paste0("Cumulative spending in each category over ", as.character(max(bike_data$date) - min(bike_data$date)), " days, from 30 June 2016 to ", format(max(bike_data$date),format="%d %B %Y"),", and a 30-day rolling average of daily bicycle costs.")
     
     })
   
@@ -191,7 +192,7 @@ server <- function(input, output, session) {
       awl <- "lost £"
     }
     
-    savings_annual <- paste0(awl, sprintf("%.2f", abs(round(sum(bike_data$annual_oyster_per_day) - (sum(bike_data$Bike) + sum(bike_data$Oyster)),2))))
+    savings_annual <- paste0(awl, sprintf("%.2f", abs(round(sum(bike_data$annual_oyster_per_day) - (sum(bike_data$bike) + sum(bike_data$oyster)),2))))
 
 # other options text ----------------------------------------------------------------------
     other_options_text <- paste0("It is worth noting other options for paying for transit passes. If buying weekly Travelcards, assuming I purchased one every week, I would have spent £", sprintf("%.2f",round(sum(bike_data$week_oyster_per_day),2)), " over the same period. Using an annual Travelcard would cost, pro-rated over this time period, £", sprintf("%.2f",round(sum(bike_data$annual_oyster_per_day),2)), ". Compared to a weekly oyster card, cycling has saved me £", sprintf("%.2f", round(sum(bike_data$week_oyster_per_day) - (nrow(bike_data) * mean(bike_data$mon_oyster_per_day)),2)), ", while I have ",savings_annual," compared to using an annual Travelcard.")
@@ -205,11 +206,11 @@ server <- function(input, output, session) {
     
     bike_data <- bike_data_subset()
 
-    current_total <- round(sum(bike_data$Oyster) + sum(bike_data$Bike, (nrow(bike_data)/365) * 60),2)
+    current_total <- round(sum(bike_data$oyster) + sum(bike_data$bike, (nrow(bike_data)/365) * 60),2)
     
     travelcard_total <- round(sum(bike_data$mon_oyster_per_day),2)
     
-    fines_text <- paste0("I should also note that my total oyster spending includes fines for not tapping in or out correctly, and trips outside of zones 1-2, which would also be charged if I was using a travelcard. Accounting for the £", sprintf("%.2f", round(sum(bike_data$Fines))), " in fines and travel outside zone 2 that I presumably would have paid regardless, my savings are £", (travelcard_total - current_total+sum(bike_data$Fines)),".")
+    fines_text <- paste0("I should also note that my total oyster spending includes fines for not tapping in or out correctly, and trips outside of zones 1-2, which would also be charged if I was using a travelcard. Accounting for the £", sprintf("%.2f", round(sum(bike_data$fines))), " in fines and travel outside zone 2 that I presumably would have paid regardless, my savings are £", (travelcard_total - current_total+sum(bike_data$fines)),".")
     
     print(fines_text)
     
@@ -221,7 +222,7 @@ server <- function(input, output, session) {
     
     bike_locker_sum <-(nrow(bike_data)/365) * 60
     
-    current_total <- sum(bike_data$Oyster, bike_data$Bike, bike_locker_sum)
+    current_total <- sum(bike_data$oyster, bike_data$bike, bike_locker_sum)
     
     travelcard_total <- sum(bike_data$mon_oyster_per_day)
     
@@ -247,11 +248,11 @@ server <- function(input, output, session) {
     
     bike_data <- bike_data_subset()
     
-    bike_average <- mean(bike_data$Bike) + (((nrow(bike_data)/365) * 60)/nrow(bike_data))
+    bike_average <- mean(bike_data$bike) + (((nrow(bike_data)/365) * 60)/nrow(bike_data))
 
-    travel_summary <- melt(data.frame(Bike = sum(bike_data$Bike, (nrow(bike_data)/365) * 60),
-                                      Oyster = sum(bike_data$Oyster),
-                                      Combined = sum(bike_data$Oyster, bike_data$Bike,
+    travel_summary <- melt(data.frame(Bike = sum(bike_data$bike, (nrow(bike_data)/365) * 60),
+                                      Oyster = sum(bike_data$oyster),
+                                      Combined = sum(bike_data$oyster, bike_data$bike,
                                                           (nrow(bike_data)/365) * 60),
                                       Hypothetical_Travelcard = sum(bike_data$mon_oyster_per_day)))
     
@@ -268,9 +269,9 @@ p1 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = val
                 fontface = "bold",
                 size = 5) +
       scale_y_continuous(labels = pound, name=paste0("Total spending from \n",
-                                     format(min(bike_data$Date),format="%d %B %Y"),
+                                     format(min(bike_data$date),format="%d %B %Y"),
                                      " to ",
-                                     format(max(bike_data$Date), format="%d %B %Y"))) +
+                                     format(max(bike_data$date), format="%d %B %Y"))) +
       scale_x_discrete(name="Type of Spending") +
       theme(legend.position = "bottom", 
             text=element_text(size=14),
@@ -288,27 +289,27 @@ p1 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = val
     
     bike_data <- bike_data_subset() 
     
-    bike_average <- mean(bike_data$Bike) + (((nrow(bike_data)/365) * 60)/nrow(bike_data))
+    bike_average <- mean(bike_data$bike) + (((nrow(bike_data)/365) * 60)/nrow(bike_data))
     
     oyster_roll_gg <- as.tibble(
-      rollapply(zoo(bike_data$Oyster, order.by=bike_data$Date),7, mean, align="right")
+      rollapply(zoo(bike_data$oyster, order.by=bike_data$date),7, mean, align="right")
       )
     
-    oyster_roll_gg$Date <- as.Date(row.names(oyster_roll_gg))
+    oyster_roll_gg$date <- as.Date(row.names(oyster_roll_gg))
     
-    names(oyster_roll_gg)[1] <- "Oyster_Charge"
+    names(oyster_roll_gg)[1] <- "oyster_charge"
     
-    oyster_roll_gg$Bike_plus_Oyster <- mean(bike_data[["Bike"]]) + oyster_roll_gg$Oyster_Charge
+    oyster_roll_gg$bike_plus_oyster <- mean(bike_data[["bike"]]) + oyster_roll_gg$oyster_charge
     
-    oyster_roll_gg<- melt(oyster_roll_gg, id="Date")
+    oyster_roll_gg<- melt(oyster_roll_gg, id="date")
     
     ## Recoding oyster_roll_gg$variable into oyster_roll_gg$variable
     oyster_roll_gg$variable <- as.character(oyster_roll_gg$variable)
-    oyster_roll_gg$variable[oyster_roll_gg$variable == "Oyster_Charge"] <- "PAYG Oyster Spending"
-    oyster_roll_gg$variable[oyster_roll_gg$variable == "Bike_plus_Oyster"] <- "Oyster Plus Bike Spending"
+    oyster_roll_gg$variable[oyster_roll_gg$variable == "oyster_charge"] <- "PAYG Oyster Spending"
+    oyster_roll_gg$variable[oyster_roll_gg$variable == "bike_plus_oyster"] <- "Oyster Plus Bike Spending"
     oyster_roll_gg$variable <- factor(oyster_roll_gg$variable)
     
-    p2 <- ggplot(oyster_roll_gg, aes(x=Date)) +
+    p2 <- ggplot(oyster_roll_gg, aes(x=date)) +
       geom_hline(aes(yintercept=bike_average, linetype="Bicycle Cost-Per-Day"),
                  col = "#b5000e",
                  size=1, 
@@ -327,13 +328,13 @@ p1 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = val
       scale_x_date(date_breaks = "4 weeks") +
       scale_y_continuous(name="Average charge over previous 7 days", labels = pound) +
       guides(col = guide_legend(nrow = 2, bycol = TRUE)) +
-      geom_text(aes(x = max(Date),
+      geom_text(aes(x = max(date),
                     y = bike_average,
                     hjust= "right",
                     vjust = 1.5,
                     label = paste0("Bicycle Cost Per Day (£",
                                    sprintf("%.2f", round(bike_average,2)),")")), size=5.5) +
-      geom_text(aes(x = max(Date), 
+      geom_text(aes(x = max(date), 
                     y = mean(bike_data$mon_oyster_per_day), 
                     hjust= "right", 
                     vjust = 1.5,
@@ -357,13 +358,13 @@ p1 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = val
     
     bike_data <- bike_data_subset()
   
-    bike_melt <- melt(bike_data[c(1:3)], id = c("Date"))
+    bike_melt <- melt(bike_data[c(1:3)], id = c("date"))
     
-    bike_melt2 <- bike_melt %>% group_by(variable) %>% arrange(Date) %>% mutate(spending = cumsum(value))
+    bike_melt2 <- bike_melt %>% group_by(variable) %>% arrange(date) %>% mutate(spending = cumsum(value))
     
 
     
-    p3 <- ggplot(bike_melt2) + geom_line(aes(x=Date,y=spending, col = variable), size=1) +
+    p3 <- ggplot(bike_melt2) + geom_line(aes(x=date,y=spending, col = variable), size=1) +
       scale_y_continuous(name = "Cumulative Spending", 
                          labels = pound) + 
       scale_x_date(date_breaks = "4 weeks") + 
@@ -386,15 +387,15 @@ p1 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = val
     
     bike_data <- bike_data_subset()
     
-    bike_data$cumsum <- cumsum(bike_data$Bike)/as.numeric(bike_data$Date - as.Date("2016-06-29"))
+    bike_data$cumsum <- cumsum(bike_data$bike)/as.numeric(bike_data$date - as.Date("2016-06-29"))
     
-    bike_roll_gg <- tibble::as_tibble(rollapply(zoo(bike_data$cumsum, order.by=bike_data$Date), 30, mean))
+    bike_roll_gg <- tibble::as_tibble(rollapply(zoo(bike_data$cumsum, order.by=bike_data$date), 30, mean))
     
-    bike_roll_gg$Date <- as.Date(row.names(bike_roll_gg))
+    bike_roll_gg$date <- as.Date(row.names(bike_roll_gg))
     
     names(bike_roll_gg)[1] <- "spending"
     
-    p4 <- ggplot(bike_roll_gg) + geom_line(aes(x=Date,y=spending), col = "#b5000e", size=1) +
+    p4 <- ggplot(bike_roll_gg) + geom_line(aes(x=date,y=spending), col = "#b5000e", size=1) +
       scale_y_sqrt(name = "Average bicycle cost per day\n over the previous 30 days", 
                    labels = pound,
                    breaks=c(0,2,4,6,8,10,20,30,40,50)) + 
@@ -416,5 +417,3 @@ p1 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = val
 
 # Run the application 
 shinyApp(ui = ui, server = server)
-
-
