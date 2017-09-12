@@ -325,7 +325,7 @@ p1 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = val
                                                  override.aes = list(color = c("#b5000e", "#01e245")))) +
       geom_line(aes(y=value, col = variable), size=1) +
       scale_color_discrete("") + 
-      scale_x_date(date_breaks = "4 weeks") +
+      scale_x_date(name="Date", date_breaks = "4 weeks") +
       scale_y_continuous(name="Average charge over previous 7 days", labels = pound) +
       guides(col = guide_legend(nrow = 2, bycol = TRUE)) +
       geom_text(aes(x = max(date),
@@ -367,7 +367,7 @@ p1 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = val
     p3 <- ggplot(bike_melt2) + geom_line(aes(x=date,y=spending, col = variable), size=1) +
       scale_y_continuous(name = "Cumulative Spending", 
                          labels = pound) + 
-      scale_x_date(date_breaks = "4 weeks") + 
+      scale_x_date(name="Date", date_breaks = "4 weeks") + 
       scale_color_manual(values = c("#01e245","#b5000e"), 
                          labels = c("Pay As You Go Oyster Spending","Bike Spending"), 
                          name="") + 
@@ -399,7 +399,7 @@ p1 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = val
       scale_y_sqrt(name = "Average bicycle cost per day\n over the previous 30 days", 
                    labels = pound,
                    breaks=c(0,2,4,6,8,10,20,30,40,50)) + 
-      scale_x_date(date_breaks = "4 weeks") + 
+      scale_x_date(name="Date", date_breaks = "4 weeks") + 
       scale_color_manual(values = c("#b5000e"), 
                          labels = c("Bike Spending")) + 
       theme(legend.position = "bottom",
