@@ -168,7 +168,7 @@ server <- function(input, output, session) {
       compare <- "less"
     }
     
-   paste0("The green horizontal line represents the average daily cost of a monthly zone 1-2 Travelcard in London, £124.50 in 2016 and £126.80 in 2017. The burgundy horizontal line represents the average daily cost of my bicycle and accessories (£",sprintf("%.2f", round(sum(bike_data$bike,(nrow(bike_data)/365)*60)/nrow(bike_data), 2)) ,") per day. The light blue line is a rolling monthly average of daily pay-as-you-go Oyster spending, and the light red line is pay-as-you-go Oyster spending combined with average daily bike costs. The average cost-per-day of my pay-as-you-go Oyster card is £", sprintf("%.2f",round((sum(bike_data$oyster)/nrow(bike_data)),2)), ", which combined with bike spending means I have spent an average of £", sprintf("%.2f",abs(round(comparison/nrow(bike_data),2))), " per day ", compare, " than I would using a monthly travelcard.")
+   paste0("The green horizontal line represents the cost-per-day of a monthly zone 1-2 Travelcard in London over this time period: £4.15 in 2016 and £4.23 in 2017, averaging to £",sprintf("%.2f", round(mean(bike_data$mon_oyster_per_day),2)), ". The burgundy horizontal line represents the average daily cost of my bicycle and accessories (£",sprintf("%.2f", round(sum(bike_data$bike,(nrow(bike_data)/365)*60)/nrow(bike_data), 2)) ,"). The light blue line is a rolling monthly average of daily pay-as-you-go Oyster spending, and the light red line is pay-as-you-go Oyster spending combined with average daily bike costs. The average cost-per-day of my pay-as-you-go Oyster card is £", sprintf("%.2f",round((sum(bike_data$oyster)/nrow(bike_data)),2)), ", which combined with bike spending means I have spent an average of £", sprintf("%.2f",abs(round(comparison/nrow(bike_data),2))), " per day ", compare, " than I would using a monthly travelcard.")
     
     })
   
@@ -330,23 +330,23 @@ p1 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = val
       guides(col = guide_legend(nrow = 2, bycol = TRUE)) +
       geom_text(aes(x = max(date),
                     y = bike_average,
-                    hjust= "right",
-                    vjust = 1.5,
-                    label = paste0("Bicycle Cost Per Day (£",
-                                   sprintf("%.2f", round(bike_average,2)),")")), size=5.5) +
+                    hjust= 0.5,
+                    vjust = -0.5,
+                    label = paste0("£",
+                                   sprintf("%.2f", round(bike_average,2)))), size=5.5) +
       geom_text(aes(x = max(date), 
                     y = mean(bike_data$mon_oyster_per_day), 
-                    hjust= "right", 
-                    vjust = 1.5,
-                    label = paste0("Monthly Zone 1-2 Travelcard (£",
-                                   sprintf("%.2f", round(mean(bike_data$mon_oyster_per_day),2)),")")), 
+                    hjust= 0.5,
+                    vjust = -0.5,
+                    label = paste0("£",
+                                   sprintf("%.2f", round(mean(bike_data$mon_oyster_per_day),2)))), 
                 size=5.5)+
       theme(legend.position = "bottom",
             legend.text=element_text(size=14),
             text=element_text(size=14),
             axis.text.x = element_text(angle = 30, hjust = 1, size=14), 
             axis.text.y = element_text(size=14)
-            )
+      )
     
     print(p2)
     
