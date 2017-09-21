@@ -61,7 +61,7 @@ ui <- fluidPage(
   column(2),
   
   column(8,
-         
+# App Text ---------------------------------------------------------------         
          fluidRow(
            p("*Updated every few days."),
               
@@ -70,17 +70,20 @@ ui <- fluidPage(
               p("I include all spending directly on my bike, including the cost of the bike, accessories, spare parts, tools and maintenance. I also include non-bike costs that are the result of cycling, primarily clothing. For instance, I have bought a couple pairs of commuter trousers for cycling and include that spending in my calculations, less £40 to represent the price of a standard pair of men's trousers, on the basis that I would have had to buy new trousers anyways."),
               
               p("You can see in the second time series plot that since writing the blog post in February my Oyster spending has dropped off somewhat. Since analysing how much I was cycling, and how much I was spending on transit, I've become much more dedicated to riding places, no longer taking the bus or the tube if I'm feeling a little bit lazy."), 
-      
+           
+# slider ----------------------------------------------------------------------      
            uiOutput("slider"),##date adjustments
            em(h4(textOutput("last_update"))),
            em(h4(textOutput("savings"))),
+# UI-p1 ----------------------------------------------------------------------  
            h4("Total Spending and Combined Spending:"),
            div(id = "plot-container", # spinner gifs
                tags$img(src = "spinner.gif",
                         id = "loading-spinner"),
                plotOutput("p1")),
            em(textOutput("p1_text"))),
-         
+
+# UI-p2 ----------------------------------------------------------------------           
          fluidRow(
            h4("Time Series of Spending on Pay-As-You-Go Oyster and Cycling:"),
            div(id = "plot-container",
@@ -88,19 +91,31 @@ ui <- fluidPage(
                         id = "loading-spinner"),
                plotOutput("p2")),
            em(textOutput("p2_text"))),
-         
+
+# UI-p3 ----------------------------------------------------------------------           
          fluidRow(
            h4("Cumulative Spending in Each Category:"),
            div(id = "plot-container",
                tags$img(src = "spinner.gif",
                         id = "loading-spinner"),
                plotOutput("p3")),
+           em(textOutput("p3_text"))),
+# UI-p4 ----------------------------------------------------------------------  
            h4("Rolling average bicycle cost per day:"),
            div(id = "plot-container",
                tags$img(src = "spinner.gif",
                         id = "loading-spinner"),
                plotOutput("p4")),
-           em(textOutput("p3_text"))),
+           em("30-day rolling average of daily bicycle costs"),
+# UI-p5 ----------------------------------------------------------------------  
+          h4("Savings/losses over time:"),
+          div(id = "plot-container",
+              tags$img(src = "spinner.gif",
+              id = "loading-spinner"),
+          plotOutput("p5")),
+          
+
+
          
          fluidRow(
            br(),
@@ -178,10 +193,12 @@ server <- function(input, output, session) {
     
     bike_data <- bike_data_subset()
     
-    paste0("Cumulative spending in each category over ", as.character(max(bike_data$date) - min(bike_data$date)), " days, from 30 June 2016 to ", format(max(bike_data$date),format="%d %B %Y"),", and a 30-day rolling average of daily bicycle costs.")
+    paste0("Cumulative spending in each category over ", as.character(max(bike_data$date) - min(bike_data$date)), " days, from 30 June 2016 to ", format(max(bike_data$date),format="%d %B %Y"),".")
     
     })
   
+# p4 text ----------------------------------------------------------------------
+
   output$other_options_text <- renderText({
     
     bike_data <- bike_data_subset()
@@ -332,14 +349,12 @@ p1 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = val
                     y = bike_average,
                     hjust= 0.5,
                     vjust = -0.5,
-                    label = paste0("£",
-                                   sprintf("%.2f", round(bike_average,2)))), size=5.5) +
+                    label = paste0("£", sprintf("%.2f", round(bike_average,2)))), size=5.5) +
       geom_text(aes(x = max(date), 
                     y = mean(bike_data$mon_oyster_per_day), 
                     hjust= 0.5,
                     vjust = -0.5,
-                    label = paste0("£",
-                                   sprintf("%.2f", round(mean(bike_data$mon_oyster_per_day),2)))), 
+                    label = paste0("£", sprintf("%.2f", round(mean(bike_data$mon_oyster_per_day),2)))), 
                 size=5.5)+
       theme(legend.position = "bottom",
             legend.text=element_text(size=14),
@@ -395,7 +410,8 @@ p1 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = val
     
     names(bike_roll_gg)[1] <- "spending"
     
-    p4 <- ggplot(bike_roll_gg) + geom_line(aes(x=date,y=spending), col = "#b5000e", size=1) +
+    p4 <- ggplot(bike_roll_gg) + 
+      geom_line(aes(x=date,y=spending), col = "#b5000e", size=1) +
       scale_y_sqrt(name = "Average bicycle cost per day\n over the previous 30 days", 
                    labels = pound,
                    breaks=c(0,2,4,6,8,10,20,30,40,50)) + 
@@ -412,6 +428,46 @@ p1 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = val
     print(p4)
     
   })
+  
+# p5 ----------------------------------------------------------------------
+  output$p5 <- renderPlot({
+    
+    #bike_data <- bike_data_subset()
+    
+    bike_data <- read_csv("cycling_oyster_data.csv", col_types = cols(date = col_date(format = "%Y-%m-%d")))
+    
+    bike_data$mon_oyster_per_day <- ifelse(bike_data$date <= "2017-01-02", 124.50/30, 126.80/30)
+    
+    #bike_data$bike_cumsum <- cumsum(bike_data$bike) + cumsum(bike_data$oyster)
+    
+    #bike_data$oyster_cumsum <- cumsum(bike_data$mon_oyster_per_day)
+    
+    bike_data$gain_loss <- cumsum(bike_data$mon_oyster_per_day) - (cumsum(bike_data$bike) + cumsum(bike_data$oyster))
+    
+    #bike_roll_gg <- tibble::as_tibble(rollapply(zoo(bike_data$cumsum, order.by=bike_data$date), 30, mean))
+    
+    p5 <- ggplot(bike_data) + 
+      geom_hline(yintercept = 0, colour="red", size=0.5, alpha=0.7) +
+      geom_line(aes(x=date,y=gain_loss),size=1, colour = "#00B6EB") +
+      scale_y_continuous(name = "Savings/Losses over Time", 
+                   labels = pound,
+                   breaks = seq(-250, 1000, by = 50) ) + 
+      scale_x_date(name="Date", date_breaks = "4 weeks") + 
+      scale_color_manual(values = c("#b5000e"), 
+                         labels = c("Bike Spending")) + 
+      theme(legend.position = "bottom",
+            legend.text=element_text(size=14),
+            text=element_text(size=14),
+            axis.text.x = element_text(angle = 30, hjust = 1, size=14), 
+            axis.text.y = element_text(size=14)
+      )
+    
+    print(p5)
+    
+  })
+  
+  p <- ggplot(mpg,aes(x=class,fill=class)) + geom_bar()
+  ggplot_build(p)$data
   
 }
 
