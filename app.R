@@ -412,9 +412,9 @@ p1 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = val
     
     p4 <- ggplot(bike_roll_gg) + 
       geom_line(aes(x=date,y=spending), col = "#b5000e", size=1) +
-      scale_y_sqrt(name = "Average bicycle cost per day\n over the previous 30 days", 
+      scale_y_log10(name = "Average bicycle cost per day\n over the previous 30 days", 
                    labels = pound,
-                   breaks=c(0,2,4,6,8,10,20,30,40,50)) + 
+                   breaks=c(0,2,4,6,8,10,20)) + 
       scale_x_date(name="Date", date_breaks = "4 weeks") + 
       scale_color_manual(values = c("#b5000e"), 
                          labels = c("Bike Spending")) + 
