@@ -448,7 +448,14 @@ p1 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = val
     
     p5 <- ggplot(bike_data) + 
       geom_hline(yintercept = 0, colour="red", size=0.5, alpha=0.7) +
+      geom_hline(yintercept = max(bike_data$gain_loss), colour="blue", size=0.5, alpha=0.7) + 
       geom_line(aes(x=date,y=gain_loss),size=1, colour = "#00B6EB") +
+      geom_text(aes(x = min(date), 
+                    y = max(bike_data$gain_loss), 
+                    hjust= 0,
+                    vjust = 1.5,
+                    label = paste0("Max savings: £", sprintf("%.2f", round(max(bike_data$gain_loss),2)))), 
+                size=5.5)+
       scale_y_continuous(name = "Savings/Losses over Time", 
                    labels = pound,
                    breaks = seq(-250, 1000, by = 50) ) + 
