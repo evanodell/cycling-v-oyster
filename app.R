@@ -299,7 +299,7 @@ p1 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = val
     
   })
   
-# p2 ----------------------------------------------------------------------
+  # p2 ----------------------------------------------------------------------
   output$p2 <- renderPlot({
     
     bike_data <- bike_data_subset() 
@@ -308,7 +308,7 @@ p1 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = val
     
     oyster_roll_gg <- as.tibble(
       rollapply(zoo(bike_data$oyster, order.by=bike_data$date),7, mean, align="right")
-      )
+    )
     
     oyster_roll_gg$date <- as.Date(row.names(oyster_roll_gg))
     
@@ -316,11 +316,7 @@ p1 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = val
     
     oyster_roll_gg$bike_plus_oyster <- mean(bike_data[["bike"]]) + oyster_roll_gg$oyster_charge
     
-    oyster_roll_gg$mon_oyster_per_day <- ifelse(oyster_roll_gg$date <= "2017-01-02", 124.50/30, 126.80/30)
-    
-    oyster_roll_gg$bike_per_date <- bike_average
-    
-    oyster_roll_gg <- melt(oyster_roll_gg, id="date")
+    oyster_roll_gg<- melt(oyster_roll_gg, id="date")
     
     ## Recoding oyster_roll_gg$variable into oyster_roll_gg$variable
     oyster_roll_gg$variable <- as.character(oyster_roll_gg$variable)
@@ -329,19 +325,19 @@ p1 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = val
     oyster_roll_gg$variable <- factor(oyster_roll_gg$variable)
     
     p2 <- ggplot(oyster_roll_gg, aes(x=date)) +
-      # geom_hline(aes(yintercept=bike_average, linetype="Bicycle Cost-Per-Day"),
-      #            col = "#b5000e",
-      #            size=1, 
-      #            show.legend = TRUE) +
-      # geom_hline(aes(yintercept=mean(bike_data$mon_oyster_per_day),
-      #                linetype="Travelcard Cost-Per-Day"),
-      #            col = "#01e245",
-      #            size=1,
-      #            show.legend = FALSE) +
-      # scale_linetype_manual(values = c(2, 2),
-      #                       guide = guide_legend(title = NULL,
-      #                                            nrow=2,
-      #                                            override.aes = list(color = c("#b5000e", "#01e245")))) +
+      geom_hline(aes(yintercept=bike_average, linetype="Bicycle Cost-Per-Day"),
+                 col = "#b5000e",
+                 size=1, 
+                 show.legend = TRUE) +
+      geom_hline(aes(yintercept=mean(bike_data$mon_oyster_per_day),
+                     linetype="Travelcard Cost-Per-Day"),
+                 col = "#01e245",
+                 size=1,
+                 show.legend = FALSE) +
+      scale_linetype_manual(values = c(2, 2),
+                            guide = guide_legend(title = NULL,
+                                                 nrow=2,
+                                                 override.aes = list(color = c("#b5000e", "#01e245")))) +
       geom_line(aes(y=value, col = variable), size=1) +
       scale_color_discrete("") + 
       scale_x_date(name="Date", date_breaks = "4 weeks") +
