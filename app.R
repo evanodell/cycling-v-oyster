@@ -263,10 +263,10 @@ server <- function(input, output, session) {
     
     bike_average <- mean(bike_data$bike) + (((nrow(bike_data)/365) * 60)/nrow(bike_data))
 
-    travel_summary <- melt(data.frame(Bike = sum(bike_data$bike, (nrow(bike_data)/365) * 60),
+    travel_summary <- melt(data.frame(Bike = sum(bike_data$bike, (nrow(bike_data) * (60/365))),
                                       Oyster = sum(bike_data$oyster),
                                       Combined = sum(bike_data$oyster, bike_data$bike,
-                                                          (nrow(bike_data)/365) * 60),
+                                                          (nrow(bike_data) * (60/365))),
                                       Hypothetical_Travelcard = sum(bike_data$mon_oyster_per_day)))
     
     travel_summary$variable <- gsub("_", " ", travel_summary$variable)
@@ -434,9 +434,13 @@ p1 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = val
     
     bike_data <- read_csv("cycling_oyster_data.csv", col_types = cols(date = col_date(format = "%Y-%m-%d")))
     
+    #bike_data$cumsum <- cumsum(60/365)
+    
+    bike_data$bike <- bike_data$bike + (60/365)
+    
     bike_data$mon_oyster_per_day <- ifelse(bike_data$date <= "2017-01-02", 124.50/30, 126.80/30)
     
-    bike_data$gain_loss <- cumsum(bike_data$mon_oyster_per_day) - (cumsum(bike_data$bike) + cumsum(bike_data$oyster) + cumsum((nrow(bike_data)/365) * 60))
+    bike_data$gain_loss <- cumsum(bike_data$mon_oyster_per_day) - (cumsum(bike_data$bike) + cumsum(bike_data$oyster))
 
     p5 <- ggplot(bike_data) + 
       geom_hline(yintercept = 0, colour="red", size=0.5, alpha=0.7) +
@@ -446,8 +450,8 @@ p1 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = val
                     y = max(bike_data$gain_loss), 
                     hjust= 1.06,
                     vjust = 1.5,
-                    label = paste0("Max savings: £", sprintf("%.2f", round(max(bike_data$gain_loss),2)))), 
-                size=5.5)+
+                    label = paste0("Max savings: £", sprintf("%.2f", round(max(bike_data$gain_loss),2)))),
+                    size=5.5)+
       scale_y_continuous(name = "Savings/Losses over Time", 
                    labels = pound,
                    breaks = seq(-250, 1000, by = 50) ) + 
