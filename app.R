@@ -65,6 +65,8 @@ ui <- fluidPage(
            p("*Updated every few days."),
               
               p("In a", tags$a(href="https://evanodell.com/blog/2017/02/06/cycling-vs-oyster/", "blog post"), "in February 2017 I analysed how much money I was saving by cycling to work instead of using a monthly Oyster transit pass. When I wrote that blog I had spent almost £20 more on my bike and pay-as-you-go transit pass than I would have if I bought a monthly transit pass. As of 29 April 2017, less than 3 months after that blog, and despite needing a new rear wheel, I broke even, and I've been updating my data every few days, and have now built another", tags$a(href="https://shiny.rstudio.com/", "Shiny"), "app to monitor my spending on my bike and on transit."),
+           
+           p("Of course, I had to screw this up somehow, so I bought a new bike in October 2017."),
               
               p("I include all spending directly on my bike, including the cost of the bike, accessories, spare parts, tools and maintenance. I also include non-bike costs that are the result of cycling, primarily clothing. For instance, I have bought a couple pairs of commuter trousers for cycling and include that spending in my calculations, less £40 to represent the price of a standard pair of men's trousers, on the basis that I would have had to buy new trousers anyways."),
               
@@ -346,7 +348,7 @@ p1 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = val
       geom_text(aes(x = max(date),
                     y = bike_average,
                     hjust= 0.5,
-                    vjust = -0.5,
+                    vjust = 1.4,
                     label = paste0("£", sprintf("%.2f", round(bike_average,2)))), size=5.5) +
       geom_text(aes(x = max(date), 
                     y = mean(bike_data$mon_oyster_per_day), 
@@ -402,8 +404,6 @@ p1 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = val
     
     bike_data$cumsum <- (cumsum(bike_data$bike)/as.numeric(bike_data$date - as.Date("2016-06-29"))) + (60 / 365)
     
-    bike_data <- bike_data[bike_data$date > "2016-07-20",]
-    
     bike_roll_gg <- tibble::as_tibble(rollapply(zoo(bike_data$cumsum, order.by=bike_data$date), 7, mean))
     
     bike_roll_gg$date <- as.Date(row.names(bike_roll_gg))
@@ -452,9 +452,15 @@ p1 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = val
                     vjust = 1.5,
                     label = paste0("Max savings: £", sprintf("%.2f", round(max(bike_data$gain_loss),2)))),
                     size=5.5)+
+      geom_text(aes(x = bike_data$date[bike_data$gain_loss == min(bike_data$gain_loss)], 
+                    y = min(bike_data$gain_loss), 
+                    hjust= 1.06,
+                    vjust = 0.5,
+                    label = paste0("Max loss: £", sprintf("%.2f", round(min(bike_data$gain_loss),2)))),
+                size=5.5)+
       scale_y_continuous(name = "Savings/Losses over Time", 
                    labels = pound,
-                   breaks = seq(-250, 1000, by = 50) ) + 
+                   breaks = seq(-900, 1000, by = 50) ) + 
       scale_x_date(name="Date", date_breaks = "4 weeks") + 
       scale_color_manual(values = c("#b5000e"), 
                          labels = c("Bike Spending")) + 
