@@ -107,7 +107,6 @@ ui <- fluidPage(
                tags$img(src = "spinner.gif",
                         id = "loading-spinner"),
                plotOutput("p4")),
-           em("7-day rolling average of daily bicycle costs excluding the first 3 weeks."),
 # UI-p5 ----------------------------------------------------------------------  
           h4("Savings/losses over time:"),
           div(id = "plot-container",
