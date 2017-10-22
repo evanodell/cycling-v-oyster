@@ -459,7 +459,7 @@ p1 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = val
                 size=5.5)+
       scale_y_continuous(name = "Savings/Losses over Time", 
                    labels = pound,
-                   breaks = seq(-900, 1000, by = 50) ) + 
+                   breaks = seq(-900, 1000, by = 100) ) + 
       scale_x_date(name="Date", date_breaks = "4 weeks") + 
       scale_color_manual(values = c("#b5000e"), 
                          labels = c("Bike Spending")) + 
