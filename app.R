@@ -206,10 +206,21 @@ server <- function(input, output, session) {
       awl <- "lost £"
     }
     
+  
+  
+    if((sum(bike_data$week_oyster_per_day) - (sum(bike_data$bike) + sum(bike_data$oyster) + (nrow(bike_data)/365) * 60)) > 0) {
+      wwl <- "saved me £"
+    } else {
+      wwl <- "cost me £"
+    }
+  
+    savings_weekly <- paste0(wwl,sprintf("%.2f", abs(round(sum(bike_data$week_oyster_per_day) - (sum(bike_data$bike) + sum(bike_data$oyster) + (nrow(bike_data)/365) * 60),2))))
+    
+    
     savings_annual <- paste0(awl, sprintf("%.2f", abs(round(sum(bike_data$annual_oyster_per_day) - (sum(bike_data$bike) + sum(bike_data$oyster)),2))))
 
 # other options text ----------------------------------------------------------------------
-    other_options_text <- paste0("It is worth noting other options for paying for transit passes. If buying weekly Travelcards, assuming I purchased one every week, I would have spent £", sprintf("%.2f",round(sum(bike_data$week_oyster_per_day),2)), " over the same period. Using an annual Travelcard would cost, pro-rated over this time period, £", sprintf("%.2f",round(sum(bike_data$annual_oyster_per_day),2)), ". Compared to a weekly oyster card, cycling has cost me £", sprintf("%.2f", round(sum(bike_data$week_oyster_per_day) - (nrow(bike_data) * mean(bike_data$mon_oyster_per_day)),2)), ", while I have ",savings_annual," compared to using an annual Travelcard.")
+    other_options_text <- paste0("It is worth noting other options for paying for transit passes. If buying weekly Travelcards, assuming I purchased one every week, I would have spent £", sprintf("%.2f",round(sum(bike_data$week_oyster_per_day),2)), " over the same period. Using an annual Travelcard would cost, pro-rated over this time period, £", sprintf("%.2f",round(sum(bike_data$annual_oyster_per_day),2)), ". Compared to a weekly oyster card, cycling has ",savings_weekly, ", and I have ",savings_annual," compared to using an annual Travelcard.")
     
     print(other_options_text)
     
