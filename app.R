@@ -153,7 +153,9 @@ server <- function(input, output, session) {
   pound <- function(x) {
     paste0("£",format(x, big.mark = ",",
                       decimal.mark = ".",
-                      trim = TRUE, scientific = FALSE))
+                      trim = TRUE, 
+                      scientific = FALSE, 
+                      nsmall = 0L))
   }
 
   output$last_update <- renderText(paste0("Last Updated: ", format(max(bike_data_full$date),format="%d %B %Y")))
@@ -353,7 +355,9 @@ p1 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = val
       geom_line(aes(y=value, col = variable), size=1) +
       scale_color_discrete("") + 
       scale_x_date(name="Date", date_breaks = "4 weeks") +
-      scale_y_continuous(name="Average charge over previous 7 days", labels = pound) +
+      scale_y_continuous(name="Average charge over previous 7 days", 
+                         labels = pound, 
+                         breaks = seq(0, 10, by = 2)) +
       guides(col = guide_legend(nrow = 2, bycol = TRUE)) +
       geom_text(aes(x = max(date),
                     y = bike_average,
