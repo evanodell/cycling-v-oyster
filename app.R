@@ -222,7 +222,6 @@ server <- function(input, output, session) {
   
     savings_weekly <- paste0(wwl,sprintf("%.2f", abs(round(sum(bike_data$week_oyster_per_day) - (sum(bike_data$bike) + sum(bike_data$oyster) + (nrow(bike_data)/365) * 60),2))))
     
-    
     savings_annual <- paste0(awl, sprintf("%.2f", abs(round(sum(bike_data$annual_oyster_per_day) - (sum(bike_data$bike) + sum(bike_data$oyster)),2))))
 
 # other options text ----------------------------------------------------------------------
@@ -492,9 +491,6 @@ p1 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = val
     print(p5)
     
   })
-  
-  p <- ggplot(mpg,aes(x=class,fill=class)) + geom_bar()
-  ggplot_build(p)$data
   
 }
 
