@@ -137,10 +137,12 @@ server <- function(input, output, session) {
                                                   bike_data_full$date <= "2019-01-02" ~ 34.1/7)
 
   bike_data_full$mon_oyster_per_day <- case_when(bike_data_full$date <= "2017-01-02" ~ 124.50/30, 
-                                                 bike_data_full$date <= "2018-01-02" ~ 126.80/30)
+                                                 bike_data_full$date <= "2018-01-02" ~ 126.80/30,
+                                                 bike_data_full$date <= "2019-01-02" ~ 131.00/30)
 
-  bike_data_full$annual_oyster_per_day <- case_when(bike_data_full$date <= "2017-01-02" ~ 1296/365, 
-                                                 bike_data_full$date <= "2018-01-02" ~ 1320/365)
+  bike_data_full$annual_oyster_per_day <- case_when(bike_data_full$date <= "2017-01-02" ~ 1296/366, 
+                                                 bike_data_full$date <= "2018-01-02" ~ 1320/365, 
+                                                 bike_data_full$date <= "2019-01-02" ~ 1364/365)
 
 # Slider ------------------------------------------------------------------
   output$slider <- renderUI({
@@ -455,7 +457,9 @@ p1 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = val
     
     bike_data$bike <- bike_data$bike + (60/365)
     
-    bike_data$mon_oyster_per_day <- ifelse(bike_data$date <= "2017-01-02", 124.50/30, 126.80/30)
+    bike_data$mon_oyster_per_day <- case_when(bike_data_full$date <= "2017-01-02" ~ 124.50/30, 
+                                              bike_data_full$date <= "2018-01-02" ~ 126.80/30,
+                                              bike_data_full$date <= "2019-01-02" ~ 131.00/30)
     
     bike_data$gain_loss <- cumsum(bike_data$mon_oyster_per_day) - (cumsum(bike_data$bike) + cumsum(bike_data$oyster))
 
