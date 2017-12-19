@@ -11,7 +11,7 @@ library(reshape2)
 library(Cairo)
 options(shiny.usecairo=T)
 
-# CSS ----------------------------------------------------------------------
+# CSS ------------------------------------------------------------
 appCSS <- "#loading-content {
   position: absolute;
   background: #FFF;
@@ -24,7 +24,7 @@ appCSS <- "#loading-content {
   color: #000000;
 }"
 
-# UI ----------------------------------------------------------------------
+# UI -------------------------------------------------------------
 mycss <- "#plot-container {
   position: relative;
   }
