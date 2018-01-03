@@ -119,7 +119,7 @@ ui <- fluidPage(
            p(textOutput("other_options_text")),
            p(textOutput("fines_text")),
            
-           p("There are a number of obstacles to an exact cost comparison of cycling and public transit. For example, if I go on holiday for a couple weeks, I might time my travelcard renewal so I'm not paying anything while not in London. Moreover, there are the intangible benefits of exercise and shorter commutes from cycling, compared to the convenience and low effort required of public transit, and any purely financial comparison misses those factors.")
+           p("There are a number of obstacles to an exact cost comparison of cycling and public transit. For example, if I go on holiday for a couple weeks, I might time my travelcard renewal so I'm not paying anything while not in London. There are also the intangible benefits of exercise and faster commutes from cycling, compared to the convenience and low effort required of public transit, and any purely financial comparison misses those factors.")
            )
          ),
   column(2))))
@@ -188,7 +188,7 @@ server <- function(input, output, session) {
       compare <- "less"
     }
     
-   paste0("The green horizontal line represents the cost-per-day of a monthly zone 1-2 Travelcard in London over this time period: £4.15 in 2016 and £4.23 in 2017, averaging to £",sprintf("%.2f", round(mean(bike_data$mon_oyster_per_day),2)), ". The burgundy horizontal line represents the average daily cost of my bicycle and accessories (£",sprintf("%.2f", round(sum(bike_data$bike,(nrow(bike_data)/365)*60)/nrow(bike_data), 2)) ,"). The light blue line is a rolling monthly average of daily pay-as-you-go Oyster spending, and the light red line is pay-as-you-go Oyster spending combined with average daily bike costs. The average cost-per-day of my pay-as-you-go Oyster card is £", sprintf("%.2f",round((sum(bike_data$oyster)/nrow(bike_data)),2)), ", which combined with bike spending means I have spent an average of £", sprintf("%.2f",abs(round(comparison/nrow(bike_data),2))), " per day ", compare, " than I would using a monthly travelcard.")
+   paste0("The green horizontal line represents the cost-per-day of a monthly zone 1-2 Travelcard in London over this time period: £4.15 in 2016, £4.23 in 2017 and £4.37 in 2018, averaging to £",sprintf("%.2f", round(mean(bike_data$mon_oyster_per_day),2)), ". The burgundy horizontal line represents the average daily cost of my bicycle and accessories (£",sprintf("%.2f", round(sum(bike_data$bike,(nrow(bike_data)/365)*60)/nrow(bike_data), 2)) ,"). The light blue line is a rolling monthly average of daily pay-as-you-go Oyster spending, and the light red line is pay-as-you-go Oyster spending combined with average daily bike costs. The average cost-per-day of my pay-as-you-go Oyster card is £", sprintf("%.2f",round((sum(bike_data$oyster)/nrow(bike_data)),2)), ", which combined with bike spending means I have spent an average of £", sprintf("%.2f",abs(round(comparison/nrow(bike_data),2))), " per day ", compare, " than I would using a monthly travelcard.")
     
     })
   
@@ -260,15 +260,7 @@ server <- function(input, output, session) {
     
     travelcard_total <- sum(bike_data$mon_oyster_per_day)
     
-    if(travelcard_total - current_total > 0) {
-      
-      totsav <- "savings"
-      
-    } else {
-      
-      totsav <- "losses"
-      
-    }
+    totsav <- if_else(travelcard_total - current_total > 0, "savings",  "losses")
     
     savings <- paste0("Total ",totsav,  " from cycling instead of using public transit: ", "£",sprintf("%.2f", abs(round(travelcard_total - current_total, 2))))
     
