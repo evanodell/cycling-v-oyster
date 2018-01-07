@@ -7,7 +7,7 @@ library(scales)
 library(readr)
 library(dplyr)
 library(tibble)
-library(reshape2)
+library(tidyr)
 library(Cairo)
 options(shiny.usecairo=T)
 
@@ -276,11 +276,11 @@ server <- function(input, output, session) {
     
     bike_average <- mean(bike_data$bike) + (((nrow(bike_data)/365) * 60)/nrow(bike_data))
 
-    travel_summary <- melt(data.frame(Bike = sum(bike_data$bike, (nrow(bike_data) * (60/365))),
+    travel_summary <- gather(data.frame(Bike = sum(bike_data$bike, (nrow(bike_data) * (60/365))),
                                       Oyster = sum(bike_data$oyster),
                                       Combined = sum(bike_data$oyster, bike_data$bike,
                                                           (nrow(bike_data) * (60/365))),
-                                      Hypothetical_Travelcard = sum(bike_data$mon_oyster_per_day)))
+                                      Hypothetical_Travelcard = sum(bike_data$mon_oyster_per_day)),variable,value)
     
     travel_summary$variable <- gsub("_", " ", travel_summary$variable)
 
@@ -329,13 +329,13 @@ p1 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = val
     
     oyster_roll_gg$bike_plus_oyster <- mean(bike_data[["bike"]]) + oyster_roll_gg$oyster_charge
     
-    oyster_roll_gg<- melt(oyster_roll_gg, id="date")
+    oyster_roll_gg <- gather(oyster_roll_gg, spend_type, value, -date)
     
     ## Recoding oyster_roll_gg$variable into oyster_roll_gg$variable
-    oyster_roll_gg$variable <- as.character(oyster_roll_gg$variable)
-    oyster_roll_gg$variable[oyster_roll_gg$variable == "oyster_charge"] <- "PAYG Oyster Spending"
-    oyster_roll_gg$variable[oyster_roll_gg$variable == "bike_plus_oyster"] <- "Oyster Plus Bike Spending"
-    oyster_roll_gg$variable <- factor(oyster_roll_gg$variable)
+    oyster_roll_gg$spend_type <- as.character(oyster_roll_gg$spend_type)
+    oyster_roll_gg$spend_type[oyster_roll_gg$spend_type == "oyster_charge"] <- "PAYG Oyster Spending"
+    oyster_roll_gg$spend_type[oyster_roll_gg$spend_type == "bike_plus_oyster"] <- "Oyster Plus Bike Spending"
+    oyster_roll_gg$spend_type <- factor(oyster_roll_gg$spend_type)
     
     p2 <- ggplot(oyster_roll_gg, aes(x=date)) +
       geom_hline(aes(yintercept=bike_average, linetype="Bicycle Cost-Per-Day"),
@@ -351,7 +351,7 @@ p1 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = val
                             guide = guide_legend(title = NULL,
                                                  nrow=2,
                                                  override.aes = list(color = c("#b5000e", "#01e245")))) +
-      geom_line(aes(y=value, col = variable), size=1) +
+      geom_line(aes(y=value, col=spend_type), size=1) +
       scale_color_discrete("") + 
       scale_x_date(name="Date", date_breaks = "4 weeks") +
       scale_y_continuous(name="Average charge over previous 7 days", 
@@ -385,19 +385,17 @@ p1 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = val
   output$p3 <- renderPlot({
     
     bike_data <- bike_data_subset()
-  
-    bike_melt <- melt(bike_data[c(1:3)], id = c("date"))
     
-    bike_melt2 <- bike_melt %>% group_by(variable) %>% arrange(date) %>% mutate(spending = cumsum(value))
+    bike_melt <- gather(bike_data[c(1:3)], spend_type, value, -date) %>% group_by(spend_type) %>% arrange(date) %>% mutate(spending = cumsum(value))
 
-    p3 <- ggplot(bike_melt2) + 
-      geom_line(aes(x=date, y=spending, col = variable), size=1) +
+    p3 <- ggplot(bike_melt) + 
+      geom_line(aes(x=date, y=spending, col = spend_type), size=1) +
       #geom_smooth(aes(x=date, y=spending, col = variable), se=FALSE, linetype = "dashed", size=1, alpha=0.75) +
       scale_y_continuous(name = "Cumulative Spending", 
                          labels = pound) + 
       scale_x_date(name="Date", date_breaks = "4 weeks") + 
       scale_color_manual(values = c("#01e245","#b5000e"), 
-                         labels = c("Pay As You Go Oyster Spending","Bike Spending"), 
+                         labels = c("Bike Spending","Pay As You Go Oyster Spending"), 
                          name="") + 
       theme(legend.position = "bottom",
             legend.text=element_text(size=14),
