@@ -144,6 +144,8 @@ server <- function(input, output, session) {
                                                  bike_data_full$date <= "2018-01-02" ~ 1320/365, 
                                                  bike_data_full$date <= "2019-01-02" ~ 1364/365)
 
+  ## Need formula for changing bike locker price
+  
 # Slider ------------------------------------------------------------------
   output$slider <- renderUI({
     sliderInput("date_slider","Adjust date range:", 
