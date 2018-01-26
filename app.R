@@ -141,8 +141,14 @@ server <- function(input, output, session) {
                                                  bike_data_full$date <= "2019-01-02" ~ 131.00/30)
 
   bike_data_full$annual_oyster_per_day <- case_when(bike_data_full$date <= "2017-01-02" ~ 1296/366, 
-                                                 bike_data_full$date <= "2018-01-02" ~ 1320/365, 
-                                                 bike_data_full$date <= "2019-01-02" ~ 1364/365)
+                                                    bike_data_full$date <= "2018-01-02" ~ 1320/365, 
+                                                    bike_data_full$date <= "2019-01-02" ~ 1364/365)
+  
+  bike_data_full$locker_cost <- case_when(bike_data_full$date <= "2018-01-22" ~ 60/365,
+                                          bike_data_full$date <= "2019-01-22" ~ 30/365,
+                                          bike_data_full$date <= "2020-01-22" ~ 35/365)
+  
+  bike_data_full$bike <- bike_data_full$bike + bike_data_full$locker_cost
 
   ## Need formula for changing bike locker price
   
@@ -241,16 +247,14 @@ server <- function(input, output, session) {
   output$savings <- renderText({
     
     bike_data <- bike_data_subset()
-    
-    bike_locker_sum <-(nrow(bike_data)/365) * 60
-    
-    current_total <- sum(bike_data$oyster, bike_data$bike, bike_locker_sum)
+
+    current_total <- sum(bike_data$oyster, bike_data$bike)
     
     travelcard_total <- sum(bike_data$mon_oyster_per_day)
     
     totsav <- if_else(travelcard_total - current_total > 0, "savings",  "losses")
     
-    savings <- paste0("Total ",totsav,  " from cycling instead of using public transit: ", "£",sprintf("%.2f", abs(round(travelcard_total - current_total, 2))))
+    savings <- paste0("Total ",totsav,  " from cycling instead of using public transport: ", "£",sprintf("%.2f", abs(round(travelcard_total - current_total, 2))))
     
     print(savings)
     
@@ -262,7 +266,7 @@ server <- function(input, output, session) {
     
     bike_data <- bike_data_subset()
     
-    bike_average <- mean(bike_data$bike) + (((nrow(bike_data)/365) * 60)/nrow(bike_data))
+    bike_average <- mean(bike_data$bike)
 
     travel_summary <- gather(data.frame(Bike = sum(bike_data$bike, (nrow(bike_data) * (60/365))),
                                       Oyster = sum(bike_data$oyster),
@@ -305,7 +309,7 @@ p1 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = val
     
     bike_data <- bike_data_subset() 
     
-    bike_average <- mean(bike_data$bike) + (((nrow(bike_data)/365) * 60)/nrow(bike_data))
+    bike_average <- mean(bike_data$bike)
     
     oyster_roll_gg <- as.tibble(
       rollapply(zoo(bike_data$oyster, order.by=bike_data$date),7, mean, align="right")
@@ -435,11 +439,15 @@ p1 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = val
     
     #bike_data$cumsum <- cumsum(60/365)
     
-    bike_data$bike <- bike_data$bike + (60/365)
+    bike_data$locker_cost <- case_when(bike_data$date <= "2018-01-22" ~ 60/365,
+                                       bike_data$date <= "2019-01-22" ~ 30/365,
+                                       bike_data$date <= "2020-01-22" ~ 35/365)
     
-    bike_data$mon_oyster_per_day <- case_when(bike_data_full$date <= "2017-01-02" ~ 124.50/30, 
-                                              bike_data_full$date <= "2018-01-02" ~ 126.80/30,
-                                              bike_data_full$date <= "2019-01-02" ~ 131.00/30)
+    bike_data$bike <- bike_data$bike + bike_data$locker_cost
+    
+    bike_data$mon_oyster_per_day <- case_when(bike_data$date <= "2017-01-02" ~ 124.50/30, 
+                                              bike_data$date <= "2018-01-02" ~ 126.80/30,
+                                              bike_data$date <= "2019-01-02" ~ 131.00/30)
     
     bike_data$gain_loss <- cumsum(bike_data$mon_oyster_per_day) - (cumsum(bike_data$bike) + cumsum(bike_data$oyster))
 
