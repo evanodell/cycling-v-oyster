@@ -459,14 +459,23 @@ p1 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = val
                     y = max(bike_data$gain_loss), 
                     hjust= 1.06,
                     vjust = 1.5,
-                    label = paste0("Max savings: £", sprintf("%.2f", round(max(bike_data$gain_loss),2)))),
-                    size=5.5)+
+                    label = paste0("Max savings: £",
+                                   sprintf("%.2f", 
+                                           round(max(bike_data$gain_loss),2)
+                                           ))), size=5.5) +
       geom_text(aes(x = bike_data$date[bike_data$gain_loss == min(bike_data$gain_loss)], 
                     y = min(bike_data$gain_loss), 
                     hjust= 1.06,
                     vjust = 0.5,
-                    label = paste0("Max loss: £", sprintf("%.2f", round(min(bike_data$gain_loss),2)))),
-                size=5.5)+
+                    label = paste0("Max loss: £", 
+                                   sprintf("%.2f", 
+                                           round(min(bike_data$gain_loss),2)
+                                           ))), size=5.5) +
+      geom_text(aes(x = as.Date("2018-02-02"), 
+                    y = -550, 
+                    hjust= 1.06,
+                    vjust = 0.5,
+                    label = "Sold old bike"), size=5.5) +
       scale_y_continuous(name = "Savings/Losses over Time", 
                    labels = pound,
                    breaks = seq(-900, 1000, by = 100) ) + 
