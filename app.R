@@ -109,6 +109,7 @@ ui <- fluidPage(
                plotOutput("p4")),
 # UI-p5 ----------------------------------------------------------------------  
           h4("Savings/losses over time:"),
+          h5("Note that this graph cannot be adjusted"),
           div(id = "plot-container",
               tags$img(src = "spinner.gif",
               id = "loading-spinner"),
@@ -413,8 +414,8 @@ p1 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = val
     names(bike_roll_gg)[1] <- "spending"
     
     p4 <- ggplot(bike_roll_gg) + 
-      geom_line(aes(x=date,y=spending), col = "#b5000e", size=1) +
-      scale_y_log10(name = "Average bicycle cost per day\n over the previous 30 days", 
+      geom_line(aes(x=date, y=spending), col = "#b5000e", size=1) +
+      scale_y_log10(name = "Average bicycle cost per day\n over the previous 7 days", 
                    labels = pound,
                    breaks=c(0,2,4,6,8,10,20)) + 
       scale_x_date(name="Date", date_breaks = "4 weeks") + 
