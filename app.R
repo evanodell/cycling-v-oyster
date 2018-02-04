@@ -188,11 +188,11 @@ server <- function(input, output, session) {
     
     bike_data <- bike_data_subset()
     
-    comparison <- sum(bike_data$bike, bike_data$oyster, (nrow(bike_data)/365)*60) - sum(bike_data$mon_oyster_per_day)
+    comparison <- sum(bike_data$bike, bike_data$oyster) - sum(bike_data$mon_oyster_per_day)
     
     compare <- if_else(comparison>0, "more", "less")
     
-   paste0("The green horizontal line represents the cost-per-day of a monthly zone 1-2 Travelcard in London over this time period: £4.15 in 2016, £4.23 in 2017 and £4.37 in 2018, averaging to £",sprintf("%.2f", round(mean(bike_data$mon_oyster_per_day),2)), ". The burgundy horizontal line represents the average daily cost of my bicycle and accessories (£",sprintf("%.2f", round(sum(bike_data$bike,(nrow(bike_data)/365)*60)/nrow(bike_data), 2)) ,"). The light blue line is a rolling weekly average of daily pay-as-you-go Oyster spending, and the light red line is pay-as-you-go Oyster spending combined with average daily bike costs. The average cost-per-day of my pay-as-you-go Oyster card is £", sprintf("%.2f",round((sum(bike_data$oyster)/nrow(bike_data)),2)), ", which combined with bike spending means I have spent an average of £", sprintf("%.2f",abs(round(comparison/nrow(bike_data),2))), " per day ", compare, " than I would using a monthly travelcard.")
+   paste0("The green horizontal line represents the cost-per-day of a monthly zone 1-2 Travelcard in London over this time period: £4.15 in 2016, £4.23 in 2017 and £4.37 in 2018, averaging to £",sprintf("%.2f", round(mean(bike_data$mon_oyster_per_day),2)), ". The burgundy horizontal line represents the average daily cost of my bicycle and accessories (£",sprintf("%.2f", round(sum(bike_data$bike)/nrow(bike_data), 2)) ,"). The light blue line is a rolling weekly average of daily pay-as-you-go Oyster spending, and the light red line is pay-as-you-go Oyster spending combined with average daily bike costs. The average cost-per-day of my pay-as-you-go Oyster card is £", sprintf("%.2f",round((sum(bike_data$oyster)/nrow(bike_data)),2)), ", which combined with bike spending means I have spent an average of £", sprintf("%.2f",abs(round(comparison/nrow(bike_data),2))), " per day ", compare, " than I would using a monthly travelcard.")
     
     })
   
@@ -214,9 +214,9 @@ server <- function(input, output, session) {
     
     awl <- if_else(mean(bike_data$annual_oyster_per_day) - (nrow(bike_data) * mean(bike_data$mon_oyster_per_day)) > 0, "saved £", "lost £")
     
-    wwl <- if_else((sum(bike_data$week_oyster_per_day) - (sum(bike_data$bike) + sum(bike_data$oyster) + (nrow(bike_data)/365) * 60)) > 0, "saved me £", "cost me £")
+    wwl <- if_else((sum(bike_data$week_oyster_per_day) - (sum(bike_data$bike) + sum(bike_data$oyster))) > 0, "saved me £", "cost me £")
   
-    savings_weekly <- paste0(wwl, format(abs(round(sum(bike_data$week_oyster_per_day) - (sum(bike_data$bike) + sum(bike_data$oyster) + (nrow(bike_data)/365) * 60),2)), nsmall=2, big.mark=","))
+    savings_weekly <- paste0(wwl, format(abs(round(sum(bike_data$week_oyster_per_day) - (sum(bike_data$bike) + sum(bike_data$oyster)),2)), nsmall=2, big.mark=","))
     
     savings_annual <- paste0(awl, format(abs(round(sum(bike_data$annual_oyster_per_day) - (sum(bike_data$bike) + sum(bike_data$oyster)),2)), nsmall=2, big.mark=","))
 
@@ -232,7 +232,7 @@ server <- function(input, output, session) {
     
     bike_data <- bike_data_subset()
 
-    current_total <- round(sum(bike_data$oyster) + sum(bike_data$bike, (nrow(bike_data)/365) * 60),2)
+    current_total <- round(sum(bike_data$oyster) + sum(bike_data$bike),2)
     
     travelcard_total <- round(sum(bike_data$mon_oyster_per_day),2)
     
@@ -268,10 +268,9 @@ server <- function(input, output, session) {
     
     bike_average <- mean(bike_data$bike)
 
-    travel_summary <- gather(data.frame(Bike = sum(bike_data$bike, (nrow(bike_data) * (60/365))),
+    travel_summary <- gather(data.frame(Bike = sum(bike_data$bike),
                                       Oyster = sum(bike_data$oyster),
-                                      Combined = sum(bike_data$oyster, bike_data$bike,
-                                                          (nrow(bike_data) * (60/365))),
+                                      Combined = sum(bike_data$oyster, bike_data$bike),
                                       Hypothetical_Travelcard = sum(bike_data$mon_oyster_per_day)),variable,value)
     
     travel_summary$variable <- gsub("_", " ", travel_summary$variable)
@@ -405,7 +404,7 @@ p1 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = val
     
     bike_data <- bike_data_subset()
     
-    bike_data$cumsum <- (cumsum(bike_data$bike)/as.numeric(bike_data$date - as.Date("2016-06-29"))) + (60 / 365)
+    bike_data$cumsum <- (cumsum(bike_data$bike)/as.numeric(bike_data$date - as.Date("2016-06-29")))
     
     bike_roll_gg <- tibble::as_tibble(rollapply(zoo(bike_data$cumsum, order.by=bike_data$date), 7, mean))
     
@@ -436,8 +435,6 @@ p1 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = val
   output$p5 <- renderPlot({
     
     bike_data <- read_csv("cycling_oyster_data.csv", col_types = cols(date = col_date(format = "%Y-%m-%d")))
-    
-    #bike_data$cumsum <- cumsum(60/365)
     
     bike_data$locker_cost <- case_when(bike_data$date <= "2018-01-22" ~ 60/365,
                                        bike_data$date <= "2019-01-22" ~ 30/365,
