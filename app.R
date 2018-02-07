@@ -428,10 +428,10 @@ p1 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = val
     
     p4 <- ggplot(bike_roll_gg) + 
       geom_line(aes(x=date, y=spending, group=type, col=type), size=1) +
-      scale_y_log10(name = "7 Day rolling average\ncost per day", 
+      scale_y_log10(name = "7 Day rolling average cost per day", 
                    labels = pound,
                    breaks=c(0,2,4,6,8,10,20)) + 
-      scale_x_date(name="Date", date_breaks = "4 weeks") + 
+      scale_x_date(name="Date", date_breaks = "1 month", date_labels = "%b %Y") + 
       scale_color_manual(values = c("#b5000e", "#01e245"), 
                          labels = c("Bike Spending", "Oyster Spending")) + 
       theme(legend.position = "bottom",
@@ -486,6 +486,12 @@ p1 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = val
                                            ))), size=5.5) +
       geom_text(aes(x = bike_data$date[bike_data$gain_loss == 
                                          min(bike_data$gain_loss)], 
+                    y = 70, 
+                    hjust= 0,
+                    vjust = 1.5,
+                    label = "Bought new bike"), size=5.5) +
+      geom_text(aes(x = bike_data$date[bike_data$gain_loss == 
+                                         min(bike_data$gain_loss)], 
                     y = min(bike_data$gain_loss), 
                     hjust= 1.06,
                     vjust = 0.5,
@@ -501,7 +507,7 @@ p1 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = val
       scale_y_continuous(name = "Savings/Losses over Time", 
                    labels = pound,
                    breaks = seq(-900, 1000, by = 100) ) + 
-      scale_x_date(name="Date", date_breaks = "4 weeks") + 
+      scale_x_date(name="Date", date_breaks = "1 month", date_labels = "%b %Y") + 
       scale_color_manual(values = c("#b5000e"), 
                          labels = c("Bike Spending")) + 
       theme(legend.position = "bottom",
