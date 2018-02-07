@@ -102,7 +102,7 @@ ui <- fluidPage(
                plotOutput("p3")),
            em(textOutput("p3_text"))),
 # UI-p4 ----------------------------------------------------------------------  
-           h4("Rolling average bicycle cost per day:"),
+           h4("Rolling average cost per day:"),
            div(id = "plot-container",
                tags$img(src = "spinner.gif",
                         id = "loading-spinner"),
@@ -405,28 +405,41 @@ p1 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = val
     
     bike_data <- bike_data_subset()
     
-    bike_data$cumsum <- (cumsum(bike_data$bike)/as.numeric(bike_data$date - as.Date("2016-06-29")))
+    bike_data$bike_cumsum <- (cumsum(bike_data$bike)/
+                           as.numeric(bike_data$date - as.Date("2016-06-29"))
+                         )
     
-    bike_roll_gg <- tibble::as_tibble(rollapply(zoo(bike_data$cumsum, order.by=bike_data$date), 7, mean))
+    bike_data$oyster_cumsum <- (cumsum(bike_data$oyster)/
+                                as.numeric(bike_data$date - as.Date("2016-06-29"))
+    )
+
+    bike_roll_gg <- tibble::as_tibble(
+      merge(bike_cumsum = rollapply(zoo(bike_data$bike_cumsum,
+                                        order.by=bike_data$date), 7, mean),
+            oyster_cumsum=rollapply(zoo(bike_data$oyster_cumsum, 
+                          order.by=bike_data$date), 7, mean))
+      )
     
     bike_roll_gg$date <- as.Date(row.names(bike_roll_gg))
     
-    names(bike_roll_gg)[1] <- "spending"
+    bike_roll_gg <- gather(bike_roll_gg, type, spending, -date)
+    
+    #names(bike_roll_gg)[1] <- "spending"
     
     p4 <- ggplot(bike_roll_gg) + 
-      geom_line(aes(x=date, y=spending), col = "#b5000e", size=1) +
-      scale_y_log10(name = "Average bicycle cost per day\n over the previous 7 days", 
+      geom_line(aes(x=date, y=spending, group=type, col=type), size=1) +
+      scale_y_log10(name = "7 Day rolling average\ncost per day", 
                    labels = pound,
                    breaks=c(0,2,4,6,8,10,20)) + 
       scale_x_date(name="Date", date_breaks = "4 weeks") + 
-      scale_color_manual(values = c("#b5000e"), 
-                         labels = c("Bike Spending")) + 
+      scale_color_manual(values = c("#b5000e", "#01e245"), 
+                         labels = c("Bike Spending", "Oyster Spending")) + 
       theme(legend.position = "bottom",
             legend.text=element_text(size=14),
             text=element_text(size=14),
             axis.text.x = element_text(angle = 30, hjust = 1, size=14), 
             axis.text.y = element_text(size=14)
-            )
+            ) + labs(col="")
     
     print(p4)
     
@@ -435,7 +448,9 @@ p1 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = val
 # p5 ----------------------------------------------------------------------
   output$p5 <- renderPlot({
     
-    bike_data <- read_csv("cycling_oyster_data.csv", col_types = cols(date = col_date(format = "%Y-%m-%d")))
+    bike_data <- read_csv("cycling_oyster_data.csv", col_types = 
+                            cols(date = col_date(format = "%Y-%m-%d"))
+                          )
     
     bike_data$locker_cost <- case_when(bike_data$date <= "2018-01-22" ~ 60/365,
                                        bike_data$date <= "2019-01-22" ~ 30/365,
@@ -443,31 +458,40 @@ p1 <- ggplot(travel_summary, aes(x=variable, y=value, fill=variable, label = val
     
     bike_data$bike <- bike_data$bike + bike_data$locker_cost
     
-    bike_data$mon_oyster_per_day <- case_when(bike_data$date <= "2017-01-02" ~ 124.50/30, 
-                                              bike_data$date <= "2018-01-02" ~ 126.80/30,
-                                              bike_data$date <= "2019-01-02" ~ 131.00/30)
+    bike_data$mon_oyster_per_day <- case_when(bike_data$date <= "2017-01-02" ~
+                                                124.50/30, 
+                                              bike_data$date <= "2018-01-02" ~
+                                                126.80/30,
+                                              bike_data$date <= "2019-01-02" ~
+                                                131.00/30
+                                              )
     
-    bike_data$gain_loss <- cumsum(bike_data$mon_oyster_per_day) - (cumsum(bike_data$bike) + cumsum(bike_data$oyster))
+    bike_data$gain_loss <- cumsum(bike_data$mon_oyster_per_day) -
+      (cumsum(bike_data$bike) + cumsum(bike_data$oyster))
 
     p5 <- ggplot(bike_data) + 
       geom_hline(yintercept = 0, colour="red", size=0.5, alpha=0.7) +
-      geom_hline(yintercept = max(bike_data$gain_loss), colour="blue", size=0.5, alpha=0.7) + 
-      geom_line(aes(x=date,y=gain_loss),size=1, colour = "#00B6EB", alpha=0.9) +
-      geom_text(aes(x = bike_data$date[bike_data$gain_loss == max(bike_data$gain_loss)], 
+      geom_hline(yintercept = max(bike_data$gain_loss), colour="blue", 
+                 size=0.5, alpha=0.7) + 
+      geom_line(aes(x=date,y=gain_loss), size=1, colour = "#00B6EB", 
+                alpha=0.9) +
+      geom_text(aes(x = bike_data$date[bike_data$gain_loss == 
+                                         max(bike_data$gain_loss)], 
                     y = max(bike_data$gain_loss), 
                     hjust= 1.06,
                     vjust = 1.5,
                     label = paste0("Max savings: £",
                                    sprintf("%.2f", 
-                                           round(max(bike_data$gain_loss),2)
+                                           round(max(bike_data$gain_loss), 2)
                                            ))), size=5.5) +
-      geom_text(aes(x = bike_data$date[bike_data$gain_loss == min(bike_data$gain_loss)], 
+      geom_text(aes(x = bike_data$date[bike_data$gain_loss == 
+                                         min(bike_data$gain_loss)], 
                     y = min(bike_data$gain_loss), 
                     hjust= 1.06,
                     vjust = 0.5,
                     label = paste0("Max loss: £", 
                                    sprintf("%.2f", 
-                                           round(min(bike_data$gain_loss),2)
+                                           round(min(bike_data$gain_loss), 2)
                                            ))), size=5.5) +
       geom_text(aes(x = as.Date("2018-02-02"), 
                     y = -550, 
