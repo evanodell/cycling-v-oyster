@@ -64,13 +64,13 @@ ui <- fluidPage(
          fluidRow(
            p("*Updated every few days."),
               
-              p("In a", tags$a(href="https://evanodell.com/blog/2017/02/06/cycling-vs-oyster/", "blog post"), "in February 2017 I analysed how much money I was saving by cycling to work instead of using a monthly Oyster transit pass. When I wrote that blog I had spent almost £20 more on my bike and pay-as-you-go transit pass than I would have if I bought a monthly transit pass. As of 29 April 2017, less than 3 months after that blog, and despite needing a new rear wheel, I broke even, and I've been updating my data every few days, and have now built another", tags$a(href="https://shiny.rstudio.com/", "Shiny"), "app to monitor my spending on my bike and on transit."),
+              p("In a", tags$a(href="https://evanodell.com/blog/2017/02/06/cycling-vs-oyster/", "blog post"), "in February 2017 I analysed how much money I was saving by cycling to work instead of using a monthly Oyster transport pass. When I wrote that blog I had spent almost £20 more on my bike and pay-as-you-go transport pass than I would have if I bought a monthly transport pass. As of 29 April 2017, less than 3 months after that blog, and despite needing a new rear wheel, I broke even, and I've been updating my data every few days, and have now built another", tags$a(href="https://shiny.rstudio.com/", "Shiny"), "app to monitor my spending on my bike and on transport."),
            
            p("Of course, I had to screw this up somehow, so I bought a new bike in October 2017."),
               
               p("I include all spending directly on my bike, including the cost of the bike, accessories, spare parts, tools and maintenance. I also include non-bike costs that are the result of cycling, primarily clothing. For instance, I have bought a couple pairs of commuter trousers for cycling and include that spending in my calculations, less £40 to represent the price of a standard pair of men's trousers, on the basis that I would have had to buy new trousers anyways."),
               
-              p("You can see in the second time series plot that since writing the blog post in February my Oyster spending has dropped off somewhat. Since analysing how much I was cycling, and how much I was spending on transit, I've become much more dedicated to riding places, no longer taking the bus or the tube if I'm feeling a little bit lazy."), 
+              p("You can see in the second time series plot that since writing the blog post in February my Oyster spending has dropped off somewhat. Since analysing how much I was cycling, and how much I was spending on transport, I've become much more dedicated to riding places, no longer taking the bus or the tube if I'm feeling a little bit lazy."), 
            
 # slider ----------------------------------------------------------------------      
            uiOutput("slider"),##date adjustments
@@ -120,7 +120,7 @@ ui <- fluidPage(
            p(textOutput("other_options_text")),
            p(textOutput("fines_text")),
            
-           p("There are a number of obstacles to an exact cost comparison of cycling and public transit. For example, if I go on holiday for a couple weeks, I might time my travelcard renewal so I'm not paying anything while not in London. There are also the intangible benefits of exercise and faster commutes from cycling, compared to the convenience and low effort required of public transit, and any purely financial comparison misses those factors.")
+           p("There are a number of obstacles to an exact cost comparison of cycling and public transport. For example, if I go on holiday for a couple weeks, I might time my travelcard renewal so I'm not paying anything while not in London. There are also the intangible benefits of exercise and faster commutes from cycling, compared to the convenience and low effort required of public transport, and any purely financial comparison misses those factors.")
            )
          ),
   column(2))))
@@ -222,7 +222,7 @@ server <- function(input, output, session) {
     savings_annual <- paste0(awl, format(abs(round(sum(bike_data$annual_oyster_per_day) - (sum(bike_data$bike) + sum(bike_data$oyster)),2)), nsmall=2, big.mark=","))
 
 # other options text ----------------------------------------------------------------------
-    other_options_text <- paste0("It is worth noting other options for paying for transit passes. If buying weekly Travelcards, assuming I purchased one every week, I would have spent £", format(round(sum(bike_data$week_oyster_per_day),2), nsmall=2, big.mark = ","), " over the same period. Using an annual Travelcard would cost, pro-rated over this time period, £", format(round(sum(bike_data$annual_oyster_per_day),2), nsmall=2, big.mark = ","), ". Compared to a weekly oyster card, cycling has ",savings_weekly, ", and I have ",savings_annual," compared to using an annual Travelcard.")
+    other_options_text <- paste0("It is worth noting other options for paying for transport passes. If buying weekly Travelcards, assuming I purchased one every week, I would have spent £", format(round(sum(bike_data$week_oyster_per_day),2), nsmall=2, big.mark = ","), " over the same period. Using an annual Travelcard would cost, pro-rated over this time period, £", format(round(sum(bike_data$annual_oyster_per_day),2), nsmall=2, big.mark = ","), ". Compared to a weekly oyster card, cycling has ",savings_weekly, ", and I have ",savings_annual," compared to using an annual Travelcard.")
     
     print(other_options_text)
     
