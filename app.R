@@ -125,33 +125,44 @@ ui <- fluidPage(
          ),
   column(2))))
 
+
+bike_data_full <- read_csv("cycling_oyster_data.csv", col_types = cols(date = col_date(format = "%Y-%m-%d")))
+
+bike_data_full$week_oyster_per_day <- case_when(
+  bike_data_full$date <= "2017-01-02" ~ 32.4/7,
+  bike_data_full$date <= "2018-01-02" ~ 33/7,
+  bike_data_full$date <= "2019-01-02" ~ 34.1/7
+  )
+
+bike_data_full$mon_oyster_per_day <- case_when(
+  bike_data_full$date <= "2017-01-02" ~ 124.50/30, 
+  bike_data_full$date <= "2018-01-02" ~ 126.80/30,
+  bike_data_full$date <= "2019-01-02" ~ 131.00/30
+  )
+
+bike_data_full$annual_oyster_per_day <- case_when(
+  bike_data_full$date <= "2017-01-02" ~ 1296/366, 
+  bike_data_full$date <= "2018-01-02" ~ 1320/365, 
+  bike_data_full$date <= "2019-01-02" ~ 1364/365
+  )
+
+bike_data_full$locker_cost <- case_when(
+  bike_data_full$date <= "2018-01-22" ~ 60/365,
+  bike_data_full$date <= "2019-01-22" ~ 30/365,
+  bike_data_full$date <= "2020-01-22" ~ 35/365
+  )
+
+bike_data_full$bike <- bike_data_full$bike + bike_data_full$locker_cost
+
+write_rds(bike_data_full, "bike_data_full.rds")
+
 # Server ------------------------------------------------------------------
 server <- function(input, output, session) {
   
   hide(id = "loading-content", anim = TRUE, animType = "fade")    
   show("app-content")
-  
-  bike_data_full <- read_csv("cycling_oyster_data.csv", col_types = cols(date = col_date(format = "%Y-%m-%d")))
-  
-  bike_data_full$week_oyster_per_day <- case_when(bike_data_full$date <= "2017-01-02" ~ 32.4/7,
-                                                  bike_data_full$date <= "2018-01-02" ~ 33/7,
-                                                  bike_data_full$date <= "2019-01-02" ~ 34.1/7)
 
-  bike_data_full$mon_oyster_per_day <- case_when(bike_data_full$date <= "2017-01-02" ~ 124.50/30, 
-                                                 bike_data_full$date <= "2018-01-02" ~ 126.80/30,
-                                                 bike_data_full$date <= "2019-01-02" ~ 131.00/30)
-
-  bike_data_full$annual_oyster_per_day <- case_when(bike_data_full$date <= "2017-01-02" ~ 1296/366, 
-                                                    bike_data_full$date <= "2018-01-02" ~ 1320/365, 
-                                                    bike_data_full$date <= "2019-01-02" ~ 1364/365)
-  
-  bike_data_full$locker_cost <- case_when(bike_data_full$date <= "2018-01-22" ~ 60/365,
-                                          bike_data_full$date <= "2019-01-22" ~ 30/365,
-                                          bike_data_full$date <= "2020-01-22" ~ 35/365)
-  
-  bike_data_full$bike <- bike_data_full$bike + bike_data_full$locker_cost
-
-  ## Need formula for changing bike locker price
+  bike_data_full <- read_rds("bike_data_full.rds")
   
 # Slider ------------------------------------------------------------------
   output$slider <- renderUI({
@@ -173,7 +184,9 @@ server <- function(input, output, session) {
                       nsmall = 0L))
   }
 
-  output$last_update <- renderText(paste0("Last Updated: ", format(max(bike_data_full$date),format="%d %B %Y")))
+  output$last_update <- renderText(paste0("Last Updated: ",
+                                          format(max(bike_data_full$date), 
+                                                 format="%d %B %Y")))
 
   # p1 text ----------------------------------------------------------------------  
   output$p1_text <- renderText({
