@@ -70,7 +70,7 @@ ui <- fluidPage(
               
               p("I include all spending directly on my bike, including the cost of the bike, accessories, spare parts, tools and maintenance. I also include non-bike costs that are the result of cycling, primarily clothing. For instance, I have bought a couple pairs of commuter trousers for cycling and include that spending in my calculations, less £40 to represent the price of a standard pair of men's trousers, on the basis that I would have had to buy new trousers anyways."),
               
-              p("You can see in the second time series plot that since writing the blog post in February my Oyster spending has dropped off somewhat. Since analysing how much I was cycling, and how much I was spending on transport, I've become much more dedicated to riding places, no longer taking the bus or the tube if I'm feeling a little bit lazy."), 
+              p("You can see in the second time series plot that since writing the blog post in February 2017 my Oyster spending has dropped off somewhat. Since analysing how much I was cycling, and how much I was spending on transport, I've become much more dedicated to riding places, no longer taking the bus or the tube if I'm feeling a little bit lazy."), 
            
 # slider ----------------------------------------------------------------------      
            uiOutput("slider"),##date adjustments
