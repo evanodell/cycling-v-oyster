@@ -249,7 +249,7 @@ server <- function(input, output, session) {
                   nsmall = 2, big.mark=", "))
 
 # other options text ----------------------------------------------------------------------
-    other_options_text <- paste0("It is worth noting other options for paying for transport passes. If buying weekly Travelcards, assuming I purchased one every week, I would have spent £", format(round(sum(bike_data$week_oyster_per_day), 2), nsmall = 2, big.mark = ", ), " over the same period. Using an annual Travelcard would cost, pro-rated over this time period, £", format(round(sum(bike_data$annual_oyster_per_day), 2), nsmall = 2, big.mark = ","), ". Compared to a weekly oyster card, cycling has ", savings_weekly, ", and I have ", savings_annual, " compared to using an annual Travelcard.")
+    other_options_text <- paste0("It is worth noting other options for paying for transport passes. If buying weekly Travelcards, assuming I purchased one every week, I would have spent £", format(round(sum(bike_data$week_oyster_per_day), 2), nsmall = 2, big.mark = "," ), " over the same period. Using an annual Travelcard would cost, pro-rated over this time period, £", format(round(sum(bike_data$annual_oyster_per_day), 2), nsmall = 2, big.mark = ","), ". Compared to a weekly oyster card, cycling has ", savings_weekly, ", and I have ", savings_annual, " compared to using an annual Travelcard.")
     
     print(other_options_text)
     
