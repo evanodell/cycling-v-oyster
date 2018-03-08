@@ -240,13 +240,13 @@ server <- function(input, output, session) {
       wwl, format(abs(round(sum(bike_data$week_oyster_per_day) -
                               (sum(bike_data$bike) + 
                                  sum(bike_data$oyster)), 2)),
-                  nsmall = 2, big.mark=", "))
+                  nsmall = 2, big.mark = ","))
     
     savings_annual <- paste0(
       awl, format(abs(round(sum(bike_data$annual_oyster_per_day) - 
                               (sum(bike_data$bike) + 
                                  sum(bike_data$oyster)), 2)),
-                  nsmall = 2, big.mark=", "))
+                  nsmall = 2, big.mark = ","))
 
 # other options text ----------------------------------------------------------------------
     other_options_text <- paste0("It is worth noting other options for paying for transport passes. If buying weekly Travelcards, assuming I purchased one every week, I would have spent £", format(round(sum(bike_data$week_oyster_per_day), 2), nsmall = 2, big.mark = "," ), " over the same period. Using an annual Travelcard would cost, pro-rated over this time period, £", format(round(sum(bike_data$annual_oyster_per_day), 2), nsmall = 2, big.mark = ","), ". Compared to a weekly oyster card, cycling has ", savings_weekly, ", and I have ", savings_annual, " compared to using an annual Travelcard.")
@@ -320,8 +320,8 @@ p1 <- ggplot(travel_summary, aes(x = variable, y = value,
                                  fill = variable, label = value)) +
       geom_bar(stat = "identity", position = position_dodge(width = 0.5)) +
       geom_text(aes(y = value + 0.1, 
-                    label=paste0("£", format(round(value, 2), 
-                                             big.mark=", ", nsmall = 2))), 
+                    label = paste0("£", format(round(value, 2), 
+                                             big.mark = ",", nsmall = 2))), 
                 position = position_dodge(0.9), 
                 vjust = -0.25, 
                 fontface = "bold", 
