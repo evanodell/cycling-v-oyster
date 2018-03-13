@@ -149,7 +149,7 @@ bike_data_full$annual_oyster_per_day <- case_when(
 bike_data_full$locker_cost <- case_when(
   bike_data_full$date <= "2018-01-22" ~ 60/365, 
   bike_data_full$date <= "2019-01-22" ~ 30/365, 
-  bike_data_full$date <= "2020-01-22" ~ 35/365
+  bike_data_full$date <= "2020-01-22" ~ 40/365
   )
 
 bike_data_full$bike <- bike_data_full$bike + bike_data_full$locker_cost
@@ -486,9 +486,9 @@ p1 <- ggplot(travel_summary, aes(x = variable, y = value,
     
     p4 <- ggplot(bike_roll_gg) + 
       geom_line(aes(x = date, y = spending, group = type, col = type), size = 1) +
-      scale_y_log10(name = "7 Day rolling average cost per day", 
+      scale_y_continuous(name = "7 Day rolling average cost per day", 
                    labels = pound, 
-                   breaks=c(0, 2, 4, 6, 8, 10, 20)) + 
+                   breaks=c(0, 2, 4, 6, 8, 10, 20), trans = "log10") + 
       scale_x_date(name = "Date", date_breaks = "1 month", 
                    date_labels = "%b %Y") + 
       scale_color_manual(values = c("#b5000e", "#01e245"), 
