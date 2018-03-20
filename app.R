@@ -119,14 +119,17 @@ ui <- fluidPage(
            br(), 
            p(textOutput("other_options_text")), 
            p(textOutput("fines_text")), 
+           p(textOutput("prediction")),
            
            p("There are a number of obstacles to an exact cost comparison of cycling and public transport. For example, if I go on holiday for a couple weeks, I might time my travelcard renewal so I'm not paying anything while not in London. There are also the intangible benefits of exercise and faster commutes from cycling, compared to the convenience and low effort required of public transport, and any purely financial comparison misses those factors.")
            )
          ), 
   column(2))))
 
-
-bike_data_full <- read_csv("cycling_oyster_data.csv", col_types = cols(date = col_date(format = "%Y-%m-%d")))
+bike_data_full <- read_csv("cycling_oyster_data.csv", 
+                           col_types = cols(
+                             date = col_date(format = "%Y-%m-%d"))
+                           )
 
 bike_data_full$week_oyster_per_day <- case_when(
   bike_data_full$date <= "2017-01-02" ~ 32.4/7, 
@@ -153,6 +156,9 @@ bike_data_full$locker_cost <- case_when(
   )
 
 bike_data_full$bike <- bike_data_full$bike + bike_data_full$locker_cost
+
+bike_data_full$gain_loss <- cumsum(bike_data_full$mon_oyster_per_day) -
+  (cumsum(bike_data_full$bike) + cumsum(bike_data_full$oyster))
 
 write_rds(bike_data_full, "bike_data_full.rds")
 
@@ -188,7 +194,7 @@ server <- function(input, output, session) {
                                           format(max(bike_data_full$date), 
                                                  format = "%d %B %Y")))
 
-  # p1 text ----------------------------------------------------------------------  
+# p1 text ----------------------------------------------------------------------  
   output$p1_text <- renderText({
     
     bike_data <- bike_data_subset()
@@ -268,7 +274,15 @@ server <- function(input, output, session) {
       (travelcard_total - current_total + sum(bike_data$fines)) > 0, 
       "savings", "losses")
     
-    fines_text <- paste0("I should also note that my total Oyster spending includes fines for not tapping in or out correctly, and trips outside of zones 1-2, which would also be charged if I was using a Travelcard. Accounting for the £", sprintf("%.2f", round(sum(bike_data$fines))), " in fines and travel outside zone 2 that I presumably would have paid regardless, my ", fine_save_loss, " are £", sprintf("%.2f", abs(round((travelcard_total - current_total+sum(bike_data$fines)), 2))), ".")
+    trend <- lm(gain_loss~date, data=top_n(bike_data_full, 100, date))
+    
+    per_day <- trend$coefficients[["date"]]
+    
+    current <- travelcard_total - current_total
+    
+    break_even_date <- max(bike_data$date) + ((current/per_day) * -1)
+    
+    fines_text <- paste0("I should also note that my total Oyster spending includes fines for not tapping in or out correctly, and trips outside of zones 1-2, which would also be charged if I was using a Travelcard. Accounting for the £", sprintf("%.2f", round(sum(bike_data$fines))), " in fines and travel outside zone 2 that I presumably would have paid regardless, my ", fine_save_loss, " are £", sprintf("%.2f", abs(round((travelcard_total - current_total+sum(bike_data$fines)), 2))), ". Based on the average of the last 100 days, I will break even on ", format(as.Date(break_even_date), format = "%d %B %Y"), ".")
     
     print(fines_text)
     
@@ -293,6 +307,8 @@ server <- function(input, output, session) {
     
     })
   
+  
+
   
 # p1 ----------------------------------------------------------------------
   output$p1 <- renderPlot({
@@ -333,7 +349,7 @@ p1 <- ggplot(travel_summary, aes(x = variable, y = value,
                                      format(max(bike_data$date), 
                                             format = "%d %B %Y"))) +
       scale_x_discrete(name = "Type of Spending") +
-      theme(legend.position = "bottom", 
+      theme(legend.position = "", 
             text=element_text(size = 14), 
             legend.text=element_text(size = 14), 
             axis.text.y = element_text(size = 14), 
@@ -509,9 +525,6 @@ p1 <- ggplot(travel_summary, aes(x = variable, y = value,
     
     #bike_data <- bike_data_subset()
     
-    bike_data$gain_loss <- cumsum(bike_data$mon_oyster_per_day) -
-      (cumsum(bike_data$bike) + cumsum(bike_data$oyster))
-
     p5 <- ggplot(bike_data) + 
       geom_hline(yintercept = 0, colour = "red", size = 0.5, alpha = 0.7) +
       geom_hline(yintercept = max(bike_data$gain_loss), colour = "blue", 
