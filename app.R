@@ -282,7 +282,7 @@ server <- function(input, output, session) {
     
     break_even_date <- max(bike_data$date) + ((current/per_day) * -1)
     
-    fines_text <- paste0("I should also note that my total Oyster spending includes fines for not tapping in or out correctly, and trips outside of zones 1-2, which would also be charged if I was using a Travelcard. Accounting for the £", sprintf("%.2f", round(sum(bike_data$fines))), " in fines and travel outside zone 2 that I presumably would have paid regardless, my ", fine_save_loss, " are £", sprintf("%.2f", abs(round((travelcard_total - current_total+sum(bike_data$fines)), 2))), ". Based on the average of the last 100 days, I will break even on ", format(as.Date(break_even_date), format = "%d %B %Y"), ".")
+    fines_text <- paste0("I should also note that my total Oyster spending includes fines for not tapping in or out correctly, and trips outside of zones 1-2, which would also be charged if I was using a Travelcard. Accounting for the £", sprintf("%.2f", round(sum(bike_data$fines))), " in fines and travel outside zone 2 that I presumably would have paid regardless, my ", fine_save_loss, " are £", sprintf("%.2f", abs(round((travelcard_total - current_total+sum(bike_data$fines)), 2))), ".")
     
     print(fines_text)
     
@@ -495,16 +495,15 @@ p1 <- ggplot(travel_summary, aes(x = variable, y = value,
     bike_roll_gg$date <- as.Date(row.names(bike_roll_gg))
     
     bike_roll_gg <- gather(bike_roll_gg, type, spending, -date)
-    
-    #names(bike_roll_gg)[1] <- "spending"
-    
+
     p4 <- ggplot(bike_roll_gg) + 
       geom_line(aes(x = date, y = spending, group = type, col = type), size = 1) +
       scale_y_continuous(name = "7 Day rolling average cost per day", 
                    labels = pound, 
                    breaks=c(0, 2, 4, 6, 8, 10, 20), trans = "log10") + 
       scale_x_date(name = "Date", date_breaks = "2 months", 
-                   date_labels = "%b %Y") + 
+                   date_labels = "%b %Y", 
+                   limits = c(as.Date("2016-06-30"), NA)) + 
       scale_color_manual(values = c("#b5000e", "#01e245"), 
                          labels = c("Bike Spending", "Oyster Spending")) + 
       theme(legend.position = "bottom", 
