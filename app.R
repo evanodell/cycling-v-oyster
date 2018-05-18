@@ -117,8 +117,8 @@ ui <- fluidPage(
 
          fluidRow(
            br(),
-           p(textOutput("other_options_text")),
            p(textOutput("fines_text")),
+           p(textOutput("other_options_text")),
            p(textOutput("prediction")),
 
            p("There are a number of obstacles to an exact cost comparison of cycling and public transport. For example, if I go on holiday for a couple weeks, I might time my travelcard renewal so I'm not paying anything while not in London. There are also the intangible benefits of exercise and faster commutes from cycling, compared to the convenience and low effort required of public transport, and any purely financial comparison misses those factors.")
@@ -226,67 +226,70 @@ server <- function(input, output, session) {
 
     })
 
-# p4 text ----------------------------------------------------------------------
-
+  # fines text ----------------------------------------------------------------------
+  output$fines_text <- renderText({
+    
+    bike_data <- bike_data_subset()
+    
+    current_total <- round(sum(bike_data$oyster) + sum(bike_data$bike), 2)
+    
+    travelcard_total <- round(sum(bike_data$mon_oyster_per_day), 2)
+    
+    fine_save_loss <- if_else(
+      (travelcard_total - current_total + sum(bike_data$fines)) > 0,
+      "savings", "losses")
+    
+    #trend <- lm(gain_loss~date, data=top_n(bike_data_full, 100, date))
+    
+    #per_day <- trend$coefficients[["date"]]
+    
+    #current <- travelcard_total - current_total
+    
+    #break_even_date <- max(bike_data$date) + ((current/per_day) * -1)
+    
+    fines_text <- paste0("I should also note that my total Oyster spending includes fines for not tapping in or out correctly, and trips outside of zones 1-2, which would also be charged if I was using a Travelcard. Accounting for the £", sprintf("%.2f", round(sum(bike_data$fines))), " in fines and travel outside zone 2 that I presumably would have paid regardless, my ", fine_save_loss, " are £", sprintf("%.2f", abs(round((travelcard_total - current_total+sum(bike_data$fines)), 2))), ".")
+    
+    print(fines_text)
+    
+  })
+  
+  # other options text ---------------------------------------------------------
+  
   output$other_options_text <- renderText({
 
     bike_data <- bike_data_subset()
 
     awl <- if_else(
-      mean(bike_data$annual_oyster_per_day) -
-        (nrow(bike_data) * mean(bike_data$mon_oyster_per_day)) > 0,
+      (sum(bike_data$annual_oyster_per_day) -
+         (sum(bike_data$bike) + sum(bike_data$oyster))) +
+        sum(bike_data$fines)  > 0,
       "saved £", "lost £")
 
     wwl <- if_else(
       (sum(bike_data$week_oyster_per_day) -
-         (sum(bike_data$bike) + sum(bike_data$oyster))) > 0,
+         (sum(bike_data$bike) + sum(bike_data$oyster))) +
+        sum(bike_data$fines) > 0,
       "saved me £", "cost me £")
 
     savings_weekly <- paste0(
       wwl, format(abs(round(sum(bike_data$week_oyster_per_day) -
-                              (sum(bike_data$bike) +
-                                 sum(bike_data$oyster)), 2)),
+                              (sum(bike_data$bike) + sum(bike_data$oyster)) +
+                              sum(bike_data$fines), 2)),
                   nsmall = 2, big.mark = ","))
 
     savings_annual <- paste0(
       awl, format(abs(round(sum(bike_data$annual_oyster_per_day) -
-                              (sum(bike_data$bike) +
-                                 sum(bike_data$oyster)), 2)),
+                              (sum(bike_data$bike) + sum(bike_data$oyster)) +
+                              sum(bike_data$fines), 2)),
                   nsmall = 2, big.mark = ","))
-
-# other options text ----------------------------------------------------------------------
-    other_options_text <- paste0("It is worth noting other options for paying for transport passes. If buying weekly Travelcards, assuming I purchased one every week, I would have spent £", format(round(sum(bike_data$week_oyster_per_day), 2), nsmall = 2, big.mark = "," ), " over the same period. Using an annual Travelcard would cost, pro-rated over this time period, £", format(round(sum(bike_data$annual_oyster_per_day), 2), nsmall = 2, big.mark = ","), ". Compared to a weekly oyster card, cycling has ", savings_weekly, ", and I have ", savings_annual, " compared to using an annual Travelcard.")
+    
+    other_options_text <- paste0("It is worth noting other Oyster Travelcards options. If buying weekly Travelcards, assuming I purchased one every week, I would have spent £", format(round(sum(bike_data$week_oyster_per_day), 2), nsmall = 2, big.mark = "," ), " over the same period. An annual Travelcard would, pro-rated over this time period, cost £", format(round(sum(bike_data$annual_oyster_per_day), 2), nsmall = 2, big.mark = ","), ". Compared to a weekly Oyster card, cycling has ", savings_weekly, ", and I have ", savings_annual, " compared to using an annual Travelcard, including fines and travel outside zone 2.")
 
     print(other_options_text)
 
     })
 
-# fines text ----------------------------------------------------------------------
-  output$fines_text <- renderText({
 
-    bike_data <- bike_data_subset()
-
-    current_total <- round(sum(bike_data$oyster) + sum(bike_data$bike), 2)
-
-    travelcard_total <- round(sum(bike_data$mon_oyster_per_day), 2)
-
-    fine_save_loss <- if_else(
-      (travelcard_total - current_total + sum(bike_data$fines)) > 0,
-      "savings", "losses")
-
-    trend <- lm(gain_loss~date, data=top_n(bike_data_full, 100, date))
-
-    per_day <- trend$coefficients[["date"]]
-
-    current <- travelcard_total - current_total
-
-    break_even_date <- max(bike_data$date) + ((current/per_day) * -1)
-
-    fines_text <- paste0("I should also note that my total Oyster spending includes fines for not tapping in or out correctly, and trips outside of zones 1-2, which would also be charged if I was using a Travelcard. Accounting for the £", sprintf("%.2f", round(sum(bike_data$fines))), " in fines and travel outside zone 2 that I presumably would have paid regardless, my ", fine_save_loss, " are £", sprintf("%.2f", abs(round((travelcard_total - current_total+sum(bike_data$fines)), 2))), ".")
-
-    print(fines_text)
-
-    })
 
   output$savings <- renderText({
 
@@ -342,12 +345,12 @@ p1 <- ggplot(travel_summary, aes(x = variable, y = value,
                 vjust = -0.25,
                 fontface = "bold",
                 size = 5) +
-      scale_y_continuous(labels = pound, name = paste0("Total spending from \n",
-                                     format(min(bike_data$date),
-                                            format = "%d %B %Y"),
-                                     " to ",
-                                     format(max(bike_data$date),
-                                            format = "%d %B %Y"))) +
+      scale_y_continuous(labels = pound, 
+                         name = paste0("Total spending from \n",
+                                       format(min(bike_data$date),
+                                              format = "%d %B %Y"), " to ",
+                                       format(max(bike_data$date),
+                                              format = "%d %B %Y"))) +
       scale_x_discrete(name = "Type of Spending") +
       theme(legend.position = "",
             text=element_text(size = 14),
