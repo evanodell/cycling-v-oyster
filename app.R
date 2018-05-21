@@ -179,7 +179,7 @@ server <- function(input, output, session) {
     })
 
   bike_data_subset <- reactive({
-    bike_data_full[bike_data_full$date  <= input$date_slider, ]
+    bike_data_full[bike_data_full$date  <= input$date_slider,]
   })
 
   pound <- function(x) {
@@ -190,9 +190,9 @@ server <- function(input, output, session) {
                       nsmall = 0L))
   }
 
-  output$last_update <- renderText(paste0("Last Updated: ",
-                                          format(max(bike_data_full$date),
-                                                 format = "%d %B %Y")))
+  output$last_update <- renderText(
+    paste0("Last Updated: ", format(max(bike_data_full$date), 
+                                    format = "%d %B %Y")))
 
 # p1 text ----------------------------------------------------------------------
   output$p1_text <- renderText({
@@ -216,7 +216,6 @@ server <- function(input, output, session) {
 
     })
 
-
 # p3 text ----------------------------------------------------------------------
   output$p3_text <- renderText({
 
@@ -226,7 +225,7 @@ server <- function(input, output, session) {
 
     })
 
-  # fines text ----------------------------------------------------------------------
+# fines text -------------------------------------------------------------------
   output$fines_text <- renderText({
     
     bike_data <- bike_data_subset()
@@ -239,21 +238,13 @@ server <- function(input, output, session) {
       (travelcard_total - current_total + sum(bike_data$fines)) > 0,
       "savings", "losses")
     
-    #trend <- lm(gain_loss~date, data=top_n(bike_data_full, 100, date))
-    
-    #per_day <- trend$coefficients[["date"]]
-    
-    #current <- travelcard_total - current_total
-    
-    #break_even_date <- max(bike_data$date) + ((current/per_day) * -1)
-    
     fines_text <- paste0("I should also note that my total Oyster spending includes fines for not tapping in or out correctly, and trips outside of zones 1-2, which would also be charged if I was using a Travelcard. Accounting for the £", sprintf("%.2f", round(sum(bike_data$fines))), " in fines and travel outside zone 2 that I presumably would have paid regardless, my ", fine_save_loss, " are £", sprintf("%.2f", abs(round((travelcard_total - current_total+sum(bike_data$fines)), 2))), ".")
     
     print(fines_text)
     
   })
   
-  # other options text ---------------------------------------------------------
+# other options text ---------------------------------------------------------
   
   output$other_options_text <- renderText({
 
@@ -289,8 +280,6 @@ server <- function(input, output, session) {
 
     })
 
-
-
   output$savings <- renderText({
 
     bike_data <- bike_data_subset()
@@ -310,10 +299,7 @@ server <- function(input, output, session) {
 
     })
 
-
-
-
-# p1 ----------------------------------------------------------------------
+# p1 ---------------------------------------------------------------------------
   output$p1 <- renderPlot({
 
     bike_data <- bike_data_subset()
@@ -442,7 +428,7 @@ p1 <- ggplot(travel_summary, aes(x = variable, y = value,
 
   })
 
-# p3 ----------------------------------------------------------------------
+# p3 ---------------------------------------------------------------------------
 
   output$p3 <- renderPlot({
 
@@ -474,7 +460,7 @@ p1 <- ggplot(travel_summary, aes(x = variable, y = value,
 
   })
 
-# p4 ----------------------------------------------------------------------
+# p4 ---------------------------------------------------------------------------
   output$p4 <- renderPlot({
 
     bike_data <- bike_data_subset()
@@ -500,7 +486,8 @@ p1 <- ggplot(travel_summary, aes(x = variable, y = value,
     bike_roll_gg <- gather(bike_roll_gg, type, spending, -date)
 
     p4 <- ggplot(bike_roll_gg) +
-      geom_line(aes(x = date, y = spending, group = type, col = type), size = 1) +
+      geom_line(aes(x = date, y = spending, group = type, col = type),
+                size = 1) +
       scale_y_continuous(name = "7 Day rolling average cost per day",
                    labels = pound,
                    breaks=c(0, 2, 4, 6, 8, 10, 20), trans = "log10") +
@@ -520,7 +507,7 @@ p1 <- ggplot(travel_summary, aes(x = variable, y = value,
 
   })
 
-# p5 ----------------------------------------------------------------------
+# p5 ---------------------------------------------------------------------------
   output$p5 <- renderPlot({
 
     bike_data <- read_rds("bike_data_full.rds")
@@ -576,8 +563,7 @@ p1 <- ggplot(travel_summary, aes(x = variable, y = value,
             legend.text=element_text(size = 14),
             text=element_text(size = 14),
             axis.text.x = element_text(angle = 30, hjust = 1, size = 14),
-            axis.text.y = element_text(size = 14)
-      )
+            axis.text.y = element_text(size = 14))
 
     print(p5)
 
