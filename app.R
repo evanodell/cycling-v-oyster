@@ -393,18 +393,18 @@ p1 <- ggplot(travel_summary, aes(x = variable, y = value,
       guides(col = guide_legend(nrow = 2, bycol = TRUE)) +
       geom_text(aes(x = max(date),
                     y = bike_average,
-                    hjust= 0.5,
+                    hjust= 1,
                     vjust = 1.4,
-                    label = paste0("£", format(round(bike_average, 2),
-                                               nsmall = 2))), size = 5.5) +
+                    label = paste0("Bike Average: £", format(
+                      round(bike_average, 2), nsmall = 2))), size = 6) +
       geom_text(aes(x = max(date),
                     y = mean(bike_data$mon_oyster_per_day),
-                    hjust= 0.5,
+                    hjust = 1,
                     vjust = -0.5,
-                    label = paste0("£", format(
+                    label = paste0("Oyster Average: £", format(
                       round(mean(bike_data$mon_oyster_per_day), 2), nsmall = 2)
                       )),
-                size = 5.5) +
+                size = 6) +
       geom_step(aes(y = mon_oyster_per_day,
                     linetype = "Bicycle Cost-Per-Day"),
                 col = "#01e245", size = 1, data = bike_data) +
@@ -524,34 +524,33 @@ p1 <- ggplot(travel_summary, aes(x = variable, y = value,
         bike_data$gain_loss == max(bike_data$gain_loss)
         ],
                     y = max(bike_data$gain_loss),
-                    hjust= 1.06,
-                    vjust = 1.5,
+                    hjust = 1.06,
+                    vjust = 0,
                     label = paste0("Max savings: £",
                                    sprintf("%.2f",
                                            round(max(bike_data$gain_loss), 2)
-                                           ))), size = 5.5) +
+                                           ))), size = 6) +
       geom_text(aes(x = bike_data$date[
         bike_data$gain_loss == min(bike_data$gain_loss)
         ],
-                    y = 70,
-                    hjust= 0,
-                    vjust = 1.5,
-                    label = "Bought new bike"), size = 5.5) +
+        y = 70,
+        hjust= 0,
+        vjust = 0.5,
+        label = "Bought new bike"), size = 6) +
       geom_text(aes(x = bike_data$date[
         bike_data$gain_loss == min(bike_data$gain_loss)
         ],
-                    y = min(bike_data$gain_loss),
-                    hjust= 1.06,
-                    vjust = 0.5,
-                    label = paste0("Max loss: £",
-                                   sprintf("%.2f",
-                                           round(min(bike_data$gain_loss), 2)
-                                           ))), size = 5.5) +
+        y = min(bike_data$gain_loss),
+        hjust= 1.06,
+        vjust = 0.5,
+        label = paste0("Max loss: £",
+                       sprintf("%.2f", round(min(bike_data$gain_loss), 2)))),
+        size = 6) +
       geom_text(aes(x = as.Date("2018-02-02"),
                     y = -550,
                     hjust= 1.06,
                     vjust = 0.5,
-                    label = "Sold old bike"), size = 5.5) +
+                    label = "Sold old bike"), size = 6) +
       scale_y_continuous(name = "Savings/Losses over Time",
                    labels = pound,
                    breaks = seq(-900, 1000, by = 100) ) +
