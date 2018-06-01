@@ -349,7 +349,7 @@ p1 <- ggplot(travel_summary, aes(x = variable, y = value,
 
   })
 
-  # p2 ----------------------------------------------------------------------
+# p2 --------------------------------------------------------------------------
   output$p2 <- renderPlot({
 
     bike_data <- bike_data_subset()
@@ -511,8 +511,6 @@ p1 <- ggplot(travel_summary, aes(x = variable, y = value,
   output$p5 <- renderPlot({
 
     bike_data <- read_rds("bike_data_full.rds")
-
-    #bike_data <- bike_data_subset()
 
     p5 <- ggplot(bike_data) +
       geom_hline(yintercept = 0, colour = "red", size = 0.5, alpha = 0.7) +
