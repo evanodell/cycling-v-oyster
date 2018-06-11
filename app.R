@@ -73,10 +73,7 @@ ui <- fluidPage(
               p("You can see in the second time series plot that since writing the blog post in February 2017 my Oyster spending has dropped off somewhat. Since analysing how much I was cycling, and how much I was spending on transport, I've become much more dedicated to riding places, no longer taking the bus or the tube if I'm feeling a little bit lazy."),
 
 # slider and fine check --------------------------------------------------------
-          fluidRow(
-            column(6, uiOutput("slider"))#, ##date adjustments
-            # column(6, uiOutput("fine_box"))
-            ),
+           uiOutput("slider"),
            em(h4(textOutput("last_update"))),
            em(h4(textOutput("savings"))),
            
@@ -121,7 +118,7 @@ ui <- fluidPage(
 
          fluidRow(
            br(),
-           p(textOutput("fines_text")),
+           #p(textOutput("fines_text")),
            p(textOutput("other_options_text")),
            p(textOutput("prediction")),
 
@@ -130,6 +127,8 @@ ui <- fluidPage(
          ),
   column(2))))
 
+
+# data-prep --------------------------------------------------------------------
 bike_data_full <- read_csv("cycling_oyster_data.csv",
                            col_types = cols(
                              date = col_date(format = "%Y-%m-%d"))
@@ -162,7 +161,8 @@ bike_data_full$locker_cost <- case_when(
 bike_data_full$bike <- bike_data_full$bike + bike_data_full$locker_cost
 
 bike_data_full$gain_loss <- cumsum(bike_data_full$mon_oyster_per_day) -
-  (cumsum(bike_data_full$bike) + cumsum(bike_data_full$oyster))
+  (cumsum(bike_data_full$bike) + cumsum(bike_data_full$oyster)) +
+  cumsum(bike_data_full$fines)
 
 write_rds(bike_data_full, "bike_data_full.rds")
 
@@ -182,15 +182,8 @@ server <- function(input, output, session) {
                 value = max(bike_data_full$date))
     })
   
-  # output$fine_box <- renderUI({
-  #   checkboxInput("fine_check", 
-  #                 "Include fines and travel beyond zone 2?",
-  #                 FALSE)
-  # })
-  
-  
   bike_data_subset <- reactive({
-    bike_data_full[bike_data_full$date  <= input$date_slider,]
+    bike_data_full[bike_data_full$date <= input$date_slider,]
   })
 
   pound <- function(x) {
@@ -210,7 +203,7 @@ server <- function(input, output, session) {
 
     bike_data <- bike_data_subset()
 
-    paste0("The red and green bars are total spending on my bike and related accessories and my pay-as-you-go Oyster spending, respectively. The blue bar is the combined total of bicycle and pay-as-you-go spending, and the purple bar is the hypothetical total spending of monthly Travelcards covering ", as.character(max(bike_data$date) - min(bike_data$date)), " days, from 30 June 2016 to ", format(max(bike_data$date), format = "%d %B %Y"), ".")
+    paste0("The red and green bars are total spending on my bike and related accessories and my pay-as-you-go Oyster spending, respectively. The blue bar is the combined total of bicycle and pay-as-you-go spending, and the purple bar is the hypothetical total spending on a monthly Travelcard and travel outside zone 2 covering ", as.character(max(bike_data$date) - min(bike_data$date)), " days, from 30 June 2016 to ", format(max(bike_data$date), format = "%d %B %Y"), ".")
 
     })
 
@@ -219,9 +212,10 @@ server <- function(input, output, session) {
 
     bike_data <- bike_data_subset()
 
-    comparison <- sum(bike_data$bike, bike_data$oyster) - sum(bike_data$mon_oyster_per_day)
+    comparison <- sum(bike_data$bike, bike_data$oyster) - 
+      sum(bike_data$mon_oyster_per_day)
 
-    compare <- if_else(comparison>0, "more", "less")
+    compare <- if_else(comparison > 0, "more", "less")
 
    paste0("The green horizontal line represents the cost-per-day of a monthly zone 1-2 Travelcard in London over this time period: £4.15 in 2016, £4.23 in 2017 and £4.37 in 2018, averaging to £", sprintf("%.2f", round(mean(bike_data$mon_oyster_per_day), 2)), ". The burgundy horizontal line represents the average daily cost of my bicycle and accessories (£", sprintf("%.2f", round(sum(bike_data$bike)/nrow(bike_data), 2)), "). The light blue line is a rolling weekly average of daily pay-as-you-go Oyster spending, and the light red line is pay-as-you-go Oyster spending combined with average daily bike costs. The average cost-per-day of my pay-as-you-go Oyster card is £", sprintf("%.2f", round((sum(bike_data$oyster)/nrow(bike_data)), 2)), ", which combined with bike spending means I have spent an average of £", sprintf("%.2f", abs(round(comparison/nrow(bike_data), 2))), " per day ", compare, " than I would using a monthly travelcard.")
 
@@ -236,27 +230,7 @@ server <- function(input, output, session) {
 
     })
 
-# fines text -------------------------------------------------------------------
-  output$fines_text <- renderText({
-    
-    bike_data <- bike_data_subset()
-    
-    current_total <- round(sum(bike_data$oyster) + sum(bike_data$bike), 2)
-    
-    travelcard_total <- round(sum(bike_data$mon_oyster_per_day), 2)
-    
-    fine_save_loss <- if_else(
-      (travelcard_total - current_total + sum(bike_data$fines)) > 0,
-      "savings", "losses")
-    
-    fines_text <- paste0("I should also note that my total Oyster spending includes fines for not tapping in or out correctly, and trips outside of zones 1-2, which would also be charged if I was using a Travelcard. Accounting for the £", sprintf("%.2f", round(sum(bike_data$fines), 2)), " in fines and travel outside zone 2 that I presumably would have paid regardless, my ", fine_save_loss, " are £", sprintf("%.2f", abs(round((travelcard_total - current_total+sum(bike_data$fines)), 2))), ".")
-    
-    print(fines_text)
-    
-  })
-  
-# other options text ---------------------------------------------------------
-  
+# other options text -----------------------------------------------------------
   output$other_options_text <- renderText({
 
     bike_data <- bike_data_subset()
@@ -297,7 +271,7 @@ server <- function(input, output, session) {
 
     current_total <- sum(bike_data$oyster, bike_data$bike)
 
-    travelcard_total <- sum(bike_data$mon_oyster_per_day)
+    travelcard_total <- sum(bike_data$mon_oyster_per_day, bike_data$fines)
 
     totsav <- if_else(travelcard_total - current_total > 0, "savings", "losses")
 
@@ -322,7 +296,8 @@ server <- function(input, output, session) {
                                       Combined = sum(bike_data$oyster,
                                                      bike_data$bike),
                                       Hypothetical_Travelcard = sum(
-                                        bike_data$mon_oyster_per_day)),
+                                        bike_data$mon_oyster_per_day,
+                                        bike_data$fines)),
                              variable, value)
 
     travel_summary$variable <- gsub("_", " ", travel_summary$variable)
@@ -412,7 +387,7 @@ p1 <- ggplot(travel_summary, aes(x = variable, y = value,
                     y = mean(bike_data$mon_oyster_per_day),
                     hjust = 1,
                     vjust = -0.5,
-                    label = paste0("Oyster Average: £", format(
+                    label = paste0("Travelcard Average: £", format(
                       round(mean(bike_data$mon_oyster_per_day), 2), nsmall = 2)
                       )),
                 size = 6) +
@@ -527,8 +502,8 @@ p1 <- ggplot(travel_summary, aes(x = variable, y = value,
       geom_hline(yintercept = 0, colour = "red", size = 0.5, alpha = 0.7) +
       geom_hline(yintercept = max(bike_data$gain_loss), colour = "blue",
                  size = 0.5, alpha = 0.7) +
-      geom_line(aes(x = date, y = gain_loss), size = 1, colour = "#00B6EB",
-                alpha = 0.9) +
+      geom_line(aes(x = date, y = gain_loss), size = 1, 
+                colour = "#00B6EB", alpha = 0.9) +
       geom_text(aes(x = bike_data$date[
         bike_data$gain_loss == max(bike_data$gain_loss)
         ],
@@ -557,8 +532,8 @@ p1 <- ggplot(travel_summary, aes(x = variable, y = value,
         size = 6) +
       geom_text(aes(x = as.Date("2018-02-02"),
                     y = -550,
-                    hjust= 1.06,
-                    vjust = 0.5,
+                    hjust= -0.03,
+                    vjust = 0.4,
                     label = "Sold old bike"), size = 6) +
       scale_y_continuous(name = "Savings/Losses over Time",
                    labels = pound,
