@@ -72,10 +72,14 @@ ui <- fluidPage(
 
               p("You can see in the second time series plot that since writing the blog post in February 2017 my Oyster spending has dropped off somewhat. Since analysing how much I was cycling, and how much I was spending on transport, I've become much more dedicated to riding places, no longer taking the bus or the tube if I'm feeling a little bit lazy."),
 
-# slider ----------------------------------------------------------------------
-           uiOutput("slider"), ##date adjustments
+# slider and fine check --------------------------------------------------------
+          fluidRow(
+            column(6, uiOutput("slider"))#, ##date adjustments
+            # column(6, uiOutput("fine_box"))
+            ),
            em(h4(textOutput("last_update"))),
            em(h4(textOutput("savings"))),
+           
 # UI-p1 ----------------------------------------------------------------------
            h4("Total Spending and Combined Spending:"),
            div(id = "plot-container", # spinner gifs
@@ -177,7 +181,14 @@ server <- function(input, output, session) {
                 max   = max(bike_data_full$date),
                 value = max(bike_data_full$date))
     })
-
+  
+  # output$fine_box <- renderUI({
+  #   checkboxInput("fine_check", 
+  #                 "Include fines and travel beyond zone 2?",
+  #                 FALSE)
+  # })
+  
+  
   bike_data_subset <- reactive({
     bike_data_full[bike_data_full$date  <= input$date_slider,]
   })
