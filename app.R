@@ -158,7 +158,12 @@ bike_data_full$locker_cost <- case_when(
   bike_data_full$date <= "2020-01-22" ~ 40/365
   )
 
-bike_data_full$bike <- bike_data_full$bike + bike_data_full$locker_cost
+bike_data_full$insurance <- case_when(
+  bike_data_full$date >= "2018-06-18" ~ 101.80/365, TRUE ~ 0
+)
+
+bike_data_full$bike <- bike_data_full$bike + bike_data_full$locker_cost + 
+  bike_data_full$insurance 
 
 bike_data_full$gain_loss <- cumsum(bike_data_full$mon_oyster_per_day) -
   (cumsum(bike_data_full$bike) + cumsum(bike_data_full$oyster)) +
