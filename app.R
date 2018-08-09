@@ -481,7 +481,7 @@ p1 <- ggplot(travel_summary, aes(x = variable, y = value,
                 size = 1) +
       scale_y_continuous(name = "7 Day rolling average cost per day",
                    labels = pound,
-                   breaks=c(0, 2, 4, 6, 8, 10, 20), trans = "log10") +
+                   breaks = c(0, 2, 4, 6, 8, 10, 20), trans = "log10") +
       scale_x_date(name = "Date", date_breaks = "2 months",
                    date_labels = "%b %Y",
                    limits = c(as.Date("2016-06-30"), NA)) +
@@ -491,8 +491,8 @@ p1 <- ggplot(travel_summary, aes(x = variable, y = value,
             legend.text=element_text(size = 14),
             text=element_text(size = 14),
             axis.text.x = element_text(angle = 30, hjust = 1, size = 14),
-            axis.text.y = element_text(size = 14)
-            ) + labs(col = "")
+            axis.text.y = element_text(size = 14)) +
+      labs(col = "")
 
     print(p4)
 
