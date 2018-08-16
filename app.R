@@ -438,7 +438,7 @@ p1 <- ggplot(travel_summary, aes(x = variable, y = value,
                    date_labels = "%b %Y") +
       scale_color_manual(values = c("#01e245", "#b5000e"),
                          labels = c("Bike Spending",
-                                    "Pay As You Go Oyster Spending"),
+                                    "Pay-as-you-go Oyster Spending"),
                          name = "") +
       theme(legend.position = "bottom",
             legend.text=element_text(size = 14),
@@ -480,8 +480,8 @@ p1 <- ggplot(travel_summary, aes(x = variable, y = value,
       geom_line(aes(x = date, y = spending, group = type, col = type),
                 size = 1) +
       scale_y_continuous(name = "7 Day rolling average cost per day",
-                   labels = pound,
-                   breaks = c(0, 2, 4, 6, 8, 10, 20), trans = "log10") +
+                   labels = pound, limits = c(NA, 10),
+                   breaks = c(0, 2, 4, 6, 8, 10), trans = "log10") +
       scale_x_date(name = "Date", date_breaks = "2 months",
                    date_labels = "%b %Y",
                    limits = c(as.Date("2016-06-30"), NA)) +
