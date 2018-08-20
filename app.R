@@ -218,7 +218,7 @@ server <- function(input, output, session) {
     bike_data <- bike_data_subset()
 
     comparison <- sum(bike_data$bike, bike_data$oyster) - 
-      sum(bike_data$mon_oyster_per_day)
+      sum(bike_data$mon_oyster_per_day, bike_data$fines)
 
     compare <- if_else(comparison > 0, "more", "less")
 
