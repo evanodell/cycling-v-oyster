@@ -59,18 +59,18 @@ ui <- fluidPage(
 
   column(2),
 
-  column(8,
 # App Text ---------------------------------------------------------------
+  column(8,
          fluidRow(
            p("*Updated every few days."),
 
-              p("In a", tags$a(href="https://evanodell.com/blog/2017/02/06/cycling-vs-oyster/", "blog post"), "in February 2017 I analysed how much money I was saving by cycling to work instead of using a monthly Oyster transport pass. When I wrote that blog I had spent almost £20 more on my bike and pay-as-you-go transport pass than I would have if I bought a monthly transport pass. As of 29 April 2017, less than 3 months after that blog, and despite needing a new rear wheel, I broke even, and I've been updating my data every few days, and have now built another", tags$a(href="https://shiny.rstudio.com/", "Shiny"), "app to monitor my spending on my bike and on transport."),
+           p("In a", tags$a(href="https://evanodell.com/blog/2017/02/06/cycling-vs-oyster/", "blog post"), "in February 2017 I analysed how much money I was saving by cycling to work instead of using a monthly Oyster transport pass. When I wrote that blog I had spent almost £20 more on my bike and pay-as-you-go transport pass than I would have if I bought a monthly transport pass. As of 29 April 2017, less than 3 months after that blog, and despite needing a new rear wheel, I broke even, and I've been updating my data every few days, and have now built another", tags$a(href="https://shiny.rstudio.com/", "Shiny"), "app to monitor my spending on my bike and on transport."),
 
            p("Of course, I had to screw this up somehow, so I bought a new bike in October 2017, and broke even on that cost on 20 August 2018."),
 
-              p("I include all spending directly on my bike, including the cost of the bike, accessories, spare parts, tools and maintenance. I also include non-bike costs that are the result of cycling, primarily clothing. For instance, I have bought a couple pairs of commuter trousers for cycling and include that spending in my calculations, less £40 to represent the price of a standard pair of men's trousers, on the basis that I would have had to buy new trousers anyways."),
+           p("I include all spending directly on my bike, including the cost of the bike, accessories, spare parts, tools and maintenance. I also include non-bike costs that are the result of cycling, primarily clothing. For instance, I have bought a couple pairs of commuter trousers for cycling and include that spending in my calculations, less £40 to represent the price of a standard pair of men's trousers, on the basis that I would have had to buy new trousers anyways."),
 
-              p("You can see in the second time series plot that since writing the blog post in February 2017 my Oyster spending has dropped off somewhat. Since analysing how much I was cycling, and how much I was spending on transport, I've become much more dedicated to riding places, no longer taking the bus or the tube if I'm feeling a little bit lazy."),
+           p("You can see in the second time series plot that since writing the blog post in February 2017 my Oyster spending has dropped off somewhat. Since analysing how much I was cycling, and how much I was spending on transport, I've become much more dedicated to riding places, no longer taking the bus or the tube if I'm feeling a little bit lazy."),
 
 # slider and fine check --------------------------------------------------------
            uiOutput("slider"),
@@ -86,7 +86,7 @@ ui <- fluidPage(
            em(textOutput("p1_text"))),
 
 # UI-p2 ----------------------------------------------------------------------
-         fluidRow(
+        fluidRow(
            h4("Time Series of Spending on Pay-As-You-Go Oyster and Cycling:"),
            div(id = "plot-container",
                tags$img(src = "spinner.gif",
@@ -95,7 +95,7 @@ ui <- fluidPage(
            em(textOutput("p2_text"))),
 
 # UI-p3 ----------------------------------------------------------------------
-         fluidRow(
+        fluidRow(
            h4("Cumulative Spending in Each Category:"),
            div(id = "plot-container",
                tags$img(src = "spinner.gif",
@@ -116,7 +116,7 @@ ui <- fluidPage(
               id = "loading-spinner"),
           plotOutput("p5")),
 
-         fluidRow(
+        fluidRow(
            br(),
            #p(textOutput("fines_text")),
            p(textOutput("other_options_text")),
@@ -231,7 +231,10 @@ server <- function(input, output, session) {
 
     bike_data <- bike_data_subset()
 
-    paste0("Cumulative spending in each category over ", as.character(max(bike_data$date) - min(bike_data$date)), " days, from 30 June 2016 to ", format(max(bike_data$date), format = "%d %B %Y"), ".")
+    paste0("Cumulative spending in each category over ", 
+           as.character(max(bike_data$date) - min(bike_data$date)),
+           " days, from 30 June 2016 to ", format(max(bike_data$date),
+           format = "%d %B %Y"), ".")
 
     })
 
@@ -278,7 +281,8 @@ server <- function(input, output, session) {
 
     travelcard_total <- sum(bike_data$mon_oyster_per_day, bike_data$fines)
 
-    totsav <- if_else(travelcard_total - current_total > 0, "savings", "losses")
+    totsav <- if_else(travelcard_total - current_total > 0,
+                      "savings", "losses")
 
     savings <- paste0("Total ", totsav,
                       " from cycling instead of using public transport: ",
