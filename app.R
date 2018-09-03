@@ -3,7 +3,7 @@ library(shiny)
 library(shinyjs)
 library(zoo)
 library(ggplot2)
-#library(scales)
+library(shadowtext)
 library(readr)
 library(dplyr)
 library(tibble)
@@ -386,19 +386,35 @@ p1 <- ggplot(travel_summary, aes(x = variable, y = value,
                          labels = pound,
                          breaks = seq(0, 10, by = 2)) +
       guides(col = guide_legend(nrow = 2, bycol = TRUE)) +
+      # geom_shadowtext(aes(x = max(date),
+      #               y = bike_average,
+      #               hjust= 1,
+      #               vjust = 1.4,
+      #               label = paste0("Bike Average: £", format(
+      #                 round(bike_average, 2), nsmall = 2))),
+      #           size = 6) +
+      # geom_shadowtext(aes(x = max(date),
+      #               y = mean(bike_data$mon_oyster_per_day),
+      #               hjust = 1,
+      #               vjust = -0.5,
+      #               label = paste0("Travelcard Average: £", format(
+      #                 round(mean(bike_data$mon_oyster_per_day), 2), 
+      #                 nsmall = 2))), 
+      #           size = 6) +
       geom_text(aes(x = max(date),
                     y = bike_average,
                     hjust= 1,
                     vjust = 1.4,
                     label = paste0("Bike Average: £", format(
-                      round(bike_average, 2), nsmall = 2))), size = 6) +
+                      round(bike_average, 2), nsmall = 2))),
+                size = 6) +
       geom_text(aes(x = max(date),
                     y = mean(bike_data$mon_oyster_per_day),
                     hjust = 1,
                     vjust = -0.5,
                     label = paste0("Travelcard Average: £", format(
-                      round(mean(bike_data$mon_oyster_per_day), 2), nsmall = 2)
-                      )),
+                      round(mean(bike_data$mon_oyster_per_day), 2),
+                      nsmall = 2))),
                 size = 6) +
       geom_step(aes(y = mon_oyster_per_day,
                     linetype = "Bicycle Cost-Per-Day"),
