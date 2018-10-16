@@ -314,7 +314,7 @@ p1 <- ggplot(travel_summary, aes(x = variable, y = value,
     
     bike_data <- bike_data_subset()
     
-    paste0("The red and green bars are total spending on my bike and related accessories and my pay-as-you-go Oyster spending, respectively. The brown bar is the combined total of bicycle and pay-as-you-go spending, and the yellow bar is the hypothetical total spending on a monthly Travelcard and travel outside zone 2 covering ", as.character(max(bike_data$date) - min(bike_data$date)), " days, from 30 June 2016 to ", format(max(bike_data$date), format = "%d %B %Y"), ".")
+    paste0("The red and green bars are total spending on my bike and related accessories and my pay-as-you-go Oyster spending, respectively. The brown bar is the combined total of bicycle and pay-as-you-go spending, and the yellow bar is the hypothetical total spending on a monthly Travelcard and travel outside zone 2 covering ", format(as.character(max(bike_data$date) - min(bike_data$date)), big.mark = ","), " days, from 30 June 2016 to ", format(max(bike_data$date), format = "%d %B %Y"), ".")
     
   })  
   
@@ -348,7 +348,7 @@ p1 <- ggplot(travel_summary, aes(x = variable, y = value,
       ] <- "PAYG Oyster Spending"
     oyster_roll_gg$spend_type[
       oyster_roll_gg$spend_type == "bike_plus_oyster"
-      ] <- "Oyster Plus Bike Spending"
+      ] <- "Oyster + Bike Spending"
     oyster_roll_gg$spend_type <- factor(oyster_roll_gg$spend_type)
 
     p2 <- ggplot(oyster_roll_gg, aes(x = date)) +
@@ -368,7 +368,7 @@ p1 <- ggplot(travel_summary, aes(x = variable, y = value,
                       round(bike_average, 2), nsmall = 2))),
                 size = 6) +
       geom_text(aes(x = max(date),
-                    y = mean(bike_data$mon_oyster_per_day),
+                    y = max(bike_data$mon_oyster_per_day),
                     hjust = 1,
                     vjust = -0.5,
                     label = paste0("Travelcard Average: £", format(
