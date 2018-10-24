@@ -1,7 +1,6 @@
 
 library(shiny)
 library(shinyjs)
-library(plotrix)
 library(zoo)
 library(ggplot2)
 library(readr)
@@ -408,7 +407,7 @@ p1 <- ggplot(travel_summary, aes(x = variable, y = value,
     
     compare <- if_else(comparison > 0, "more", "less")
     
-    paste0("The purple dashed horizontal line represents the cost-per-day of a monthly zone 1-2 Travelcard in London over this time period: £4.15 in 2016, £4.23 in 2017 and £4.37 in 2018, averaging to £", sprintf("%.2f", round(mean(bike_data$mon_oyster_per_day), 2)), ". The ", color.id("#000004")[[1]], " dashed horizontal line represents the average daily cost of my bicycle and accessories (£", sprintf("%.2f", round(sum(bike_data$bike)/nrow(bike_data), 2)), "). The yellow line is a rolling weekly average of daily pay-as-you-go Oyster spending, and the blue line is pay-as-you-go Oyster spending combined with average daily bike costs. The average cost-per-day of my pay-as-you-go Oyster card is £", sprintf("%.2f", round((sum(bike_data$oyster)/nrow(bike_data)), 2)), ", which combined with bike spending means I have spent an average of £", sprintf("%.2f", abs(round(comparison/nrow(bike_data), 2))), " per day ", compare, " than I would using a monthly travelcard (totals may not add up exactly due to rounding).")
+    paste0("The purple dashed horizontal line represents the cost-per-day of a monthly zone 1-2 Travelcard in London over this time period: £4.15 in 2016, £4.23 in 2017 and £4.37 in 2018, averaging to £", sprintf("%.2f", round(mean(bike_data$mon_oyster_per_day), 2)), ". The black dashed horizontal line represents the average daily cost of my bicycle and accessories (£", sprintf("%.2f", round(sum(bike_data$bike)/nrow(bike_data), 2)), "). The yellow line is a rolling weekly average of daily pay-as-you-go Oyster spending, and the blue line is pay-as-you-go Oyster spending combined with average daily bike costs. The average cost-per-day of my pay-as-you-go Oyster card is £", sprintf("%.2f", round((sum(bike_data$oyster)/nrow(bike_data)), 2)), ", which combined with bike spending means I have spent an average of £", sprintf("%.2f", abs(round(comparison/nrow(bike_data), 2))), " per day ", compare, " than I would using a monthly travelcard (totals may not add up exactly due to rounding).")
     
   })
   
