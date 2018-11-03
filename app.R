@@ -224,7 +224,7 @@ server <- function(input, output, session) {
   })
   
   # p1 ---------------------------------------------------------------------------
-  output$p1 <- renderPlot({
+  output$p1 <- renderCachedPlot({
     
     bike_data <- bike_data_subset()
     
@@ -271,8 +271,9 @@ server <- function(input, output, session) {
             axis.text.x = element_text(size = 14)) 
     
     print(p1)
-    
-  })
+  
+  }, cacheKeyExpr = {     list(input$period_selection, bike_data_subset())   }
+  )
   
   # p1 text ----------------------------------------------------------------------
   output$p1_text <- renderText({
@@ -290,7 +291,7 @@ server <- function(input, output, session) {
   })  
   
   # p2 --------------------------------------------------------------------------
-  output$p2 <- renderPlot({
+  output$p2 <- renderCachedPlot({
     
     bike_data <- bike_data_subset()
     
@@ -367,7 +368,7 @@ server <- function(input, output, session) {
     
     print(p2)
     
-  })
+  }, cacheKeyExpr = {     list(input$period_selection, bike_data_subset())   })
   
   # p2 text ----------------------------------------------------------------------
   output$p2_text <- renderText({
@@ -391,7 +392,7 @@ server <- function(input, output, session) {
   
   # p3 ---------------------------------------------------------------------------
   
-  output$p3 <- renderPlot({
+  output$p3 <- renderCachedPlot({
     
     bike_data <- bike_data_subset()
     
@@ -420,7 +421,7 @@ server <- function(input, output, session) {
     
     print(p3)
     
-  })
+  }, cacheKeyExpr = {     list(input$period_selection, bike_data_subset())   })
   
   # p3 text ----------------------------------------------------------------------
   output$p3_text <- renderText({
@@ -435,7 +436,7 @@ server <- function(input, output, session) {
   })
   
   # p4 ---------------------------------------------------------------------------
-output$p4 <- renderPlot({
+output$p4 <- renderCachedPlot({
     
   bike_data <- bike_data_subset()
     
@@ -479,10 +480,10 @@ output$p4 <- renderPlot({
     
   print(p4)
     
-  })
+  }, cacheKeyExpr = {     list(input$period_selection, bike_data_subset())   })
   
   # p5 ---------------------------------------------------------------------------
-  output$p5 <- renderPlot({
+  output$p5 <- renderCachedPlot({
     
     bike_data <- bike_data_subset()
     
@@ -548,9 +549,13 @@ output$p4 <- renderPlot({
     
     print(p5)
     
-  })
+  }, cacheKeyExpr = {     list(input$period_selection, bike_data_subset())   })
+  
+  
   
 }
+# Caching
+shinyOptions(cache = diskCache("./cycling-oyster-cache"))
 
 # Run the application
 shinyApp(ui = ui, server = server)
