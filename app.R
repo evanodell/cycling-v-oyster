@@ -168,6 +168,8 @@ bike_data_full <- bike_data_full %>%
   gather(key=travelcard_type, value = travelcard_day,
          -date, -bike, -oyster, -locker_cost, -fines, -insurance)
 
+attr(bike_data_full, "created_at") <- Sys.time()
+
 write_rds(bike_data_full, "bike_data_full.rds")
 
 # Server ------------------------------------------------------------------
@@ -197,6 +199,11 @@ server <- function(input, output, session) {
                        trim = TRUE,
                        scientific = FALSE,
                        nsmall = 0L))
+  }
+  
+  
+  df_date_time <- function(){
+    attributes(bike_data_full)$created_at
   }
   
   output$last_update <- renderText(
@@ -272,8 +279,7 @@ server <- function(input, output, session) {
     
     print(p1)
   
-  }, cacheKeyExpr = {     list(input$period_selection, bike_data_subset())   }
-  )
+  }, cacheKeyExpr = {list(input$period_selection, df_date_time())})
   
   # p1 text ----------------------------------------------------------------------
   output$p1_text <- renderText({
@@ -368,7 +374,7 @@ server <- function(input, output, session) {
     
     print(p2)
     
-  }, cacheKeyExpr = {     list(input$period_selection, bike_data_subset())   })
+  }, cacheKeyExpr = {list(input$period_selection, df_date_time())})
   
   # p2 text ----------------------------------------------------------------------
   output$p2_text <- renderText({
@@ -424,7 +430,7 @@ server <- function(input, output, session) {
     
     print(p3)
     
-  }, cacheKeyExpr = {     list(input$period_selection, bike_data_subset())   })
+  }, cacheKeyExpr = {list(df_date_time())})
   
   # p3 text ----------------------------------------------------------------------
   output$p3_text <- renderText({
@@ -441,7 +447,8 @@ server <- function(input, output, session) {
   # p4 ---------------------------------------------------------------------------
 output$p4 <- renderCachedPlot({
     
-  bike_data <- bike_data_subset()
+  bike_data <- bike_data_full %>%
+    select(date:bike) %>% distinct()
     
   bike_data$bike_cumsum <- (
     cumsum(bike_data$bike)/as.numeric(bike_data$date - as.Date("2016-06-29"))
@@ -483,7 +490,7 @@ output$p4 <- renderCachedPlot({
     
   print(p4)
     
-  }, cacheKeyExpr = {     list(input$period_selection, bike_data_subset())   })
+  }, cacheKeyExpr = {list(df_date_time())})
   
   # p5 ---------------------------------------------------------------------------
   output$p5 <- renderCachedPlot({
@@ -552,7 +559,7 @@ output$p4 <- renderCachedPlot({
     
     print(p5)
     
-  }, cacheKeyExpr = {     list(input$period_selection, bike_data_subset())   })
+  }, cacheKeyExpr = {list(input$period_selection, df_date_time())})
   
   
   
