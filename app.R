@@ -257,7 +257,7 @@ server <- function(input, output, session) {
                 fontface = "bold",
                 size = 5) +
       scale_y_continuous(labels = pound, 
-                         name = paste0("Total spending from \n",
+                         name = paste0("Total spending from\n",
                                        format(min(bike_data$date),
                                               format = "%d %B %Y"), " to ",
                                        format(max(bike_data$date),
@@ -394,17 +394,20 @@ server <- function(input, output, session) {
   
   output$p3 <- renderCachedPlot({
     
-    bike_data <- bike_data_subset()
+    #bike_data <- bike_data_subset()
     
-    bike_melt <- bike_data %>% select(date:bike) %>%
-      gather(spend_type, value, -date) %>%
+    bike_melt <- bike_data_full %>%
+      select(date:bike) %>%
+      gather(spend_type, value, -date) %>% distinct() %>%
       group_by(spend_type) %>%
       arrange(date) %>%
       mutate(spending = cumsum(value))
+      
     
     p3 <- ggplot(bike_melt) +
       geom_line(aes(x = date, y = spending, col = spend_type), size = 1) +
-      scale_y_continuous(name = "Cumulative Spending",
+      scale_y_continuous(name = "Cumulative Spending", 
+                         breaks = seq(0, 5000, by = 500), 
                          labels = pound) +
       scale_x_date(name = "Date", date_breaks = "3 months",
                    date_labels = "%b %Y") +
@@ -536,7 +539,7 @@ output$p4 <- renderCachedPlot({
                     label = "Sold old bike"), size = 6) +
       scale_y_continuous(name = "Savings/Losses over Time",
                          labels = pound,
-                         breaks = seq(-1200, 1000, by = 100) ) +
+                         breaks = seq(-1200, 1000, by = 100)) +
       scale_x_date(name = "Date", date_breaks = "3 months",
                    date_labels = "%b %Y") +
       scale_color_manual(values = c("#932667"),
