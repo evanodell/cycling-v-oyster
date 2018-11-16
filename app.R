@@ -488,6 +488,10 @@ output$p4 <- renderCachedPlot({
       (cumsum(bike_data$bike) + cumsum(bike_data$oyster)) +
       cumsum(bike_data$fines)
     
+    max_savings <- if_else(max(bike_data$gain_loss) >= 0,
+                           "Max savings: £",
+                           "Min loss: £")
+  
     p5 <- ggplot(bike_data) +
       geom_hline(yintercept = 0, colour = "red", size = 0.5, alpha = 0.7) +
       geom_hline(yintercept = max(bike_data$gain_loss), colour = "seagreen3",
@@ -500,10 +504,9 @@ output$p4 <- renderCachedPlot({
         y = max(bike_data$gain_loss),
         hjust = 0.8,
         vjust = 0,
-        label = paste0("Max savings: £",
-                       sprintf("%.2f",
-                               round(max(bike_data$gain_loss), 2)
-                       ))), size = 6) +
+        label = paste0(max_savings, 
+                       sprintf("%.2f", round(max(bike_data$gain_loss), 2))
+                       )), size = 6) +
       geom_text(aes(x = bike_data$date[
         bike_data$gain_loss == min(bike_data$gain_loss)
         ],
