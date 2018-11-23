@@ -156,7 +156,9 @@ bike_data_full <- bike_data_full %>%
   gather(key=travelcard_type, value = travelcard_day,
          -date, -bike, -oyster, -locker_cost, -fines, -insurance)
 
-attr(bike_data_full, "created_at") <- Sys.time()
+attr(bike_data_full, "latest") <- bike_data_full[
+  bike_data_full$date == max(bike_data_full$date)
+  ,]
 
 write_rds(bike_data_full, "bike_data_full.rds")
 
@@ -191,7 +193,7 @@ server <- function(input, output, session) {
   
   
   df_date_time <- function(){
-    attributes(bike_data_full)$created_at
+    attributes(bike_data_full)$latest
   }
   
   output$last_update <- renderText(
