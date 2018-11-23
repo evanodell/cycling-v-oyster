@@ -158,7 +158,7 @@ bike_data_full <- bike_data_full %>%
 
 attr(bike_data_full, "latest") <- bike_data_full[
   bike_data_full$date == max(bike_data_full$date)
-  ,]
+  ,][3,]
 
 write_rds(bike_data_full, "bike_data_full.rds")
 
