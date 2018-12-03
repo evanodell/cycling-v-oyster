@@ -124,19 +124,22 @@ bike_data_full <- read_csv("cycling_oyster_data.csv",
 bike_data_full$week_oyster_per_day <- case_when(
   bike_data_full$date <= "2017-01-02" ~ 32.4/7,
   bike_data_full$date <= "2018-01-02" ~ 33/7,
-  bike_data_full$date <= "2019-01-02" ~ 34.1/7
+  bike_data_full$date <= "2019-01-02" ~ 34.1/7,
+  bike_data_full$date <= "2020-01-02" ~ 35.16/7
   )
 
 bike_data_full$mon_oyster_per_day <- case_when(
   bike_data_full$date <= "2017-01-02" ~ 124.50/30,
   bike_data_full$date <= "2018-01-02" ~ 126.80/30,
-  bike_data_full$date <= "2019-01-02" ~ 131.00/30
+  bike_data_full$date <= "2019-01-02" ~ 131.00/30,
+  bike_data_full$date <= "2020-01-02" ~ 135.00/30
   )
 
 bike_data_full$annual_oyster_per_day <- case_when(
   bike_data_full$date <= "2017-01-02" ~ 1296/366,
   bike_data_full$date <= "2018-01-02" ~ 1320/365,
-  bike_data_full$date <= "2019-01-02" ~ 1364/365
+  bike_data_full$date <= "2019-01-02" ~ 1364/365,
+  bike_data_full$date <= "2020-01-02" ~ 1406/365
   )
 
 bike_data_full$locker_cost <- case_when(
