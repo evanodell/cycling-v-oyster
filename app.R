@@ -512,9 +512,7 @@ output$p4 <- renderCachedPlot({
         label = paste0(max_savings, 
                        sprintf("%.2f", round(max(bike_data$gain_loss), 2))
                        )), size = 6) +
-      geom_text(aes(x = bike_data$date[
-        bike_data$gain_loss == min(bike_data$gain_loss)
-        ],
+      geom_text(aes(x = as.Date("2017-10-20"),
         y = bike_data$gain_loss[
           bike_data$date == bike_data$date[
             bike_data$gain_loss == min(bike_data$gain_loss)
@@ -539,6 +537,16 @@ output$p4 <- renderCachedPlot({
                     hjust= -0.03,
                     vjust = 0.4,
                     label = "Sold old bike"), size = 6) +
+      
+    # New bike cost is 969.99, awaiting outcome of insurance claim to see
+      # what will happen with that
+    # geom_text(aes(x = as.Date("2018-11-28"),
+    #               y = bike_data$gain_loss[
+    #                 bike_data$date == as.Date("2018-11-28")
+    #                 ],
+    #               hjust= -0.03,
+    #               vjust = 0.4,
+    #               label = "Bike Stolen (Bought Replacement)"), size = 6) +
       scale_y_continuous(name = "Savings/Losses over Time",
                          labels = pound,
                          breaks = seq(-1200, 1000, by = 100)) +
