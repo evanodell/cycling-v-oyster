@@ -140,7 +140,8 @@ bike_data_full$locker_cost <- case_when(
 )
 
 bike_data_full$insurance <- case_when(
-  bike_data_full$date >= "2018-06-18" ~ 101.80/365, TRUE ~ 0
+  bike_data_full$date >= "2018-06-18" ~ 101.80/365,
+  bike_data_full$date >= "2018-12-17" ~ 112/365, TRUE ~ 0
 )
 
 bike_data_full$bike <- bike_data_full$bike + bike_data_full$locker_cost + 
@@ -150,9 +151,13 @@ bike_data_full <- bike_data_full %>%
   gather(key=travelcard_type, value = travelcard_day,
          -date, -bike, -oyster, -locker_cost, -fines, -insurance)
 
-attr(bike_data_full, "latest") <- bike_data_full[
-  bike_data_full$date == max(bike_data_full$date)
-  ,][3,]
+if (Sys.getenv('SHINY_PORT') == "") {
+  attr(bike_data_full, "latest") <- Sys.time()
+} else {
+  attr(bike_data_full, "latest") <- bike_data_full[
+    bike_data_full$date == max(bike_data_full$date)
+    ,][3,]
+}
 
 write_rds(bike_data_full, "bike_data_full.rds")
 
@@ -307,19 +312,17 @@ server <- function(input, output, session) {
     
     oyster_roll_gg <- gather(oyster_roll_gg, spend_type, value, -date)
     
-    ## Recoding oyster_roll_gg$variable into oyster_roll_gg$variable
-    oyster_roll_gg$spend_type <- recode(oyster_roll_gg$spend_type,
-                                        "oyster_charge" = "PAYG Oyster Spending",
-                                        "bike_plus_oyster" = "Oyster + Bike Spending",
-                                        "bike_avg" = "Bike Average",
-                                        "travelcard_day" = "Travelcard Average")
+    oyster_roll_gg <- oyster_roll_gg %>% 
+      mutate(spend_type = recode(spend_type,
+             "oyster_charge" = "PAYG Oyster Spending",
+             "bike_plus_oyster" = "Oyster + Bike Spending",
+             "bike_avg" = "Bike Average",
+             "travelcard_day" = "Travelcard Average"), 
+             spend_type = factor(spend_type, levels=c("Oyster + Bike Spending",
+                                                      "PAYG Oyster Spending",
+                                                      "Bike Average",
+                                                      "Travelcard Average")))
 
-    oyster_roll_gg$spend_type <- factor(oyster_roll_gg$spend_type, 
-                                        levels=c("Oyster + Bike Spending",
-                                                 "PAYG Oyster Spending",
-                                                 "Bike Average",
-                                                 "Travelcard Average"))
-    
     p2 <- ggplot(oyster_roll_gg, aes(x = date)) +
       geom_line(aes(y = value, col = spend_type, linetype = spend_type),
                 size = 1) +      
@@ -384,7 +387,7 @@ server <- function(input, output, session) {
       group_by(year) %>%
       summarise(mean = mean(travelcard_day)) %>%
       mutate(mean = sprintf("%.2f", round(mean, 2)),
-             sep = case_when(year==max(year) ~ "and",
+             sep = case_when(year==max(year) ~ " and",
                              year == min(year) ~ "",
                              TRUE ~ ","))
     
