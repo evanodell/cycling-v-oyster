@@ -385,13 +385,13 @@ server <- function(input, output, session) {
     cost_per_day <- bike_data %>%
       mutate(year = substring(date, 1,4)) %>%
       group_by(year) %>%
-      summarise(mean = mean(travelcard_day)) %>%
-      mutate(mean = sprintf("%.2f", round(mean, 2)),
+      summarise(max = max(travelcard_day)) %>%
+      mutate(max = sprintf("%.2f", round(max, 2)),
              sep = case_when(year==max(year) ~ " and",
                              year == min(year) ~ "",
                              TRUE ~ ","))
     
-    paste0("The dark purple dashed horizontal line represents the cost-per-day of a", type, " zone 1-2 Travelcard in London over this time period: ", paste(lapply(cost_per_day, function(x) paste0(cost_per_day$sep, " £", cost_per_day$mean, " in ", cost_per_day$year))[[1]], collapse = ""), ", averaging to £", sprintf("%.2f", round(mean(bike_data$travelcard_day), 2)), ". The blue dashed horizontal line represents the average daily cost of my bicycle and accessories (£", sprintf("%.2f", round(sum(bike_data$bike)/nrow(bike_data), 2)), "). The dark green line is a rolling weekly average of daily pay-as-you-go Oyster spending, and the light green line is pay-as-you-go Oyster spending combined with average daily bike costs. The average cost-per-day of my pay-as-you-go Oyster card is £", sprintf("%.2f", round((sum(bike_data$oyster)/nrow(bike_data)), 2)), ", which combined with bike spending means I have spent an average of £", sprintf("%.2f", abs(round(comparison/nrow(bike_data), 2))), " per day ", compare, " than I would using a", type, " travelcard (totals may not add up exactly due to rounding).")
+    paste0("The dark purple dashed horizontal line represents the cost-per-day of a", type, " zone 1-2 Travelcard in London over this time period: ", paste(lapply(cost_per_day, function(x) paste0(cost_per_day$sep, " £", cost_per_day$max, " in ", cost_per_day$year))[[1]], collapse = ""), ", averaging to £", sprintf("%.2f", round(mean(bike_data$travelcard_day), 2)), ". The blue dashed horizontal line represents the average daily cost of my bicycle and accessories (£", sprintf("%.2f", round(sum(bike_data$bike)/nrow(bike_data), 2)), "). The dark green line is a rolling weekly average of daily pay-as-you-go Oyster spending, and the light green line is pay-as-you-go Oyster spending combined with average daily bike costs. The average cost-per-day of my pay-as-you-go Oyster card is £", sprintf("%.2f", round((sum(bike_data$oyster)/nrow(bike_data)), 2)), ", which combined with bike spending means I have spent an average of £", sprintf("%.2f", abs(round(comparison/nrow(bike_data), 2))), " per day ", compare, " than I would using a", type, " travelcard (totals may not add up exactly due to rounding).")
 
     
   })
