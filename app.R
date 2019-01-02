@@ -62,9 +62,9 @@ ui <- fluidPage(
       column(8,
              fluidRow(
                p("*Updated every few days."),
-               p("In a", tags$a(href="https://evanodell.com/blog/2017/02/06/cycling-vs-oyster/", "blog post"), "in February 2017 I analysed how much money I was saving by cycling to work instead of using a monthly Oyster transport pass. When I wrote that blog I had spent almost £20 more on my bike and pay-as-you-go transport pass than I would have if I bought a monthly transport pass. As of 29 April 2017, less than 3 months after that blog, and despite needing a new rear wheel, I broke even, and I've been updating my data every few days, and have now built another", tags$a(href="https://shiny.rstudio.com/", "Shiny"), "app to monitor my spending on my bike and on transport."),
-               p("Of course, I had to screw this up somehow, so I bought a new bike in October 2017. My new bike was stolen in November 2018, but thanks to my insurance the cost of a replacement was not too high, although I expect my premiums will now go up."),
-               p("I include all spending directly on my bike, including the cost of the bike, accessories, spare parts, tools and maintenance. I also include non-bike costs that are the result of cycling, primarily clothing. For instance, I have bought a couple pairs of commuter trousers for cycling and include that spending in my calculations, less £40 to represent the price of a standard pair of men's trousers, on the basis that I would have had to buy new trousers anyways."),
+               p("In a", tags$a(href="https://evanodell.com/blog/2017/02/06/cycling-vs-oyster/", "blog post"), "in February 2017 I analysed how much money I was saving by cycling to work instead of using a monthly Oyster transport pass. When I wrote that blog I had spent almost £20 more on my bike and pay-as-you-go transport pass than I would have if I bought a monthly transport pass. On 29 April 2017, less than 3 months after that blog, and despite needing a new rear wheel, I broke even, and I've been updating my data every few days, and have now built a", tags$a(href="https://shiny.rstudio.com/", "Shiny"), "app to monitor my spending on my bike and on public transport."),
+               p("Of course, I had to screw this up somehow, so I bought a new bike in October 2017. My new bike was stolen in November 2018, but thanks to my insurance the cost of a replacement was not too high, although my premiums have gone up slightly and I've missed out on a no-claims discount."),
+               p("I include all spending directly on my bike: the bike itself, accessories, spare parts, insurance, my storage locker, tools and maintenance. I also include non-bike costs that are the result of cycling, primarily clothing. For instance, I have bought a couple pairs of commuter trousers for cycling and include that spending in my calculations, less £40 to represent the price of a standard pair of men's trousers, on the basis that I would have had to buy new trousers anyways."),
                p("You can see in the second time series plot that since writing the blog post in February 2017 my Oyster spending has dropped off somewhat. Since analysing how much I was cycling, and how much I was spending on transport, I've become much more dedicated to riding places, no longer taking the bus or the tube if I'm feeling a little bit lazy."),
                
 # selector and fine check --------------------------------------------------------
@@ -102,7 +102,7 @@ div(id = "plot-container",
     tags$img(src = "spinner.gif", id = "loading-spinner"), plotOutput("p5")),
 fluidRow(
   p(textOutput("prediction")),
-  p("There are a number of obstacles to an exact cost comparison of cycling and public transport. For example, if I go on holiday for a couple weeks, I might time my travelcard renewal so I'm not paying anything while not in London. There are also the intangible benefits of exercise and faster commutes from cycling, compared to the convenience and low effort required of public transport, and any purely financial comparison misses those factors.")
+  p("There are a number of obstacles to an exact cost comparison of cycling and public transport. For example, if I didn't cycle and was to go on holiday for a couple weeks, I would try to time my travelcard renewal so I'm not paying anything while not in London. There are also the intangible benefits of exercise and faster commutes from cycling, compared to the convenience and low effort required of public transport, and any purely financial comparison misses those factors.")
              )),
       column(2))))
 
@@ -113,24 +113,24 @@ bike_data_full <- read_csv("cycling_oyster_data.csv",
 )
 
 bike_data_full$week_oyster_per_day <- case_when(
-  bike_data_full$date <= "2017-01-02" ~ 32.4/7,
-  bike_data_full$date <= "2018-01-02" ~ 33/7,
-  bike_data_full$date <= "2019-01-02" ~ 34.1/7,
-  bike_data_full$date <= "2020-01-02" ~ 35.10/7
+  bike_data_full$date <= "2017-01-01" ~ 32.4/7,
+  bike_data_full$date <= "2018-01-01" ~ 33/7,
+  bike_data_full$date <= "2019-01-01" ~ 34.1/7,
+  bike_data_full$date <= "2020-01-01" ~ 35.10/7
 )
 
 bike_data_full$mon_oyster_per_day <- case_when(
-  bike_data_full$date <= "2017-01-02" ~ 124.50/30,
-  bike_data_full$date <= "2018-01-02" ~ 126.80/30,
-  bike_data_full$date <= "2019-01-02" ~ 131.00/30,
-  bike_data_full$date <= "2020-01-02" ~ 134.80/30
+  bike_data_full$date <= "2017-01-01" ~ 124.50/30,
+  bike_data_full$date <= "2018-01-01" ~ 126.80/30,
+  bike_data_full$date <= "2019-01-01" ~ 131.00/30,
+  bike_data_full$date <= "2020-01-01" ~ 134.80/30
 )
 
 bike_data_full$annual_oyster_per_day <- case_when(
-  bike_data_full$date <= "2017-01-02" ~ 1296/366,
-  bike_data_full$date <= "2018-01-02" ~ 1320/365,
-  bike_data_full$date <= "2019-01-02" ~ 1364/365,
-  bike_data_full$date <= "2020-01-02" ~ 1404/365
+  bike_data_full$date <= "2017-01-01" ~ 1296/366,
+  bike_data_full$date <= "2018-01-01" ~ 1320/365,
+  bike_data_full$date <= "2019-01-01" ~ 1364/365,
+  bike_data_full$date <= "2020-01-01" ~ 1404/365
 )
 
 bike_data_full$locker_cost <- case_when(
@@ -256,9 +256,9 @@ server <- function(input, output, session) {
       scale_y_continuous(labels = pound, 
                          name = paste0("Total spending from\n",
                                        format(min(bike_data$date),
-                                              format = "%d %B %Y"), " to ",
+                                              format = "%e %B %Y"), " to ",
                                        format(max(bike_data$date),
-                                              format = "%d %B %Y"))) +
+                                              format = "%e %B %Y"))) +
       scale_x_discrete(name = "Type of Spending") +
       scale_fill_viridis_d(option = "cividis") + 
       theme(legend.position = "",
@@ -282,7 +282,7 @@ server <- function(input, output, session) {
       input$selection=="annual_oyster_per_day" ~ "n annual"
     )
     
-    paste0("The red and green bars are total spending on my bike and related accessories and my pay-as-you-go Oyster spending, respectively. The brown bar is the combined total of bicycle and pay-as-you-go spending, and the yellow bar is the hypothetical total spending on a", type, " Travelcard and travel outside zone 2 covering ", format(as.character(max(bike_data$date) - min(bike_data$date)), big.mark = ","), " days, from 30 June 2016 to ", format(max(bike_data$date), format = "%d %B %Y"), ".")
+    paste0("The red and green bars are total spending on my bike and related accessories and my pay-as-you-go Oyster spending, respectively. The brown bar is the combined total of bicycle and pay-as-you-go spending, and the yellow bar is the hypothetical total spending on a", type, " Travelcard and travel outside zone 2 covering ", format(as.character(max(bike_data$date) - min(bike_data$date)), big.mark = ","), " days, from 30 June 2016 to ", format(max(bike_data$date), format = "%e %B %Y"), ".")
     
   })  
   
@@ -441,7 +441,7 @@ server <- function(input, output, session) {
     paste0("Cumulative spending in each category over ", 
            as.character(max(bike_data$date) - min(bike_data$date)),
            " days, from 30 June 2016 to ", format(max(bike_data$date),
-                                                  format = "%d %B %Y"), ".")
+                                                  format = "%e %B %Y"), ".")
     
   })
   
