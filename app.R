@@ -560,7 +560,7 @@ server <- function(input, output, session) {
                       bike_data$date == as.Date("2018-11-28")
                       ],
                     hjust= 0.4,
-                    vjust = -1.5,
+                    vjust = -1.9,
                     label = "Bike Stolen"), size = 6) +
       scale_y_continuous(name = "Savings/Losses over Time",
                          labels = pound,
