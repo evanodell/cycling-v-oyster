@@ -553,8 +553,6 @@ server <- function(input, output, session) {
                     hjust= -0.03,
                     vjust = 0.6,
                     label = "Sold old bike"), size = 6) +
-      # New bike cost is 969.99, awaiting outcome of insurance claim to see
-      # what will happen with that
       geom_text(aes(x = as.Date("2018-11-28"),
                     y = bike_data$gain_loss[
                       bike_data$date == as.Date("2018-11-28")
