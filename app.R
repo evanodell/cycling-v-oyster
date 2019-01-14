@@ -523,7 +523,7 @@ server <- function(input, output, session) {
         bike_data$gain_loss == max(bike_data$gain_loss)
         ],
         y = max(bike_data$gain_loss),
-        hjust = 0.8,
+        hjust = 1,
         vjust = 0,
         label = paste0(max_savings, 
                        sprintf("%.2f", round(max(bike_data$gain_loss), 2))
@@ -557,7 +557,7 @@ server <- function(input, output, session) {
                     y = bike_data$gain_loss[
                       bike_data$date == as.Date("2018-11-28")
                       ],
-                    hjust= 0.4,
+                    hjust= 0.2,
                     vjust = -1.9,
                     label = "Bike Stolen"), size = 6) +
       scale_y_continuous(name = "Savings/Losses over Time",
