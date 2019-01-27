@@ -343,14 +343,22 @@ server <- function(input, output, session) {
                     label = paste0("Bike Average: £", format(
                       round(bike_average, 2), nsmall = 2))),
                 size = 6) +
-      geom_text(aes(x = max(date),
-                    y = max(bike_data$travelcard_day),
+      geom_text(aes(x = mean(date),
+                    y = mean(bike_data$travelcard_day),
                     hjust = 1,
                     vjust = -0.5,
                     label = paste0("Travelcard Average: £", format(
                       round(mean(bike_data$travelcard_day), 2),
                       nsmall = 2))),
                 size = 6) +
+      geom_text(aes(x = max(date),
+                    y = max(bike_data$travelcard_day),
+                    hjust = 1,
+                    vjust = -0.5,
+                    label = paste0("Travelcard Currently: £", format(
+                      round(max(bike_data$travelcard_day), 2),
+                      nsmall = 2))),
+                size = 6) + 
       # geom_step(aes(y = travelcard_day,
       #               linetype = "Bicycle Cost-Per-Day"),
       #           col = "#641A80", size = 1, data = bike_data) +
