@@ -388,9 +388,9 @@ server <- function(input, output, session) {
     compare <- if_else(comparison > 0, "more", "less")
     
     type <- case_when(
-      input$period_selection=="week_oyster_per_day" ~ " weekly",
-      input$period_selection=="mon_oyster_per_day" ~ " monthly",
-      input$period_selection=="annual_oyster_per_day" ~ "n annual"
+      input$period_selection == "week_oyster_per_day" ~ " weekly",
+      input$period_selection == "mon_oyster_per_day" ~ " monthly",
+      input$period_selection == "annual_oyster_per_day" ~ "n annual"
     )
     
     cost_per_day <- bike_data %>%
@@ -411,15 +411,12 @@ server <- function(input, output, session) {
   
   output$p3 <- renderCachedPlot({
     
-    #bike_data <- bike_data_subset()
-    
     bike_melt <- bike_data_full %>%
       select(date:bike) %>%
       gather(spend_type, value, -date) %>% distinct() %>%
       group_by(spend_type) %>%
       arrange(date) %>%
       mutate(spending = cumsum(value))
-    
     
     p3 <- ggplot(bike_melt) +
       geom_line(aes(x = date, y = spending, col = spend_type), size = 1) +
@@ -470,23 +467,17 @@ server <- function(input, output, session) {
     )
     
     bike_roll_gg <-
-      inner_join(tidy(rollapply(zoo(bike_data$bike_cumsum,
-                                        order.by = bike_data$date), 7, mean)) %>%
+      inner_join(tidy(rollapply(zoo(bike_data$bike_cumsum, 
+                                    order.by = bike_data$date), 7, mean)) %>%
               mutate(series = NULL) %>% rename(bike = value) ,
             tidy(rollapply(zoo(bike_data$oyster_cumsum,
-                                        order.by = bike_data$date), 7, mean)) %>%
+                               order.by = bike_data$date), 7, mean)) %>%
               mutate(series = NULL) %>% rename(oyster = value) ) %>%
       rename(date = index)
-    
-    
-    #bike_roll_gg$date <- as.Date(row.names(bike_roll_gg))
-    
+  
     bike_roll_gg <- bike_roll_gg %>% 
       gather(type, spending, -date)
-    
-    
-    # %>%
-    #   filter(date >= as.Date("2016-07-14"))
+  
     p4 <- ggplot(bike_roll_gg) +
       geom_line(aes(x = date, y = spending, group = type, col = type), size = 1) +
       scale_y_continuous(name = "7 Day rolling average cost per day",
