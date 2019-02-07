@@ -479,7 +479,8 @@ server <- function(input, output, session) {
       gather(type, spending, -date)
   
     p4 <- ggplot(bike_roll_gg) +
-      geom_line(aes(x = date, y = spending, group = type, col = type), size = 1) +
+      geom_line(aes(x = date, y = spending, group = type, col = type),
+                size = 1) +
       scale_y_continuous(name = "7 Day rolling average cost per day",
                          labels = pound, limits = c(NA, 10),
                          breaks = c(0, 2, 4, 6, 8, 10), trans = "log10") +
