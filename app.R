@@ -483,11 +483,11 @@ server <- function(input, output, session) {
                 size = 1) +
       scale_y_continuous(name = "7 Day rolling average cost per day",
                          labels = pound, limits = c(NA, 10),
-                         breaks = c(0, 2, 4, 6, 8, 10), trans = "log10") +
+                         breaks = c(1, 2, 4, 6, 8, 10), trans = "log10") +
       scale_x_date(name = "Date", date_breaks = "3 months",
                    date_labels = "%b %Y",
                    limits = c(as.Date("2016-06-30"), NA)) +
-      scale_color_viridis_d( end = 0.6,
+      scale_color_viridis_d(end = 0.6,
                              labels = c("Bike Spending", "Oyster Spending")) +
       theme(legend.position = "bottom",
             legend.text=element_text(size = 14),
