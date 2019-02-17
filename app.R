@@ -283,7 +283,7 @@ server <- function(input, output, session) {
       input$selection=="annual_oyster_per_day" ~ "n annual"
     )
     
-    paste0("The red and green bars are total spending on my bike and related accessories and my pay-as-you-go Oyster spending, respectively. The brown bar is the combined total of bicycle and pay-as-you-go spending, and the yellow bar is the hypothetical total spending on a", type, " Travelcard and travel outside zone 2 covering ", format(as.character(max(bike_data$date) - min(bike_data$date)), big.mark = ","), " days, from 30 June 2016 to ", format(max(bike_data$date), format = "%e %B %Y"), ".")
+    paste0("The blue and grey bars are total spending on my bike and related accessories and my pay-as-you-go Oyster spending, respectively. The brown bar is the combined total of bicycle and pay-as-you-go spending, and the yellow bar is the hypothetical total spending on a", type, " Travelcard and travel outside zone 2 covering ", format(as.character(max(bike_data$date) - min(bike_data$date)), big.mark = ","), " days, from 30 June 2016 to ", format(max(bike_data$date), format = "%e %B %Y"), ".")
     
   })  
   
