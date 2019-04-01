@@ -184,14 +184,13 @@ server <- function(input, output, session) {
     bike_data_full[bike_data_full$travelcard_type == input$period_selection,]
   })
   
-  pound <- function(x) {
-    paste0("£", format(x, big.mark = ",",
-                       decimal.mark = ".",
-                       trim = TRUE,
-                       scientific = FALSE,
-                       nsmall = 0L))
-  }
-  
+  # pound <- function(x) {
+  #   paste0("£", format(x, big.mark = ",",
+  #                      decimal.mark = ".",
+  #                      trim = TRUE,
+  #                      scientific = FALSE,
+  #                      nsmall = 0L))
+  # }
   
   df_date_time <- function(){
     attributes(bike_data_full)$latest
@@ -254,7 +253,7 @@ server <- function(input, output, session) {
                 vjust = -0.25,
                 fontface = "bold",
                 size = 5) +
-      scale_y_continuous(labels = pound, 
+      scale_y_continuous(labels = scales::dollar_format(prefix = "£"), 
                          name = paste0("Total spending from\n",
                                        format(min(bike_data$date),
                                               format = "%e %B %Y"), " to ",
@@ -283,7 +282,7 @@ server <- function(input, output, session) {
       input$selection=="annual_oyster_per_day" ~ "n annual"
     )
     
-    paste0("The blue and grey bars are total spending on my bike and related accessories and my pay-as-you-go Oyster spending, respectively. The brown bar is the combined total of bicycle and pay-as-you-go spending, and the yellow bar is the hypothetical total spending on a", type, " Travelcard and travel outside zone 2 covering ", format(as.character(max(bike_data$date) - min(bike_data$date)), big.mark = ","), " days, from 30 June 2016 to ", format(max(bike_data$date), format = "%e %B %Y"), ".")
+    paste0("The blue and grey bars are total spending on my bike and related accessories and my pay-as-you-go Oyster spending, respectively. The brown bar is the combined total of bicycle and pay-as-you-go spending, and the yellow bar is the hypothetical total spending on a", type, " Travelcard and travel outside zone 2 covering ", format(as.numeric(max(bike_data$date) - min(bike_data$date)), big.mark = ","), " days, from 30 June 2016 to ", format(max(bike_data$date), format = "%e %B %Y"), ".")
     
   })  
   
@@ -333,8 +332,7 @@ server <- function(input, output, session) {
       scale_x_date(name = "Date", date_breaks = "3 months",
                    date_labels = "%b %Y") +
       scale_y_continuous(name = "Average charge over previous 7 days",
-                         labels = pound,
-                         breaks = seq(0, 10, by = 2)) +
+                         labels = scales::dollar_format(prefix = "£")) +
       guides(col = guide_legend(nrow = 2, bycol = TRUE)) +
       geom_text(aes(x = max(date),
                     y = bike_average,
@@ -421,7 +419,7 @@ server <- function(input, output, session) {
       geom_line(aes(x = date, y = spending, col = spend_type), size = 1) +
       scale_y_continuous(name = "Cumulative Spending", 
                          breaks = seq(0, 5000, by = 500), 
-                         labels = pound) +
+                         labels = scales::dollar_format(prefix = "£")) +
       scale_x_date(name = "Date", date_breaks = "3 months",
                    date_labels = "%b %Y") +
       scale_color_viridis_d(end = 0.6, 
@@ -445,8 +443,8 @@ server <- function(input, output, session) {
     bike_data <- bike_data_subset()
     
     paste0("Cumulative spending in each category over ", 
-           as.character(max(bike_data$date) - min(bike_data$date)),
-           " days, from 30 June 2016 to ", format(max(bike_data$date),
+           format((max(bike_data$date) - min(bike_data$date)), big.mark = ","),
+           ", from 30 June 2016 to ", format(max(bike_data$date),
                                                   format = "%e %B %Y"), ".")
     
   })
@@ -480,9 +478,9 @@ server <- function(input, output, session) {
     p4 <- ggplot(bike_roll_gg) +
       geom_line(aes(x = date, y = spending, group = type, col = type),
                 size = 1) +
+      coord_cartesian(ylim=c(0, 10)) + 
       scale_y_continuous(name = "7 Day rolling average cost per day",
-                         labels = pound, limits = c(NA, 10),
-                         breaks = c(1, 2, 4, 6, 8, 10), trans = "log10") +
+                         labels = scales::dollar_format(prefix = "£")) +
       scale_x_date(name = "Date", date_breaks = "3 months",
                    date_labels = "%b %Y",
                    limits = c(as.Date("2016-06-30"), NA)) +
@@ -560,7 +558,7 @@ server <- function(input, output, session) {
                     vjust = -1,
                     label = "Bike Stolen"), size = 6) +
       scale_y_continuous(name = "Savings/Losses over Time",
-                         labels = pound,
+                         labels = scales::dollar_format(prefix = "£"),
                          breaks = seq(-1200, 1000, by = 100)) +
       scale_x_date(name = "Date", date_breaks = "3 months",
                    date_labels = "%b %Y") +
