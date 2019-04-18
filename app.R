@@ -478,7 +478,7 @@ server <- function(input, output, session) {
     p4 <- ggplot(bike_roll_gg) +
       geom_line(aes(x = date, y = spending, group = type, col = type),
                 size = 1) +
-      coord_cartesian(ylim=c(0, 10)) + 
+      coord_cartesian(ylim=c(0, 5)) + 
       scale_y_continuous(name = "7 Day rolling average cost per day",
                          labels = scales::dollar_format(prefix = "£")) +
       scale_x_date(name = "Date", date_breaks = "3 months",
