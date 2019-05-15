@@ -554,8 +554,8 @@ server <- function(input, output, session) {
                     y = bike_data$gain_loss[
                       bike_data$date == as.Date("2018-11-28")
                       ],
-                    hjust= 0.05,
-                    vjust = -1.5,
+                    hjust= 1.05,
+                    vjust = -1.9,
                     label = "Bike Stolen"), size = 6) +
       scale_y_continuous(name = "Savings/Losses over Time",
                          labels = scales::dollar_format(prefix = "£"),
