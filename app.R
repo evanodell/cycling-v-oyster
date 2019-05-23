@@ -521,7 +521,7 @@ server <- function(input, output, session) {
         bike_data$gain_loss == max(bike_data$gain_loss)
         ],
         y = max(bike_data$gain_loss),
-        hjust = 0.75,
+        hjust = 1,
         vjust = 0,
         label = paste0(max_savings, 
                        sprintf("%.2f", round(max(bike_data$gain_loss), 2))
@@ -555,15 +555,17 @@ server <- function(input, output, session) {
                     y = bike_data$gain_loss[
                       bike_data$date == as.Date("2018-11-28")
                       ],
-                    hjust= 0.01, vjust = -0.1,
-                    label = "Bike Stolen"), size = 6) +
+                    hjust= 0.01, vjust = -0.5,
+                    label = "Bike Stolen"), nudge_x = 1,
+                size = 6) +
       scale_y_continuous(name = "Savings/Losses over Time",
                          labels = scales::dollar_format(prefix = "£"),
                          breaks = seq(-1200, 1000, by = 100),
                          expand = expand_scale(mult = c(0.05, 0),
                                                add = c(0, 150))) +
       scale_x_date(name = "Date", date_breaks = "3 months",
-                   date_labels = "%b %Y") +
+                   date_labels = "%b %Y",
+                   expand = expand_scale(add = c(0.6, 10))) +
       scale_color_manual(values = c("#932667"),
                          labels = c("Bike Spending")) +
       theme(legend.position = "bottom",
