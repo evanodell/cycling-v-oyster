@@ -9,7 +9,6 @@ library(tibble)
 library(tidyr)
 library(Cairo)
 library(broom)
-library(ggrepel)
 options(shiny.usecairo=T)
 
 # CSS ------------------------------------------------------------
