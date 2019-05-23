@@ -9,6 +9,7 @@ library(tibble)
 library(tidyr)
 library(Cairo)
 library(broom)
+library(ggrepel)
 options(shiny.usecairo=T)
 
 # CSS ------------------------------------------------------------
@@ -515,12 +516,12 @@ server <- function(input, output, session) {
       geom_hline(yintercept = max(bike_data$gain_loss), colour = "seagreen3",
                  size = 0.5, alpha = 0.7) +
       geom_line(aes(x = date, y = gain_loss), size = 1, 
-                colour = "#932667", alpha = 0.9) +
+                colour = "#932667", alpha = 0.8) +
       geom_text(aes(x = bike_data$date[
         bike_data$gain_loss == max(bike_data$gain_loss)
         ],
         y = max(bike_data$gain_loss),
-        hjust = 1,
+        hjust = 0.75,
         vjust = 0,
         label = paste0(max_savings, 
                        sprintf("%.2f", round(max(bike_data$gain_loss), 2))
@@ -531,8 +532,8 @@ server <- function(input, output, session) {
                         bike_data$gain_loss == min(bike_data$gain_loss)
                         ] - 15
                       ],
-                    hjust= 0,
-                    vjust = 0.5,
+                    hjust= -0.01,
+                    vjust = 1.8,
                     label = "Bought new bike"), size = 6) +
       geom_text(aes(x = bike_data$date[
         bike_data$gain_loss == min(bike_data$gain_loss)
@@ -554,12 +555,13 @@ server <- function(input, output, session) {
                     y = bike_data$gain_loss[
                       bike_data$date == as.Date("2018-11-28")
                       ],
-                    hjust= 1.05,
-                    vjust = -1.9,
+                    hjust= 0.01, vjust = -0.1,
                     label = "Bike Stolen"), size = 6) +
       scale_y_continuous(name = "Savings/Losses over Time",
                          labels = scales::dollar_format(prefix = "£"),
-                         breaks = seq(-1200, 1000, by = 100)) +
+                         breaks = seq(-1200, 1000, by = 100),
+                         expand = expand_scale(mult = c(0.05, 0),
+                                               add = c(0, 150))) +
       scale_x_date(name = "Date", date_breaks = "3 months",
                    date_labels = "%b %Y") +
       scale_color_manual(values = c("#932667"),
