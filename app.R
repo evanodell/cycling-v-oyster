@@ -183,15 +183,7 @@ server <- function(input, output, session) {
   bike_data_subset <- reactive({
     bike_data_full[bike_data_full$travelcard_type == input$period_selection,]
   })
-  
-  # pound <- function(x) {
-  #   paste0("£", format(x, big.mark = ",",
-  #                      decimal.mark = ".",
-  #                      trim = TRUE,
-  #                      scientific = FALSE,
-  #                      nsmall = 0L))
-  # }
-  
+
   df_date_time <- function(){
     attributes(bike_data_full)$latest
   }
@@ -208,10 +200,9 @@ server <- function(input, output, session) {
     
     travelcard_total <- sum(bike_data$travelcard_day, bike_data$fines)
     
-    totsav <- if_else(travelcard_total - current_total > 0,
-                      "savings", "losses")
+    totsav <- if_else(travelcard_total > current_total, "savings", "losses")
     
-    savings <- paste0("Total ", totsav,
+    savings <- paste0("Current ", totsav,
                       " from cycling instead of using public transport: ",
                       "£", sprintf("%.2f", abs(
                         round(travelcard_total - current_total, 2))))
@@ -226,25 +217,16 @@ server <- function(input, output, session) {
     bike_data <- bike_data_subset()
     
     bike_average <- mean(bike_data$bike)
+
+    t_sum <- bike_data %>%
+      summarise(Bike = sum(bike),
+                Oyster = sum(oyster),
+                `Hypothetical Travelcard` = sum(travelcard_day, fines)) %>%
+      mutate(Combined = sum(Bike, Oyster)) %>% gather() %>%
+      mutate(key = factor(key, levels=c("Bike", "Oyster", "Combined",
+                                        "Hypothetical Travelcard")))
     
-    travel_summary <- gather(data.frame(Bike = sum(bike_data$bike),
-                                        Oyster = sum(bike_data$oyster),
-                                        Combined = sum(bike_data$oyster,
-                                                       bike_data$bike),
-                                        Hypothetical_Travelcard = sum(
-                                          bike_data$travelcard_day,
-                                          bike_data$fines)),
-                             variable, value)
-    
-    travel_summary$variable <- gsub("_", " ", travel_summary$variable)
-    
-    travel_summary$variable <- factor(travel_summary$variable,
-                                      levels=c("Bike", "Oyster", "Combined",
-                                               "Hypothetical Travelcard")
-    )
-    
-    p1 <- ggplot(travel_summary, aes(x = variable, y = value,
-                                     fill = variable, label = value)) +
+    p1 <- ggplot(t_sum, aes(x = key, y = value, fill = key, label = value)) +
       geom_bar(stat = "identity", position = position_dodge(width = 0.5)) +
       geom_text(aes(y = value + 0.1,
                     label = paste0("£", format(round(value, 2),
@@ -329,7 +311,10 @@ server <- function(input, output, session) {
       geom_line(aes(y = value, col = spend_type, linetype = spend_type),
                 size = 1) +      
       scale_colour_viridis_d("", direction = -1, end = 0.9) + 
-      scale_x_date(name = "Date", date_breaks = "3 months",
+      scale_x_date(name = "Date", 
+                   breaks = seq(as.Date("2016-06-30"), 
+                                as.Date(max(bike_data$date)) + 60,
+                                by="3 months"),
                    date_labels = "%b %Y") +
       scale_y_continuous(name = "Average charge over previous 7 days",
                          labels = scales::dollar_format(prefix = "£")) +
@@ -420,7 +405,10 @@ server <- function(input, output, session) {
       scale_y_continuous(name = "Cumulative Spending", 
                          breaks = seq(0, 5000, by = 500), 
                          labels = scales::dollar_format(prefix = "£")) +
-      scale_x_date(name = "Date", date_breaks = "3 months",
+      scale_x_date(name = "Date", 
+                   breaks = seq(as.Date("2016-06-30"), 
+                                as.Date(max(bike_data$date)) + 60,
+                                by="3 months"),
                    date_labels = "%b %Y") +
       scale_color_viridis_d(end = 0.6, 
                             labels = c("Bike Spending",
@@ -429,8 +417,7 @@ server <- function(input, output, session) {
       theme(legend.position = "bottom",
             legend.text=element_text(size = 14),
             text=element_text(size = 14),
-            axis.text.x = element_text(angle = 30, hjust = 1, size = 14),
-            axis.text.y = element_text(size = 14)
+            axis.text.x = element_text(angle = 30, hjust = 1, size = 14)
       )
     
     print(p3)
@@ -481,9 +468,11 @@ server <- function(input, output, session) {
       coord_cartesian(ylim=c(0, 5)) + 
       scale_y_continuous(name = "7 Day rolling average cost per day",
                          labels = scales::dollar_format(prefix = "£")) +
-      scale_x_date(name = "Date", date_breaks = "3 months",
-                   date_labels = "%b %Y",
-                   limits = c(as.Date("2016-06-30"), NA)) +
+      scale_x_date(name = "Date", 
+                   breaks = seq(as.Date("2016-06-30"), 
+                                as.Date(max(bike_data$date)) + 60,
+                                by="3 months"),
+                   date_labels = "%b %Y") +
       scale_color_viridis_d(end = 0.6,
                              labels = c("Bike Spending", "Oyster Spending")) +
       theme(legend.position = "bottom",
@@ -510,6 +499,8 @@ server <- function(input, output, session) {
                            "Max savings: £",
                            "Min loss: £")
     
+    h_just <- if_else(max(bike_data$gain_loss) >= 0, 1, 0)
+    
     p5 <- ggplot(bike_data) +
       geom_hline(yintercept = 0, colour = "red", size = 0.5, alpha = 0.7) +
       geom_hline(yintercept = max(bike_data$gain_loss), colour = "seagreen3",
@@ -520,7 +511,7 @@ server <- function(input, output, session) {
         bike_data$gain_loss == max(bike_data$gain_loss)
         ],
         y = max(bike_data$gain_loss),
-        hjust = 1,
+        hjust = h_just,
         vjust = 0,
         label = paste0(max_savings, 
                        sprintf("%.2f", round(max(bike_data$gain_loss), 2))
@@ -555,16 +546,18 @@ server <- function(input, output, session) {
                       bike_data$date == as.Date("2018-11-28")
                       ],
                     hjust= 0.01, vjust = -0.5,
-                    label = "Bike Stolen"), nudge_x = 1,
+                    label = "Bike Stolen"), nudge_x = 12, nudge_y = -60,
                 size = 6) +
       scale_y_continuous(name = "Savings/Losses over Time",
                          labels = scales::dollar_format(prefix = "£"),
                          breaks = seq(-1200, 1000, by = 100),
                          expand = expand_scale(mult = c(0.05, 0),
                                                add = c(0, 150))) +
-      scale_x_date(name = "Date", date_breaks = "3 months",
-                   date_labels = "%b %Y",
-                   expand = expand_scale(add = c(0.6, 10))) +
+      scale_x_date(name = "Date", 
+                   breaks = seq(as.Date("2016-06-30"), 
+                                as.Date(max(bike_data$date)) + 60,
+                                by="3 months"),
+                   date_labels = "%b %Y") +
       scale_color_manual(values = c("#932667"),
                          labels = c("Bike Spending")) +
       theme(legend.position = "bottom",
