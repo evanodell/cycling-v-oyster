@@ -155,6 +155,8 @@ bike_data_full <- bike_data_full %>%
 
 if (Sys.getenv('SHINY_PORT') == "") {
   attr(bike_data_full, "latest") <- Sys.time()
+  
+  
 } else {
   attr(bike_data_full, "latest") <- bike_data_full[
     bike_data_full$date == max(bike_data_full$date)
@@ -249,7 +251,7 @@ server <- function(input, output, session) {
             axis.text.y = element_text(size = 14),
             axis.text.x = element_text(size = 14)) 
     
-    print(p1)
+    p1
     
   }, cacheKeyExpr = {list(input$period_selection, df_date_time())})
   
@@ -356,7 +358,7 @@ server <- function(input, output, session) {
             axis.text.y = element_text(size = 14)
       )
     
-    print(p2)
+    p2
     
   }, cacheKeyExpr = {list(input$period_selection, df_date_time())})
   
@@ -420,7 +422,7 @@ server <- function(input, output, session) {
             axis.text.x = element_text(angle = 30, hjust = 1, size = 14)
       )
     
-    print(p3)
+    p3
     
   }, cacheKeyExpr = {list(df_date_time())})
   
@@ -482,7 +484,7 @@ server <- function(input, output, session) {
             axis.text.y = element_text(size = 14)) +
       labs(col = "")
     
-    print(p4)
+    p4
     
   }, cacheKeyExpr = {list(df_date_time())})
   
@@ -566,7 +568,7 @@ server <- function(input, output, session) {
             axis.text.x = element_text(angle = 30, hjust = 1, size = 14),
             axis.text.y = element_text(size = 14))
     
-    print(p5)
+    p5
     
   }, cacheKeyExpr = {list(input$period_selection, df_date_time())})
   
