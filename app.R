@@ -155,8 +155,6 @@ bike_data_full <- bike_data_full %>%
 
 if (Sys.getenv('SHINY_PORT') == "") {
   attr(bike_data_full, "latest") <- Sys.time()
-  
-  
 } else {
   attr(bike_data_full, "latest") <- bike_data_full[
     bike_data_full$date == max(bike_data_full$date)
