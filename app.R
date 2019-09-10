@@ -70,8 +70,8 @@ ui <- fluidPage(
                
 # selector and fine check --------------------------------------------------------
 uiOutput("selector"),
-em(h4(textOutput("last_update"))),
-em(h4(textOutput("savings"))),
+#em(h4(textOutput("last_update"))),
+em(h4(htmlOutput("last_update2"))),
                
 # UI-p1 ----------------------------------------------------------------------
 h4("Total Spending and Combined Spending:"),
@@ -153,6 +153,13 @@ bike_data_full <- bike_data_full %>%
   gather(key=travelcard_type, value = travelcard_day,
          -date, -bike, -oyster, -locker_cost, -fines, -insurance)
 
+bike_data_full <- bike_data_full %>%
+  group_by(travelcard_type) %>%
+  mutate(gain_loss = cumsum(travelcard_day) - 
+           (cumsum(bike) + cumsum(oyster)) + cumsum(fines)) %>%
+  ungroup()
+
+
 if (Sys.getenv('SHINY_PORT') == "") {
   attr(bike_data_full, "latest") <- Sys.time()
 } else {
@@ -188,11 +195,35 @@ server <- function(input, output, session) {
     attributes(bike_data_full)$latest
   }
   
-  output$last_update <- renderText(
-    paste0("Last Updated: ", format(max(bike_data_full$date), 
-                                    format = "%e %B %Y")))
+  # output$last_update <- renderText(
+  #   paste0("Last Updated: ", format(max(bike_data_full$date), 
+  #                                   format = "%e %B %Y")))
+  # 
+  # output$savings <- renderText({
+  #   
+  #   bike_data <- bike_data_subset()
+  #   
+  #   current_total <- sum(bike_data$oyster, bike_data$bike)
+  #   
+  #   travelcard_total <- sum(bike_data$travelcard_day, bike_data$fines)
+  #   
+  #   totsav <- if_else(travelcard_total > current_total, "savings", "losses")
+  #   
+  #   savings <- paste0("Current ", totsav,
+  #                     " from cycling instead of using public transport: ",
+  #                     "£", sprintf("%.2f", abs(
+  #                       round(travelcard_total - current_total, 2))))
+  #   
+  #   print(savings)
+  #   
+  # })
   
-  output$savings <- renderText({
+
+# Update details ----------------------------------------------------------
+
+  output$last_update2 <- renderUI({
+    str1 <- paste0("Last Updated: ", format(max(bike_data_full$date),
+                                            format = "%e %B %Y"))
     
     bike_data <- bike_data_subset()
     
@@ -207,9 +238,24 @@ server <- function(input, output, session) {
                       "£", sprintf("%.2f", abs(
                         round(travelcard_total - current_total, 2))))
     
-    print(savings)
+    totsav2 <- if_else(travelcard_total > current_total,
+                       "Max savings", "Min losses")
     
+    str2 <- if_else(
+      bike_data$date[
+        bike_data$gain_loss == max(bike_data$gain_loss)
+        ] == max(bike_data$date), "",
+      paste0(totsav2, " of £", abs(round(max(bike_data$gain_loss), 2)),
+             " on ", format(bike_data$date[
+               bike_data$gain_loss == max(bike_data$gain_loss)
+               ],format = "%e %B %Y"))
+      )
+
+    HTML(paste(str1, savings, str2, sep = '<br/>'))
+
   })
+  
+  
   
 # p1 ---------------------------------------------------------------------------
   output$p1 <- renderCachedPlot({
@@ -495,11 +541,7 @@ server <- function(input, output, session) {
   output$p5 <- renderCachedPlot({
     
     bike_data <- bike_data_subset()
-    
-    bike_data$gain_loss <- cumsum(bike_data$travelcard_day) -
-      (cumsum(bike_data$bike) + cumsum(bike_data$oyster)) +
-      cumsum(bike_data$fines)
-    
+
     max_savings <- if_else(max(bike_data$gain_loss) >= 0,
                            "Max savings: £",
                            "Min loss: £")
