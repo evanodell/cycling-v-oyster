@@ -554,10 +554,10 @@ server <- function(input, output, session) {
                  size = 0.5, alpha = 0.7) +
       geom_line(aes(x = date, y = gain_loss), size = 1, 
                 colour = "#932667", alpha = 0.8) +
-      geom_text(aes(x = bike_data$date[
-        bike_data$gain_loss == max(bike_data$gain_loss)
+      geom_text(aes(x = date[
+        gain_loss == max(gain_loss)
         ],
-        y = max(bike_data$gain_loss),
+        y = max(gain_loss),
         hjust = h_just,
         vjust = 0,
         label = paste0(max_savings, 
@@ -572,25 +572,25 @@ server <- function(input, output, session) {
                     hjust= -0.01,
                     vjust = 1.8,
                     label = "Bought new bike"), size = 6) +
-      geom_text(aes(x = bike_data$date[
-        bike_data$gain_loss == min(bike_data$gain_loss)
+      geom_text(aes(x = date[
+        gain_loss == min(gain_loss)
         ],
-        y = min(bike_data$gain_loss),
+        y = min(gain_loss),
         hjust= 1.06,
         vjust = 0.5,
         label = paste0("Max loss: £",
-                       sprintf("%.2f", round(min(bike_data$gain_loss), 2)))),
+                       sprintf("%.2f", round(min(gain_loss), 2)))),
         size = 6) +
       geom_text(aes(x = as.Date("2018-02-02"),
-                    y = bike_data$gain_loss[
-                      bike_data$date == as.Date("2018-02-02")
+                    y = gain_loss[
+                      date == as.Date("2018-02-02")
                       ],
                     hjust= -0.03,
                     vjust = 0.6,
                     label = "Sold old bike"), size = 6) +
       geom_text(aes(x = as.Date("2018-11-28"),
-                    y = bike_data$gain_loss[
-                      bike_data$date == as.Date("2018-11-28")
+                    y = gain_loss[
+                      date == as.Date("2018-11-28")
                       ],
                     hjust= 0.01, vjust = -0.5,
                     label = "Bike Stolen"), nudge_x = 12, nudge_y = -60,
@@ -598,7 +598,7 @@ server <- function(input, output, session) {
       scale_y_continuous(name = "Savings/Losses over Time",
                          labels = scales::dollar_format(prefix = "£"),
                          breaks = seq(-1200, 1000, by = 100),
-                         expand = expand_scale(mult = c(0.05, 0),
+                         expand = expansion(mult = c(0.05, 0),
                                                add = c(0, 150))) +
       scale_x_date(name = "Date", 
                    breaks = seq(as.Date("2016-06-30"), 
