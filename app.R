@@ -561,12 +561,12 @@ server <- function(input, output, session) {
         hjust = h_just,
         vjust = 0,
         label = paste0(max_savings, 
-                       sprintf("%.2f", round(max(bike_data$gain_loss), 2))
+                       sprintf("%.2f", round(max(gain_loss), 2))
         )), size = 6) +
       geom_text(aes(x = as.Date("2017-10-20"),
-                    y = bike_data$gain_loss[
-                      bike_data$date == bike_data$date[
-                        bike_data$gain_loss == min(bike_data$gain_loss)
+                    y = gain_loss[
+                      date == date[
+                        gain_loss == min(gain_loss)
                         ] - 15
                       ],
                     hjust= -0.01,
