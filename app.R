@@ -10,6 +10,8 @@ library(tidyr)
 library(Cairo)
 library(broom)
 options(shiny.usecairo=T)
+theme_set(theme_bw())
+
 
 # CSS ------------------------------------------------------------
 appCSS <- "#loading-content {
