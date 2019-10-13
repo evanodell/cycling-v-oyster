@@ -363,7 +363,7 @@ server <- function(input, output, session) {
       #             alpha = 0.3, se = FALSE) + 
       geom_line(aes(y = value, col = spend_type, linetype = spend_type),
                 size = 1) + 
-      scale_colour_viridis_d("", direction = -1, end = 0.9) + 
+      scale_colour_viridis_d("", direction = -1, end = 0.9, alpha = 0.9) + 
       scale_x_date(name = "Date", 
                    breaks = seq(as.Date("2016-06-30"), 
                                 as.Date(max(bike_data$date)) + 60,
