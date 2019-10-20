@@ -326,15 +326,12 @@ server <- function(input, output, session) {
     bike_data$bike_avg <- mean(bike_data$bike)
     
     oyster_roll_gg <- broom::tidy(
-      rollapply(zoo(bike_data$oyster, order.by = bike_data$date),
-                7, mean, align = "right")
-    ) %>% select(index, value)
-    
-    #oyster_roll_gg$date <- as.Date(row.names(oyster_roll_gg))
-    
-    names(oyster_roll_gg)[names(oyster_roll_gg)=="value"] <- "oyster_charge"
-    names(oyster_roll_gg)[names(oyster_roll_gg)=="index"] <- "date"
-    
+      rollapply(zoo((bike_data$oyster-bike_data$fines), order.by = bike_data$date),
+                60, mean, align = "right")
+    ) %>% select(index, value) %>%
+      rename("oyster_charge" = "value",
+             "date" = "index")
+
     oyster_roll_gg$bike_plus_oyster <- mean(bike_data[["bike"]]) +
       oyster_roll_gg$oyster_charge
     
@@ -342,7 +339,8 @@ server <- function(input, output, session) {
       left_join(bike_data %>%
                   select(date, travelcard_day, bike_avg))
     
-    oyster_roll_gg <- gather(oyster_roll_gg, spend_type, value, -date)
+    oyster_roll_gg <- oyster_roll_gg %>% 
+      pivot_longer( -date, names_to = "spend_type")
     
     oyster_roll_gg <- oyster_roll_gg %>% 
       mutate(spend_type = recode(spend_type,
@@ -356,13 +354,8 @@ server <- function(input, output, session) {
                                                       "Travelcard Average")))
 
     p2 <- ggplot(oyster_roll_gg, aes(x = date)) +
-      # geom_smooth(aes(y = value, col = spend_type), 
-      #             data = oyster_roll_gg %>% 
-      #               filter(spend_type %in% c("PAYG Oyster Spending",
-      #                                        "Oyster + Bike Spending")),
-      #             alpha = 0.3, se = FALSE) + 
-      geom_line(aes(y = value, col = spend_type, linetype = spend_type),
-                size = 1) + 
+       geom_line(aes(y = value, col = spend_type, linetype = spend_type),
+                 size = 1) + 
       scale_colour_viridis_d("", direction = -1, end = 0.9, alpha = 0.9) + 
       scale_x_date(name = "Date", 
                    breaks = seq(as.Date("2016-06-30"), 
