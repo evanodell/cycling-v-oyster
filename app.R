@@ -326,8 +326,9 @@ server <- function(input, output, session) {
     bike_data$bike_avg <- mean(bike_data$bike)
     
     oyster_roll_gg <- broom::tidy(
-      rollapply(zoo((bike_data$oyster-bike_data$fines), order.by = bike_data$date),
-                60, mean, align = "right")
+      rollapply(zoo((bike_data$oyster-bike_data$fines),
+                    order.by = bike_data$date),
+                30, mean, align = "right")
     ) %>% select(index, value) %>%
       rename("oyster_charge" = "value",
              "date" = "index")
@@ -475,7 +476,7 @@ server <- function(input, output, session) {
     
     bike_data <- bike_data_subset()
     
-    paste0("Cumulative spending in each category over ", 
+    paste0("Cumulative spending in on my bike and oyster card over ", 
            format((max(bike_data$date) - min(bike_data$date)), big.mark = ","),
            ", from 30 June 2016 to ", format(max(bike_data$date),
                                                   format = "%e %B %Y"), ".")
