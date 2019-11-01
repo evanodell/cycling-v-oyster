@@ -265,7 +265,7 @@ server <- function(input, output, session) {
     bike_data <- bike_data_subset()
     
     bike_average <- mean(bike_data$bike)
-
+    
     t_sum <- bike_data %>%
       summarise(Bike = sum(bike),
                 Oyster = sum(oyster),
@@ -290,7 +290,7 @@ server <- function(input, output, session) {
                                        format(max(bike_data$date),
                                               format = "%e %B %Y"))) +
       scale_x_discrete(name = "Type of Spending") +
-      scale_fill_viridis_d(option = "cividis") + 
+      scale_fill_viridis_d(option = "D") + 
       theme(legend.position = "",
             text=element_text(size = 14),
             legend.text=element_text(size = 14),
