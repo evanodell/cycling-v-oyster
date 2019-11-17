@@ -501,7 +501,7 @@ server <- function(input, output, session) {
       geom_line(aes(x = date, y = spending, group = type, col = type),
                 size = 1) +
       coord_cartesian(ylim=c(0, 5)) + 
-      scale_y_continuous(name = "7 Day rolling average cost per day",
+      scale_y_continuous(name = "30 Day rolling average cost per day",
                          labels = scales::dollar_format(prefix = "£")) +
       scale_x_date(name = "Date", 
                    breaks = seq(as.Date("2016-06-30"), 
