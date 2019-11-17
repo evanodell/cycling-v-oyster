@@ -115,14 +115,6 @@ bike_data_full <- read_csv("cycling_oyster_data.csv",
                              date = col_date(format = "%Y-%m-%d"))
 )
 
-bike_data_full$week_oyster_per_day <- case_when(
-  bike_data_full$date <= "2017-01-01" ~ 32.4/7,
-  bike_data_full$date <= "2018-01-01" ~ 33/7,
-  bike_data_full$date <= "2019-01-01" ~ 34.1/7,
-  bike_data_full$date <= "2020-01-01" ~ 35.10/7,
-  bike_data_full$date <= "2021-01-01" ~ 36.10/7 # Not officially announced
-)
-
 bike_data_full$mon_oyster_per_day <- case_when(
   bike_data_full$date <= "2017-01-01" ~ 124.50/30,
   bike_data_full$date <= "2018-01-01" ~ 126.80/30,
@@ -186,8 +178,7 @@ server <- function(input, output, session) {
   # Selecter ------------------------------------------------------------------
   output$selector <- renderUI({
     radioButtons("period_selection", "Select Travelcard Length",
-                 choices = c("Weekly" = "week_oyster_per_day",
-                             "Monthly" = "mon_oyster_per_day",
+                 choices = c("Monthly" = "mon_oyster_per_day",
                              "Annually" = "annual_oyster_per_day"),
                  selected = "mon_oyster_per_day")
   })
@@ -311,7 +302,6 @@ server <- function(input, output, session) {
     bike_data <- bike_data_subset()
     
     type <- case_when(
-      input$selection=="week_oyster_per_day" ~ " weekly",
       input$selection=="mon_oyster_per_day" ~ " monthly",
       input$selection=="annual_oyster_per_day" ~ "n annual"
     )
@@ -414,7 +404,6 @@ server <- function(input, output, session) {
     compare <- if_else(comparison > 0, "more", "less")
     
     type <- case_when(
-      input$period_selection == "week_oyster_per_day" ~ " weekly",
       input$period_selection == "mon_oyster_per_day" ~ " monthly",
       input$period_selection == "annual_oyster_per_day" ~ "n annual"
     )
@@ -500,10 +489,10 @@ server <- function(input, output, session) {
     
     bike_roll_gg <-
       inner_join(tidy(rollapply(zoo(bike_data$bike_cumsum, 
-                                    order.by = bike_data$date), 7, mean)) %>%
+                                    order.by = bike_data$date), 30, mean)) %>%
               mutate(series = NULL) %>% rename(bike = value) ,
             tidy(rollapply(zoo(bike_data$oyster_cumsum,
-                               order.by = bike_data$date), 7, mean)) %>%
+                               order.by = bike_data$date), 30, mean)) %>%
               mutate(series = NULL) %>% rename(oyster = value) ) %>%
       rename(date = index) %>% 
       gather(type, spending, -date)
@@ -520,7 +509,8 @@ server <- function(input, output, session) {
                                 by="3 months"),
                    date_labels = "%b %Y") +
       scale_color_viridis_d(end = 0.6,
-                             labels = c("Bike Spending", "Oyster Spending")) +
+                            labels = c("Bike Spending", "Oyster Spending"),
+                            alpha = 0.9) +
       theme(legend.position = "bottom",
             legend.text=element_text(size = 14),
             text=element_text(size = 14),
