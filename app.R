@@ -143,7 +143,8 @@ bike_data_full$insurance <- case_when(
   TRUE ~ 0
 )
 
-bike_data_full$bike <- bike_data_full$bike + bike_data_full$locker_cost + 
+bike_data_full$bike <- bike_data_full$bike + 
+  bike_data_full$locker_cost + 
   bike_data_full$insurance 
 
 bike_data_full <- bike_data_full %>%
@@ -155,7 +156,6 @@ bike_data_full <- bike_data_full %>%
   mutate(gain_loss = cumsum(travelcard_day) - 
            (cumsum(bike) + cumsum(oyster)) + cumsum(fines)) %>%
   ungroup()
-
 
 if (Sys.getenv('SHINY_PORT') == "") {
   attr(bike_data_full, "latest") <- Sys.time()
@@ -190,30 +190,6 @@ server <- function(input, output, session) {
   df_date_time <- function(){
     attributes(bike_data_full)$latest
   }
-  
-  # output$last_update <- renderText(
-  #   paste0("Last Updated: ", format(max(bike_data_full$date), 
-  #                                   format = "%e %B %Y")))
-  # 
-  # output$savings <- renderText({
-  #   
-  #   bike_data <- bike_data_subset()
-  #   
-  #   current_total <- sum(bike_data$oyster, bike_data$bike)
-  #   
-  #   travelcard_total <- sum(bike_data$travelcard_day, bike_data$fines)
-  #   
-  #   totsav <- if_else(travelcard_total > current_total, "savings", "losses")
-  #   
-  #   savings <- paste0("Current ", totsav,
-  #                     " from cycling instead of using public transport: ",
-  #                     "£", sprintf("%.2f", abs(
-  #                       round(travelcard_total - current_total, 2))))
-  #   
-  #   print(savings)
-  #   
-  # })
-  
 
 # Update details ----------------------------------------------------------
 
@@ -258,14 +234,13 @@ server <- function(input, output, session) {
   output$p1 <- renderCachedPlot({
     
     bike_data <- bike_data_subset()
-    
-    bike_average <- mean(bike_data$bike)
-    
+  
     t_sum <- bike_data %>%
       summarise(Bike = sum(bike),
                 Oyster = sum(oyster),
                 `Hypothetical Travelcard` = sum(travelcard_day, fines)) %>%
-      mutate(Combined = sum(Bike, Oyster)) %>% gather() %>%
+      mutate(Combined = sum(Bike, Oyster)) %>% 
+      gather() %>%
       mutate(key = factor(key, levels=c("Bike", "Oyster", "Combined",
                                         "Hypothetical Travelcard")))
     
@@ -326,7 +301,7 @@ server <- function(input, output, session) {
       select(index, value) %>%
       rename("oyster_charge" = "value",
              "date" = "index") %>%
-      mutate(bike_plus_oyster = mean(bike_data[["bike"]]) + oyster_charge)  %>% 
+      mutate(bike_plus_oyster = mean(bike_data[["bike"]]) + oyster_charge) %>% 
       left_join(bike_data %>%
                   select(date, travelcard_day, bike_avg)) %>% 
       pivot_longer( -date, names_to = "spend_type")  %>% 
@@ -375,11 +350,6 @@ server <- function(input, output, session) {
                       round(max(bike_data$travelcard_day), 2),
                       nsmall = 2))),
                 size = 6) + 
-      # geom_step(aes(y = travelcard_day,
-      #               linetype = "Bicycle Cost-Per-Day"),
-      #           col = "#641A80", size = 1, data = bike_data) +
-      # geom_step(aes(y = bike_avg, linetype = "Travelcard Cost-Per-Day"),
-      #           col = "#000004", size = 1, data = bike_data) +
       scale_linetype_manual(values = c(rep("solid", 2), rep("dashed", 2)),
                             guide = FALSE) +
       theme(legend.position = "bottom",
@@ -387,7 +357,7 @@ server <- function(input, output, session) {
             text=element_text(size = 14),
             axis.text.x = element_text(angle = 30, hjust = 1, size = 14),
             axis.text.y = element_text(size = 14)
-      )
+            )
     
     p2
     
