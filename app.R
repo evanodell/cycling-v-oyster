@@ -128,7 +128,7 @@ bike_data_full$annual_oyster_per_day <- case_when(
   bike_data_full$date <= "2018-01-01" ~ 1320/365,
   bike_data_full$date <= "2019-01-01" ~ 1364/365,
   bike_data_full$date <= "2020-01-01" ~ 1404/365,
-  bike_data_full$date <= "2021-01-01" ~ 1445/366 # Not officially announced
+  bike_data_full$date <= "2021-01-01" ~ 1443/366 # Not officially announced
 )
 
 bike_data_full$locker_cost <- case_when(
