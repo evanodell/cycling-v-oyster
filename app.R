@@ -5,7 +5,6 @@ library(zoo)
 library(ggplot2)
 library(readr)
 library(dplyr)
-library(tibble)
 library(tidyr)
 library(Cairo)
 library(broom)
@@ -496,65 +495,44 @@ server <- function(input, output, session) {
   output$p5 <- renderCachedPlot({
     
     bike_data <- bike_data_subset()
-
-    max_savings <- if_else(max(bike_data$gain_loss) >= 0,
-                           "Max savings: £",
-                           "Min loss: £")
     
-    h_just <- if_else(max(bike_data$gain_loss) >= 0, 1, 0)
+    label_df <- tibble(
+      label = c(paste0(if_else(max(bike_data$gain_loss) >= 0,
+                               "Max savings: £",
+                               "Min loss: £") ,
+                       sprintf("%.2f", round(max(bike_data$gain_loss), 2))),
+                paste0("Max loss: £",
+                       sprintf("%.2f", round(min(bike_data$gain_loss), 2))),
+                "Sold old bike", "Bike stolen"),
+      date = c(bike_data$date[bike_data$gain_loss == max(bike_data$gain_loss)],
+               bike_data$date[bike_data$gain_loss == min(bike_data$gain_loss)],
+               as.Date("2018-02-02"), as.Date("2018-11-28")),
+      value = c(max(bike_data$gain_loss), min(bike_data$gain_loss),
+                bike_data$gain_loss[bike_data$date == as.Date("2018-02-02")],
+                bike_data$gain_loss[bike_data$date == as.Date("2018-11-28")]),
+      nudge_y = c(50, -50, -50, 120),
+      nudge_x = c(0, 300, 150, -175)
+    )
+    
     
     p5 <- ggplot(bike_data) +
       geom_hline(yintercept = 0, colour = "red", size = 0.5, alpha = 0.7) +
       geom_hline(yintercept = max(bike_data$gain_loss), colour = "seagreen3",
                  size = 0.5, alpha = 0.7) +
       geom_line(aes(x = date, y = gain_loss), size = 1, 
-                colour = "#932667", alpha = 0.8) +
-      geom_text(aes(x = date[
-        gain_loss == max(gain_loss)
-        ],
-        y = max(gain_loss),
-        hjust = h_just,
-        vjust = 0,
-        label = paste0(max_savings, 
-                       sprintf("%.2f", round(max(gain_loss), 2))
-        )), size = 6) +
-      geom_text(aes(x = as.Date("2017-10-20"),
-                    y = gain_loss[
-                      date == date[
-                        gain_loss == min(gain_loss)
-                        ] - 15
-                      ],
-                    hjust= -0.01,
-                    vjust = 1.8,
-                    label = "Bought new bike"), size = 6) +
-      geom_text(aes(x = date[
-        gain_loss == min(gain_loss)
-        ],
-        y = min(gain_loss),
-        hjust= 1.06,
-        vjust = 0.5,
-        label = paste0("Max loss: £",
-                       sprintf("%.2f", round(min(gain_loss), 2)))),
-        size = 6) +
-      geom_text(aes(x = as.Date("2018-02-02"),
-                    y = gain_loss[
-                      date == as.Date("2018-02-02")
-                      ],
-                    hjust= -0.03,
-                    vjust = 0.6,
-                    label = "Sold old bike"), size = 6) +
-      geom_text(aes(x = as.Date("2018-11-28"),
-                    y = gain_loss[
-                      date == as.Date("2018-11-28")
-                      ],
-                    hjust= 0.01, vjust = -0.5,
-                    label = "Bike Stolen"), nudge_x = 12, nudge_y = -60,
-                size = 6) +
+                colour = "#932667", alpha = 0.8) + 
+      geom_text_repel(aes(x = date, y = value,
+                          label = label), data = label_df,
+                      nudge_y = label_df$nudge_y,
+                      nudge_x = label_df$nudge_x,
+                      size = 6, force = 10, direction = "both", 
+                      arrow = arrow(length = unit(0.03, "npc")),
+                      point.padding = 1)  +
       scale_y_continuous(name = "Savings/Losses over Time",
                          labels = scales::dollar_format(prefix = "£"),
                          breaks = seq(-1200, 1000, by = 100),
                          expand = expansion(mult = c(0.05, 0),
-                                               add = c(0, 150))) +
+                                            add = c(0, 150))) +
       scale_x_date(name = "Date", 
                    breaks = seq(as.Date("2016-06-30"), 
                                 as.Date(max(bike_data$date)) + 60,
@@ -569,6 +547,8 @@ server <- function(input, output, session) {
             axis.text.y = element_text(size = 14))
     
     p5
+    
+
     
   }, cacheKeyExpr = {list(input$period_selection, df_date_time())})
   
