@@ -8,6 +8,7 @@ library(dplyr)
 library(tidyr)
 library(Cairo)
 library(broom)
+library(ggrepel)
 options(shiny.usecairo=T)
 theme_set(theme_bw())
 
