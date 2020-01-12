@@ -211,7 +211,7 @@ server <- function(input, output, session) {
                         round(travelcard_total - current_total, 2))))
     
     totsav2 <- if_else(travelcard_total > current_total,
-                       "Max savings", "Min losses")
+                       "Maximum savings", "Minimum losses")
     
     str2 <- if_else(
       bike_data$date[
