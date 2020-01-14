@@ -531,7 +531,7 @@ server <- function(input, output, session) {
                       point.padding = 1)  +
       scale_y_continuous(name = "Savings/Losses over Time",
                          labels = scales::dollar_format(prefix = "£"),
-                         breaks = seq(-1200, 1000, by = 100),
+                         breaks = seq(-1200, 1000, by = 200),
                          expand = expansion(mult = c(0.05, 0),
                                             add = c(0, 150))) +
       scale_x_date(name = "Date", 
