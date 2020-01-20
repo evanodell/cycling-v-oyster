@@ -67,7 +67,7 @@ ui <- fluidPage(
                p("*Updated every few days."),
                p("In a", tags$a(href="https://evanodell.com/blog/2017/02/06/cycling-vs-oyster/", "blog post"), "in February 2017 I analysed how much money I was saving by cycling to work instead of using a monthly Oyster transport pass. When I wrote that blog I had spent almost £20 more on my bike and pay-as-you-go transport pass than I would have if I bought a monthly transport pass. On 29 April 2017, less than 3 months after that blog, and despite needing a new rear wheel, I broke even, and I've been updating my data every few days, and have now built a", tags$a(href="https://shiny.rstudio.com/", "Shiny"), "app to monitor my spending on my bike and on public transport."),
                p("Of course, I had to screw this up somehow, so I bought a new bike in October 2017. My new bike was stolen in November 2018, but thanks to my insurance the cost of a replacement was not too high, although my premiums have gone up slightly and I've missed out on a no-claims discount."),
-               p("I include all spending directly on my bike: the bike itself, accessories, spare parts, insurance, my storage locker, tools and maintenance. I also include non-bike costs that are the result of cycling, primarily clothing. For instance, I have bought a couple pairs of commuter trousers for cycling and include that spending in my calculations, less £40 to represent the price of a standard pair of men's trousers, on the basis that I would have had to buy new trousers anyways."),
+               p("I include all spending directly on my bike: the bike itself, accessories, spare parts, insurance, my storage locker, tools and maintenance. I also include non-bike costs that are the result of cycling, primarily clothing, but also my", tags$a(href = "https://membership.lcc.org.uk/join", "London Cycling Campaign membership"), ". For instance, I have bought a couple pairs of commuter trousers for cycling and include that spending in my calculations, less £40 to represent the price of a standard pair of men's trousers, on the basis that I would have had to buy new trousers anyways."),
                p("You can see in the second time series plot that since writing the blog post in February 2017 my Oyster spending has dropped off somewhat. Since analysing how much I was cycling, and how much I was spending on transport, I've become much more dedicated to riding places, no longer taking the bus or tube if I'm feeling a little bit lazy."),
                
 # selector and fine check --------------------------------------------------------
@@ -553,8 +553,6 @@ server <- function(input, output, session) {
             axis.text.y = element_text(size = 14))
     
     p5
-    
-
     
   }, cacheKeyExpr = {list(input$period_selection, df_date_time())})
   
