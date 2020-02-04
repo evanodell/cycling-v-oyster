@@ -290,12 +290,12 @@ server <- function(input, output, session) {
     
     bike_average <- mean(bike_data$bike)
     
-    bike_data$bike_avg <- mean(bike_data$bike)
+    bike_data$bike_avg <- bike_average
     
     oyster_roll_gg <- broom::tidy(
       rollapply(zoo((bike_data$oyster-bike_data$fines),
                     order.by = bike_data$date),
-                30, mean, align = "right")) %>%
+                60, mean, align = "right")) %>%
       select(index, value) %>%
       rename("oyster_charge" = "value",
              "date" = "index") %>%
@@ -315,8 +315,8 @@ server <- function(input, output, session) {
 
     p2 <- ggplot(oyster_roll_gg, aes(x = date)) +
        geom_line(aes(y = value, col = spend_type, linetype = spend_type),
-                 size = 1) + 
-      scale_colour_viridis_d("", direction = -1, end = 0.9, alpha = 0.9) + 
+                 size = 1.1) + 
+      scale_colour_viridis_d("", direction = -1, end = 0.9, alpha = 0.85) + 
       scale_x_date(name = "Date", 
                    breaks = seq(as.Date("2016-06-30"), 
                                 as.Date(max(bike_data$date)) + 60,
@@ -396,7 +396,7 @@ server <- function(input, output, session) {
     
     paste0("The dark purple dashed horizontal line represents the cost-per-day of a", type, " zone 1-2 Travelcard in London over this time period: ", paste(lapply(cost_per_day, function(x) paste0(cost_per_day$sep, " £", cost_per_day$max, " in ", cost_per_day$year))[[1]], collapse = ""), ", averaging to £", sprintf("%.2f", round(mean(bike_data$travelcard_day), 2)), ". The blue dashed horizontal line represents the average daily cost of my bicycle and accessories (£", sprintf("%.2f", round(sum(bike_data$bike)/nrow(bike_data), 2)), "). The dark green line is a rolling average of pay-as-you-go Oyster spending over the previous month, and the light green line is pay-as-you-go Oyster spending combined with average daily bike costs. The average cost-per-day of my pay-as-you-go Oyster card is £", sprintf("%.2f", round((sum(bike_data$oyster)/nrow(bike_data)), 2)), ", which combined with bike spending means I have spent an average of £", sprintf("%.2f", abs(round(comparison/nrow(bike_data), 2))), " per day ", compare, " than I would using a", type, " travelcard (totals may not add up exactly due to rounding). Fixed bicycle costs are insurance (£", sprintf("%.2f", round(bike_data$insurance[bike_data$date == max(bike_data$date)]*365, 2)), " per year or £", sprintf("%.2f", round(bike_data$insurance[bike_data$date == max(bike_data$date)], 2)), " per day) and my bike locker (£", sprintf("%.2f", round(bike_data$locker_cost[bike_data$date == max(bike_data$date)]*365, 2)), " per year or £", sprintf("%.2f", round(bike_data$locker_cost[bike_data$date == max(bike_data$date)], 2)), " per day). Every day I cycle I save £", sprintf("%.2f", round(max(bike_data$travelcard_day) - (bike_data$locker_cost[bike_data$date == max(bike_data$date)] + bike_data$insurance[bike_data$date == max(bike_data$date)]), 2)), " compared to a", type, " travelcard.")
 
-# Over the past month, my Oyster travel has cost an average of £", sprintf("%.2f", round(last_month_cpd$total, 2)), " per day, and I have ", last_month_cpd$save_loss_text, " £", sprintf("%.2f", round(last_month_cpd$save_loss, 2)), " compared to a", type, " travelcard.    
+# "Over the past month, my Oyster travel has cost an average of £", sprintf("%.2f", round(last_month_cpd$total, 2)), " per day, and I have ", last_month_cpd$save_loss_text, " £", sprintf("%.2f", round(last_month_cpd$save_loss, 2)), " compared to a", type, " travelcard."
     
       })
   
