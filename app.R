@@ -293,7 +293,7 @@ server <- function(input, output, session) {
     bike_data$bike_avg <- bike_average
     
     oyster_roll_gg <- broom::tidy(
-      rollapply(zoo((bike_data$oyster-bike_data$fines),
+      rollapply(zoo((bike_data$oyster-bike_data$fines), 
                     order.by = bike_data$date),
                 60, mean, align = "right")) %>%
       select(index, value) %>%
@@ -312,42 +312,42 @@ server <- function(input, output, session) {
                                                       "PAYG Oyster Spending",
                                                       "Bike Average",
                                                       "Travelcard Average")))
+    
+    
+    label_df2 <- tibble(
+      label = c(paste0("Bike Average: £",
+                       format(round(bike_average, 2), nsmall = 2)),
+                paste0("Travelcard Average: £", format(
+                  round(mean(bike_data$travelcard_day), 2),
+                  nsmall = 2)),
+                paste0("Travelcard Currently: £", format(
+                  round(max(bike_data$travelcard_day), 2),
+                  nsmall = 2))
+                ),
+      date = c(max(bike_data$date), mean(bike_data$date), max(bike_data$date)),
+      value = c(bike_average, mean(bike_data$travelcard_day),
+                max(bike_data$travelcard_day)),
+      hjust = c(1, 1, 1),
+      vjust = c(1.4, -0.5, -0.5)
+    )
+    
 
     p2 <- ggplot(oyster_roll_gg, aes(x = date)) +
        geom_line(aes(y = value, col = spend_type, linetype = spend_type),
                  size = 1.1) + 
-      scale_colour_viridis_d("", direction = -1, end = 0.9, alpha = 0.85) + 
+      scale_colour_viridis_d("", direction = -1, end = 0.9, alpha = 0.75) + 
       scale_x_date(name = "Date", 
                    breaks = seq(as.Date("2016-06-30"), 
                                 as.Date(max(bike_data$date)) + 60,
                                 by="3 months"),
                    date_labels = "%b %Y") +
-      scale_y_continuous(name = "Average charge over previous 7 days",
+      scale_y_continuous(name = "Average charge over previous 60 days",
                          labels = scales::dollar_format(prefix = "£")) +
       guides(col = guide_legend(nrow = 2, bycol = TRUE)) +
-      geom_text(aes(x = max(date),
-                    y = bike_average,
-                    hjust= 1,
-                    vjust = 1.4,
-                    label = paste0("Bike Average: £", format(
-                      round(bike_average, 2), nsmall = 2))),
-                size = 6) +
-      geom_text(aes(x = mean(date),
-                    y = mean(bike_data$travelcard_day),
-                    hjust = 1,
-                    vjust = -0.5,
-                    label = paste0("Travelcard Average: £", format(
-                      round(mean(bike_data$travelcard_day), 2),
-                      nsmall = 2))),
-                size = 6) +
-      geom_text(aes(x = max(date),
-                    y = max(bike_data$travelcard_day),
-                    hjust = 1,
-                    vjust = -0.5,
-                    label = paste0("Travelcard Currently: £", format(
-                      round(max(bike_data$travelcard_day), 2),
-                      nsmall = 2))),
-                size = 6) + 
+      geom_text(aes(x = date, y = value, label = label), data = label_df2,
+                      hjust = label_df2$hjust,
+                      vjust = label_df2$vjust,
+                      size = 6)  +
       scale_linetype_manual(values = c(rep("solid", 2), rep("dashed", 2)),
                             guide = FALSE) +
       theme(legend.position = "bottom",
