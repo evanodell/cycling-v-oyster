@@ -12,7 +12,6 @@ library(ggrepel)
 options(shiny.usecairo=T)
 theme_set(theme_bw())
 
-
 # CSS ------------------------------------------------------------
 appCSS <- "#loading-content {
 position: absolute;
@@ -312,7 +311,6 @@ server <- function(input, output, session) {
                                                       "PAYG Oyster Spending",
                                                       "Bike Average",
                                                       "Travelcard Average")))
-    
     
     label_df2 <- tibble(
       label = c(paste0("Bike Average: £",
