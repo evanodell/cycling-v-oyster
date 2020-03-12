@@ -339,7 +339,7 @@ server <- function(input, output, session) {
                                 as.Date(max(bike_data$date)) + 60,
                                 by="3 months"),
                    date_labels = "%b %Y") +
-      scale_y_continuous(name = "Average charge over previous 60 days",
+      scale_y_continuous(name = "60 day rolling average",
                          labels = scales::dollar_format(prefix = "£")) +
       guides(col = guide_legend(nrow = 2, bycol = TRUE)) +
       geom_text(aes(x = date, y = value, label = label), data = label_df2,
@@ -474,7 +474,7 @@ server <- function(input, output, session) {
       geom_line(aes(x = date, y = spending, group = type, col = type),
                 size = 1) +
       coord_cartesian(ylim=c(0, 5)) + 
-      scale_y_continuous(name = "30 Day rolling average cost per day",
+      scale_y_continuous(name = "30 day rolling average",
                          labels = scales::dollar_format(prefix = "£")) +
       scale_x_date(name = "Date", 
                    breaks = seq(as.Date("2016-06-30"), 
