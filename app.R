@@ -1,13 +1,13 @@
 
 library(shiny)
 library(shinyjs)
-library(zoo)
 library(ggplot2)
 library(readr)
 library(dplyr)
+library(zoo)
+library(broom)
 library(tidyr)
 library(Cairo)
-library(broom)
 library(ggrepel)
 options(shiny.usecairo=T)
 theme_set(theme_bw())
@@ -291,27 +291,6 @@ server <- function(input, output, session) {
     
     bike_data$bike_avg <- bike_average
     
-    oyster_roll_gg <- broom::tidy(
-      rollapply(zoo((bike_data$oyster-bike_data$fines), 
-                    order.by = bike_data$date),
-                60, mean, align = "right")) %>%
-      select(index, value) %>%
-      rename("oyster_charge" = "value",
-             "date" = "index") %>%
-      mutate(bike_plus_oyster = mean(bike_data[["bike"]]) + oyster_charge) %>% 
-      left_join(bike_data %>%
-                  select(date, travelcard_day, bike_avg)) %>% 
-      pivot_longer( -date, names_to = "spend_type")  %>% 
-      mutate(spend_type = recode(spend_type,
-             "oyster_charge" = "PAYG Oyster Spending",
-             "bike_plus_oyster" = "Oyster + Bike Spending",
-             "bike_avg" = "Bike Average",
-             "travelcard_day" = "Travelcard Average"), 
-             spend_type = factor(spend_type, levels=c("Oyster + Bike Spending",
-                                                      "PAYG Oyster Spending",
-                                                      "Bike Average",
-                                                      "Travelcard Average")))
-    
     label_df2 <- tibble(
       label = c(paste0("Bike Average: £",
                        format(round(bike_average, 2), nsmall = 2)),
@@ -329,24 +308,39 @@ server <- function(input, output, session) {
       vjust = c(1.4, -0.5, -0.5)
     )
     
+    bike_data2 <- bike_data %>% 
+      mutate(bike_oyster = bike_avg + oyster) %>%
+      pivot_longer(cols = c("travelcard_day", "bike_avg"),
+                   names_to = "line_label", values_to = "line_value") %>% 
+      pivot_longer(cols = c("oyster", "bike_oyster"),
+                   names_to = "smooth_label", values_to = "smooth_value") %>%
+      mutate(smooth_label = recode(smooth_label,
+                                  "oyster" = "PAYG Oyster Spending",
+                                  "bike_oyster" = "Oyster + Bike Spending"),
+             line_label = recode(line_label,
+                                 "bike_avg" = "Bike Average",
+                                 "travelcard_day" = "Travelcard Average"))
 
-    p2 <- ggplot(oyster_roll_gg, aes(x = date)) +
-       geom_line(aes(y = value, col = spend_type, linetype = spend_type),
-                 size = 1.1) + 
-      scale_colour_viridis_d("", direction = -1, end = 0.9, alpha = 0.75) + 
+    p2 <- ggplot(bike_data2, aes(x = date)) +
+      geom_line(aes(y = line_value, col = line_label, linetype = line_label),
+                size = 1.1) + 
+      geom_smooth(aes(y = smooth_value, col = smooth_label,
+                      linetype = smooth_label),
+                  size = 1.1, method = "loess", span = 0.15, se = FALSE) + 
+      scale_colour_viridis_d("", direction = -1, end = 0.85, alpha = 0.75) + 
       scale_x_date(name = "Date", 
                    breaks = seq(as.Date("2016-06-30"), 
                                 as.Date(max(bike_data$date)) + 60,
                                 by="3 months"),
                    date_labels = "%b %Y") +
-      scale_y_continuous(name = "60 day rolling average",
+      scale_y_continuous(name = "Smoothed average",
                          labels = scales::dollar_format(prefix = "£")) +
       guides(col = guide_legend(nrow = 2, bycol = TRUE)) +
       geom_text(aes(x = date, y = value, label = label), data = label_df2,
                       hjust = label_df2$hjust,
                       vjust = label_df2$vjust,
                       size = 6)  +
-      scale_linetype_manual(values = c(rep("solid", 2), rep("dashed", 2)),
+      scale_linetype_manual(values = c("dashed", "solid", "solid", "dashed"),
                             guide = FALSE) +
       theme(legend.position = "bottom",
             legend.text=element_text(size = 14),
@@ -392,7 +386,7 @@ server <- function(input, output, session) {
       mutate(save_loss = (travelcard - (bike + oyster_total)),
              save_loss_text = if_else(save_loss > 0, "saved", "lost"))
     
-    paste0("The dark purple dashed horizontal line represents the cost-per-day of a", type, " zone 1-2 Travelcard in London over this time period: ", paste(lapply(cost_per_day, function(x) paste0(cost_per_day$sep, " £", cost_per_day$max, " in ", cost_per_day$year))[[1]], collapse = ""), ", averaging to £", sprintf("%.2f", round(mean(bike_data$travelcard_day), 2)), ". The blue dashed horizontal line represents the average daily cost of my bicycle and accessories (£", sprintf("%.2f", round(sum(bike_data$bike)/nrow(bike_data), 2)), "). The dark green line is a rolling average of pay-as-you-go Oyster spending over the previous month, and the light green line is pay-as-you-go Oyster spending combined with average daily bike costs. The average cost-per-day of my pay-as-you-go Oyster card is £", sprintf("%.2f", round((sum(bike_data$oyster)/nrow(bike_data)), 2)), ", which combined with bike spending means I have spent an average of £", sprintf("%.2f", abs(round(comparison/nrow(bike_data), 2))), " per day ", compare, " than I would using a", type, " travelcard (totals may not add up exactly due to rounding). Fixed bicycle costs are insurance (£", sprintf("%.2f", round(bike_data$insurance[bike_data$date == max(bike_data$date)]*365, 2)), " per year or £", sprintf("%.2f", round(bike_data$insurance[bike_data$date == max(bike_data$date)], 2)), " per day) and my bike locker (£", sprintf("%.2f", round(bike_data$locker_cost[bike_data$date == max(bike_data$date)]*365, 2)), " per year or £", sprintf("%.2f", round(bike_data$locker_cost[bike_data$date == max(bike_data$date)], 2)), " per day). Every day I cycle I save £", sprintf("%.2f", round(max(bike_data$travelcard_day) - (bike_data$locker_cost[bike_data$date == max(bike_data$date)] + bike_data$insurance[bike_data$date == max(bike_data$date)]), 2)), " compared to a", type, " travelcard.")
+    paste0("The dark purple dashed horizontal line represents the cost-per-day of a", type, " zone 1-2 Travelcard in London over this time period: ", paste(lapply(cost_per_day, function(x) paste0(cost_per_day$sep, " £", cost_per_day$max, " in ", cost_per_day$year))[[1]], collapse = ""), ", averaging to £", sprintf("%.2f", round(mean(bike_data$travelcard_day), 2)), ". The green dashed horizontal line represents the average daily cost of my bicycle and accessories (£", sprintf("%.2f", round(sum(bike_data$bike)/nrow(bike_data), 2)), "). The blue line is a rolling average of pay-as-you-go Oyster spending over the previous month, and the light green line is pay-as-you-go Oyster spending combined with average daily bike costs. The average cost-per-day of my pay-as-you-go Oyster card is £", sprintf("%.2f", round((sum(bike_data$oyster)/nrow(bike_data)), 2)), ", which combined with bike spending means I have spent an average of £", sprintf("%.2f", abs(round(comparison/nrow(bike_data), 2))), " per day ", compare, " than I would using a", type, " travelcard (totals may not add up exactly due to rounding). Fixed bicycle costs are insurance (£", sprintf("%.2f", round(bike_data$insurance[bike_data$date == max(bike_data$date)]*365, 2)), " per year or £", sprintf("%.2f", round(bike_data$insurance[bike_data$date == max(bike_data$date)], 2)), " per day) and my bike locker (£", sprintf("%.2f", round(bike_data$locker_cost[bike_data$date == max(bike_data$date)]*365, 2)), " per year or £", sprintf("%.2f", round(bike_data$locker_cost[bike_data$date == max(bike_data$date)], 2)), " per day). Every day I cycle I save £", sprintf("%.2f", round(max(bike_data$travelcard_day) - (bike_data$locker_cost[bike_data$date == max(bike_data$date)] + bike_data$insurance[bike_data$date == max(bike_data$date)]), 2)), " compared to a", type, " travelcard.")
 
 # "Over the past month, my Oyster travel has cost an average of £", sprintf("%.2f", round(last_month_cpd$total, 2)), " per day, and I have ", last_month_cpd$save_loss_text, " £", sprintf("%.2f", round(last_month_cpd$save_loss, 2)), " compared to a", type, " travelcard."
     
@@ -450,7 +444,8 @@ server <- function(input, output, session) {
   output$p4 <- renderCachedPlot({
     
     bike_data <- bike_data_full %>%
-      select(date:bike) %>% distinct()
+      select(date:bike) %>%
+      distinct() 
     
     bike_data$bike_cumsum <- (
       cumsum(bike_data$bike)/as.numeric(bike_data$date - as.Date("2016-06-29"))
@@ -472,7 +467,7 @@ server <- function(input, output, session) {
   
     p4 <- ggplot(bike_roll_gg) +
       geom_line(aes(x = date, y = spending, group = type, col = type),
-                size = 1) +
+                size = 1.05) +
       coord_cartesian(ylim=c(0, 5)) + 
       scale_y_continuous(name = "30 day rolling average",
                          labels = scales::dollar_format(prefix = "£")) +
@@ -483,7 +478,7 @@ server <- function(input, output, session) {
                    date_labels = "%b %Y") +
       scale_color_viridis_d(end = 0.6,
                             labels = c("Bike Spending", "Oyster Spending"),
-                            alpha = 0.9) +
+                            alpha = 0.8) +
       theme(legend.position = "bottom",
             legend.text=element_text(size = 14),
             text=element_text(size = 14),
