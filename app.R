@@ -176,7 +176,7 @@ server <- function(input, output, session) {
   
   # Selecter ------------------------------------------------------------------
   output$selector <- renderUI({
-    radioButtons("period_selection", "Select Travelcard Length",
+    radioButtons("period_selection", "Select Travelcard Length for Comparison",
                  choices = c("Monthly" = "mon_oyster_per_day",
                              "Annually" = "annual_oyster_per_day"),
                  selected = "mon_oyster_per_day")
