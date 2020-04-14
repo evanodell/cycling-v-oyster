@@ -183,7 +183,7 @@ server <- function(input, output, session) {
   })
   
   bike_data_subset <- reactive({
-    bike_data_full[bike_data_full$travelcard_type == input$period_selection,]
+    bike_data_full %>% filter(travelcard_type==input$period_selection)
   })
 
   df_date_time <- function(){
