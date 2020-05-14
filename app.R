@@ -455,17 +455,28 @@ server <- function(input, output, session) {
       cumsum(bike_data$oyster)/as.numeric(bike_data$date - as.Date("2016-06-29"))
     )
     
-    bike_roll_gg <-
-      inner_join(tidy(rollapply(zoo(bike_data$bike_cumsum, 
+    bike_roll <-
+      inner_join(tidy(rollapplyr(zoo(bike_data$bike_cumsum,
                                     order.by = bike_data$date), 30, mean)) %>%
               mutate(series = NULL) %>% rename(bike = value) ,
-            tidy(rollapply(zoo(bike_data$oyster_cumsum,
+            tidy(rollapplyr(zoo(bike_data$oyster_cumsum,
                                order.by = bike_data$date), 30, mean)) %>%
               mutate(series = NULL) %>% rename(oyster = value) ) %>%
-      rename(date = index) %>% 
+      rename(date = index) %>%
       gather(type, spending, -date)
+    
+    # label_df4 <- tibble(
+    #   value = c(bike_roll$spending[
+    #     bike_roll$date == max(bike_roll$date) & 
+    #       bike_roll$type == "bike"],
+    #     bike_roll$spending[
+    #       bike_roll$date == max(bike_roll$date) & 
+    #         bike_roll$type == "oyster"]),
+    #   label =  paste0("£",sprintf("%.2f",value),"/day"),
+    #   date = rep(max(bike_roll$date)+10, 2)
+    # )
   
-    p4 <- ggplot(bike_roll_gg) +
+    p4 <- ggplot(bike_roll) +
       geom_line(aes(x = date, y = spending, group = type, col = type),
                 size = 1.05) +
       coord_cartesian(ylim=c(0, 5)) + 
@@ -484,7 +495,7 @@ server <- function(input, output, session) {
             text=element_text(size = 14),
             axis.text.x = element_text(angle = 30, hjust = 1, size = 14),
             axis.text.y = element_text(size = 14)) +
-      labs(col = "")
+      labs(col = "") 
     
     p4
     
@@ -495,13 +506,13 @@ server <- function(input, output, session) {
     
     bike_data <- bike_data_subset()
     
-    label_df <- tibble(
+    label_df5 <- tibble(
       label = c(paste0(if_else(max(bike_data$gain_loss) >= 0,
                                "Max savings: £",
                                "Min loss: £") ,
-                       sprintf("%.2f", round(max(bike_data$gain_loss), 2))),
+                       sprintf("%.2f", max(bike_data$gain_loss))),
                 paste0("Max loss: £",
-                       sprintf("%.2f", round(min(bike_data$gain_loss), 2))),
+                       sprintf("%.2f", min(bike_data$gain_loss))),
                 "Sold old bike", "Bike stolen"),
       date = c(bike_data$date[bike_data$gain_loss == max(bike_data$gain_loss)],
                bike_data$date[bike_data$gain_loss == min(bike_data$gain_loss)],
@@ -521,9 +532,9 @@ server <- function(input, output, session) {
       geom_line(aes(x = date, y = gain_loss), size = 1, 
                 colour = "#932667", alpha = 0.8) + 
       geom_text_repel(aes(x = date, y = value,
-                          label = label), data = label_df,
-                      nudge_y = label_df$nudge_y,
-                      nudge_x = label_df$nudge_x,
+                          label = label), data = label_df5,
+                      nudge_y = label_df5$nudge_y,
+                      nudge_x = label_df5$nudge_x,
                       size = 6, force = 10, direction = "both", 
                       arrow = arrow(length = unit(0.03, "npc")),
                       point.padding = 1)  +
