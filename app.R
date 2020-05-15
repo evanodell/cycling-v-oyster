@@ -455,26 +455,22 @@ server <- function(input, output, session) {
       cumsum(bike_data$oyster)/as.numeric(bike_data$date - as.Date("2016-06-29"))
     )
     
-    bike_roll <-
-      inner_join(tidy(rollapplyr(zoo(bike_data$bike_cumsum,
-                                    order.by = bike_data$date), 30, mean)) %>%
-              mutate(series = NULL) %>% rename(bike = value) ,
-            tidy(rollapplyr(zoo(bike_data$oyster_cumsum,
-                               order.by = bike_data$date), 30, mean)) %>%
-              mutate(series = NULL) %>% rename(oyster = value) ) %>%
+    bike_roll <- inner_join(
+      tidy(
+        rollapplyr(zoo(bike_data$bike_cumsum, order.by = bike_data$date),
+                   30, mean)
+        ) %>%
+        mutate(series = NULL) %>%
+        rename(bike = value), 
+      tidy(
+          rollapplyr(zoo(bike_data$oyster_cumsum, order.by = bike_data$date),
+                      30, mean)
+          ) %>%
+        mutate(series = NULL) %>%
+        rename(oyster = value)
+      ) %>%
       rename(date = index) %>%
       gather(type, spending, -date)
-    
-    # label_df4 <- tibble(
-    #   value = c(bike_roll$spending[
-    #     bike_roll$date == max(bike_roll$date) & 
-    #       bike_roll$type == "bike"],
-    #     bike_roll$spending[
-    #       bike_roll$date == max(bike_roll$date) & 
-    #         bike_roll$type == "oyster"]),
-    #   label =  paste0("£",sprintf("%.2f",value),"/day"),
-    #   date = rep(max(bike_roll$date)+10, 2)
-    # )
   
     p4 <- ggplot(bike_roll) +
       geom_line(aes(x = date, y = spending, group = type, col = type),
