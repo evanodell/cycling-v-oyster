@@ -104,7 +104,9 @@ div(id = "plot-container",
     tags$img(src = "spinner.gif", id = "loading-spinner"), plotOutput("p5")),
 fluidRow(
   p(textOutput("prediction")),
-  p("There are a number of obstacles to an exact cost comparison of cycling and public transport. For example, if I didn't cycle and was to go on holiday for a couple weeks, I would try to time my travelcard renewal so I'm not paying anything while not in London. There are also the intangible benefits of exercise and faster commutes from cycling, compared to the convenience and low effort required of public transport, and any purely financial comparison misses those factors.")
+  p("There are a number of obstacles to an exact cost comparison of cycling and public transport. For example, if I didn't cycle and was to go on holiday for a couple weeks, I would try to time my travelcard renewal so I'm not paying anything while not in London. There are also the intangible benefits of exercise and faster commutes from cycling, compared to the convenience and low effort required of public transport, and any purely financial comparison misses those factors."),
+  p("All the code and data in this app is available on ",
+    tags$a(href="https://github.com/evanodell/cycling-v-oyster", "Github", "."))
              )),
       column(2))))
 
@@ -177,9 +179,10 @@ server <- function(input, output, session) {
   # Selecter ------------------------------------------------------------------
   output$selector <- renderUI({
     radioButtons("period_selection", "Select Travelcard Length for Comparison",
-                 choices = c("Monthly" = "mon_oyster_per_day",
-                             "Annually" = "annual_oyster_per_day"),
-                 selected = "mon_oyster_per_day")
+                 choices = c("Annually" = "annual_oyster_per_day",
+                             "Monthly" = "mon_oyster_per_day"
+                             ),
+                 selected = "annual_oyster_per_day")
   })
   
   bike_data_subset <- reactive({
