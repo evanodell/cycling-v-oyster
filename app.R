@@ -178,11 +178,12 @@ server <- function(input, output, session) {
   
   # Selecter ------------------------------------------------------------------
   output$selector <- renderUI({
-    radioButtons("period_selection", "Select Travelcard Length for Comparison",
+    radioButtons("period_selection",
+                 "Select Travelcard Length for Comparison",
                  choices = c("Annually" = "annual_oyster_per_day",
                              "Monthly" = "mon_oyster_per_day"
                              ),
-                 selected = "annual_oyster_per_day")
+                 selected = "annual_oyster_per_day", width = "100%")
   })
   
   bike_data_subset <- reactive({
