@@ -246,7 +246,8 @@ server <- function(input, output, session) {
                                         "Hypothetical Travelcard")))
     
     p1 <- ggplot(t_sum, aes(x = key, y = value, fill = key, label = value)) +
-      geom_bar(stat = "identity", position = position_dodge(width = 0.5)) +
+      geom_bar(stat = "identity", position = position_dodge(width = 0.5),
+               alpha = 0.8) +
       geom_text(aes(y = value + 0.1,
                     label = paste0("£", format(round(value, 2),
                                                big.mark = ",", nsmall = 2))),
@@ -331,7 +332,7 @@ server <- function(input, output, session) {
       geom_smooth(aes(y = smooth_value, col = smooth_label,
                       linetype = smooth_label),
                   size = 1.1, method = "loess", span = 0.15, se = FALSE) + 
-      scale_colour_viridis_d("", direction = -1, end = 0.85, alpha = 0.75) + 
+      scale_colour_viridis_d("", direction = -1, end = 0.85, alpha = 0.8) + 
       scale_x_date(name = "Date", 
                    breaks = seq(as.Date("2016-06-30"), 
                                 as.Date(max(bike_data$date)) + 60,
@@ -409,7 +410,8 @@ server <- function(input, output, session) {
       mutate(spending = cumsum(value))
     
     p3 <- ggplot(bike_melt) +
-      geom_line(aes(x = date, y = spending, col = spend_type), size = 1) +
+      geom_line(aes(x = date, y = spending, col = spend_type),
+                size = 1, alpha = 0.8) +
       scale_y_continuous(name = "Cumulative Spending", 
                          breaks = seq(0, 5000, by = 500), 
                          labels = scales::dollar_format(prefix = "£")) +
