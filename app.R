@@ -516,7 +516,7 @@ server <- function(input, output, session) {
                 bike_data$gain_loss[bike_data$date == as.Date("2018-02-02")],
                 bike_data$gain_loss[bike_data$date == as.Date("2018-11-28")]),
       nudge_y = c(50, -50, -50, 120),
-      nudge_x = c(0, 300, 150, 175)
+      nudge_x = c(-350, 300, 150, 175)
     )
     
     p5 <- ggplot(bike_data) +
@@ -531,7 +531,7 @@ server <- function(input, output, session) {
                       nudge_x = label_df5$nudge_x,
                       size = 6, force = 10, direction = "both", 
                       arrow = arrow(length = unit(0.03, "npc")),
-                      point.padding = 1)  +
+                      point.padding = 0.5)  +
       scale_y_continuous(name = "Savings/Losses over Time",
                          labels = scales::dollar_format(prefix = "£"),
                          breaks = seq(-1200, 1000, by = 200),
