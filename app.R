@@ -133,8 +133,10 @@ bike_data_full$annual_oyster_per_day <- case_when(
 )
 
 bike_data_full$insurance <- case_when(
-  bike_data_full$date >= "2018-12-17" ~ 112/365,
-  bike_data_full$date >= "2018-06-18" ~ 101.80/365,
+  bike_data_full$date >= "2018-12-17" &
+    substr(bike_data_full$date, 9, 11) == "20" ~ 112/12,
+  bike_data_full$date >= "2018-06-18" &
+    substr(bike_data_full$date, 9, 11) == "20" ~ 101.80/12,
   TRUE ~ 0
 )
 
