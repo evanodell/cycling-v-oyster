@@ -309,7 +309,11 @@ server <- function(input, output, session) {
     )
     
     bike_data2 <- bike_data %>% 
-      mutate(bike_oyster = bike_avg + oyster) %>%
+      mutate(
+        oyster = as.numeric(
+          rollmean(zoo(oyster, date), 30, fill = list(NA, NULL, NA))
+          ),
+        bike_oyster = bike_avg + oyster) %>%
       pivot_longer(cols = c("travelcard_day", "bike_avg"),
                    names_to = "line_label", values_to = "line_value") %>% 
       pivot_longer(cols = c("oyster", "bike_oyster"),
@@ -324,16 +328,16 @@ server <- function(input, output, session) {
     p2 <- ggplot(bike_data2, aes(x = date)) +
       geom_line(aes(y = line_value, col = line_label, linetype = line_label),
                 size = 1.1) + 
-      geom_smooth(aes(y = smooth_value, col = smooth_label,
-                      linetype = smooth_label),
-                  size = 1.1, method = "loess", span = 0.15, se = FALSE) + 
+      geom_line(aes(y = smooth_value, col = smooth_label, 
+                    linetype = smooth_label),
+                  size = 1.1) + 
       scale_colour_viridis_d("", direction = -1, end = 0.85, alpha = 0.8) + 
       scale_x_date(name = "Date", 
                    breaks = seq(as.Date("2016-06-30"), 
                                 as.Date(max(bike_data$date)) + 60,
                                 by="3 months"),
                    date_labels = "%b %Y") +
-      scale_y_continuous(name = "Smoothed average",
+      scale_y_continuous(name = "30 Day Rolling Average",
                          labels = scales::dollar_format(prefix = "£")) +
       guides(col = guide_legend(nrow = 2, bycol = TRUE)) +
       geom_text(aes(x = date, y = value, label = label), data = label_df2,
