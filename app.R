@@ -451,31 +451,22 @@ server <- function(input, output, session) {
     bike_data <- bike_data_full %>%
       select(date:bike) %>%
       distinct() 
-    
-    bike_data$bike_cumsum <- (
-      cumsum(bike_data$bike)/as.numeric(bike_data$date - as.Date("2016-06-29"))
-    )
-    
-    bike_data$oyster_cumsum <- (
-      cumsum(bike_data$oyster)/as.numeric(bike_data$date - as.Date("2016-06-29"))
-    )
-    
-    bike_roll <- inner_join(
-      tidy(
-        rollapplyr(zoo(bike_data$bike_cumsum, order.by = bike_data$date),
-                   30, mean)
-        ) %>%
-        mutate(series = NULL) %>%
-        rename(bike = value), 
-      tidy(
-          rollapplyr(zoo(bike_data$oyster_cumsum, order.by = bike_data$date),
-                      30, mean)
-          ) %>%
-        mutate(series = NULL) %>%
-        rename(oyster = value)
-      ) %>%
-      rename(date = index) %>%
-      gather(type, spending, -date)
+
+    bike_roll <- bike_data %>% 
+      mutate(
+        bike = cumsum(bike)/as.numeric(date - as.Date("2016-06-29")),
+        oyster = cumsum(oyster)/as.numeric(date - as.Date("2016-06-29")),
+        oyster = as.numeric(
+          rollapply(data = zoo(oyster, date), width = 30, FUN = mean,
+                   fill = list(NA, NULL, NA), align = "right", partial = 3)
+        ),
+        bike = as.numeric(
+          rollapply(data = zoo(bike, date), width = 30, FUN = mean,
+                    fill = list(NA, NULL, NA), align = "right", partial = 3)
+        )) %>% 
+      pivot_longer(cols = c(bike, oyster), 
+                   values_to = "spending", names_to = "type")
+
   
     p4 <- ggplot(bike_roll) +
       geom_line(aes(x = date, y = spending, group = type, col = type),
