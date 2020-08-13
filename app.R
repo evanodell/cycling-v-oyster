@@ -116,32 +116,33 @@ bike_data_full <- read_csv("cycling_oyster_data.csv",
                              date = col_date(format = "%Y-%m-%d"))
 )
 
-bike_data_full$mon_oyster_per_day <- case_when(
-  bike_data_full$date <= "2017-01-01" ~ 124.50/30,
-  bike_data_full$date <= "2018-01-01" ~ 126.80/30,
-  bike_data_full$date <= "2019-01-01" ~ 131.00/30,
-  bike_data_full$date <= "2020-01-01" ~ 134.80/30,
-  bike_data_full$date <= "2021-01-01" ~ 138.70/30
-)
+bike_data_full <- bike_data_full %>%
+  mutate(mon_oyster_per_day = case_when(
+  date <= "2017-01-01" ~ 124.50/30,
+  date <= "2018-01-01" ~ 126.80/30,
+  date <= "2019-01-01" ~ 131.00/30,
+  date <= "2020-01-01" ~ 134.80/30,
+  date <= "2021-01-01" ~ 138.70/30
+))
 
-bike_data_full$annual_oyster_per_day <- case_when(
-  bike_data_full$date <= "2017-01-01" ~ 1296/366,
-  bike_data_full$date <= "2018-01-01" ~ 1320/365,
-  bike_data_full$date <= "2019-01-01" ~ 1364/365,
-  bike_data_full$date <= "2020-01-01" ~ 1404/365,
-  bike_data_full$date <= "2021-01-01" ~ 1444/366
-)
+bike_data_full <- bike_data_full %>%
+  mutate(annual_oyster_per_day = case_when(
+    date <= "2017-01-01" ~ 1296/366,
+    date <= "2018-01-01" ~ 1320/365,
+    date <= "2019-01-01" ~ 1364/365,
+    date <= "2020-01-01" ~ 1404/365,
+    date <= "2021-01-01" ~ 1444/366
+  ))
 
-bike_data_full$insurance <- case_when(
-  bike_data_full$date >= "2018-12-17" &
-    substr(bike_data_full$date, 9, 11) == "20" ~ 112/12,
-  bike_data_full$date >= "2018-06-18" &
-    substr(bike_data_full$date, 9, 11) == "20" ~ 101.80/12,
+bike_data_full <- bike_data_full %>%
+  mutate(insurance = case_when(
+  date >= "2020-08-17" ~ 0,
+  date >= "2018-12-17" & substr(date, 9, 11) == "17" ~ 112/12,
+  date >= "2018-06-18" & substr(date, 9, 11) == "17" ~ 101.80/12,
   TRUE ~ 0
-)
+))
 
-bike_data_full$bike <- bike_data_full$bike + 
-  bike_data_full$insurance 
+bike_data_full$bike <- bike_data_full$bike + bike_data_full$insurance 
 
 bike_data_full <- bike_data_full %>%
   gather(key=travelcard_type, value = travelcard_day,
